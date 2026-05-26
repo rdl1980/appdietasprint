@@ -10,17 +10,39 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/env";
 import { MailCheck } from "lucide-react";
 
+const loginCooldownKey = "dietaSprintLoginCooldownUntil";
+const loginCooldownMs = 60 * 1000;
+
+function translateAuthError(message: string) {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("rate limit")) {
+    return "Hai richiesto troppi link in poco tempo. Aspetta qualche minuto prima di riprovare. Per la produzione configura un SMTP personalizzato in Supabase.";
+  }
+
+  return message;
+}
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [cooldownUntil, setCooldownUntil] = useState(0);
   const configured = isSupabaseConfigured();
+  const isCoolingDown = cooldownUntil > Date.now();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setStatus("");
+
+    const storedCooldown = Number(window.localStorage.getItem(loginCooldownKey) || 0);
+    if (storedCooldown > Date.now()) {
+      setCooldownUntil(storedCooldown);
+      setError("Link gia' richiesto da poco. Attendi un minuto prima di inviarne un altro.");
+      return;
+    }
 
     if (!accepted) {
       setError("Per creare un account devi accettare privacy policy e termini.");
@@ -41,10 +63,13 @@ export function LoginForm() {
     });
 
     if (authError) {
-      setError(authError.message);
+      setError(translateAuthError(authError.message));
       return;
     }
 
+    const nextCooldown = Date.now() + loginCooldownMs;
+    window.localStorage.setItem(loginCooldownKey, String(nextCooldown));
+    setCooldownUntil(nextCooldown);
     setStatus("Controlla la tua email: ti abbiamo inviato un link di accesso.");
   }
 
@@ -93,8 +118,8 @@ export function LoginForm() {
           </label>
           {error ? <WarningBox tone="strong">{error}</WarningBox> : null}
           {status ? <WarningBox>{status}</WarningBox> : null}
-          <Button type="submit" className="w-full" disabled={!configured}>
-            Invia link di accesso
+          <Button type="submit" className="w-full" disabled={!configured || isCoolingDown}>
+            {isCoolingDown ? "Attendi prima di reinviare" : "Invia link di accesso"}
           </Button>
         </form>
       </Card>
