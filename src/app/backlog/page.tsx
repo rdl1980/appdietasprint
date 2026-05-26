@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   BarChart3,
   Bot,
+  CalendarClock,
   CheckCircle2,
   CircleDashed,
   CreditCard,
@@ -30,8 +31,7 @@ const columns = [
     tone: "bg-white",
     items: [
       { priority: "P0", title: "Privacy/GDPR definitivo", area: "Legale", icon: ShieldCheck },
-      { priority: "P0", title: "Database profili e piani", area: "Dati", icon: Database },
-      { priority: "P0", title: "Autenticazione utenti", area: "Account", icon: LockKeyhole },
+      { priority: "P0", title: "Dominio custom", area: "Brand", icon: Globe2 },
       { priority: "P1", title: "AI server-side", area: "Prodotto", icon: Bot },
       { priority: "P1", title: "Stripe subscriptions", area: "Monetizzazione", icon: CreditCard },
       { priority: "P2", title: "Coach anti-fame reale", area: "Engagement", icon: Sparkles },
@@ -42,10 +42,10 @@ const columns = [
     tone: "bg-mint",
     items: [
       { priority: "P0", title: "Deploy Vercel", area: "Go-live", icon: Rocket },
-      { priority: "P0", title: "Dominio custom", area: "Brand", icon: Globe2 },
+      { priority: "P0", title: "Creare progetto Supabase", area: "Dati", icon: Database },
+      { priority: "P0", title: "Attivare Supabase Auth", area: "Account", icon: LockKeyhole },
       { priority: "P1", title: "Analytics privacy-first", area: "Misura", icon: BarChart3 },
       { priority: "P1", title: "Error tracking", area: "Qualita", icon: AlertTriangle },
-      { priority: "P1", title: "QA mobile", area: "Esperienza", icon: TestTube2 },
     ],
   },
   {
@@ -58,7 +58,33 @@ const columns = [
       { priority: "OK", title: "Lista spesa", area: "Core", icon: CheckCircle2 },
       { priority: "OK", title: "Pagine legali MVP", area: "Legale", icon: CheckCircle2 },
       { priority: "OK", title: "Build Next valida", area: "Tech", icon: CheckCircle2 },
+      { priority: "OK", title: "Health check /api/health", area: "Deploy", icon: CheckCircle2 },
+      { priority: "OK", title: "Schema Supabase con RLS", area: "Dati", icon: CheckCircle2 },
+      { priority: "OK", title: "Scaffold account", area: "Account", icon: CheckCircle2 },
     ],
+  },
+];
+
+const nextActions = [
+  {
+    title: "Collegare Vercel al repo",
+    detail: "Importare rdl1980/appdietasprint, usare npm run build e pubblicare la demo.",
+    owner: "Tech",
+  },
+  {
+    title: "Creare Supabase",
+    detail: "Eseguire supabase/schema.sql, copiare URL e anon key nelle variabili ambiente.",
+    owner: "Tech",
+  },
+  {
+    title: "Compilare dati legali reali",
+    detail: "Titolare, email, fornitori, basi giuridiche, retention e revisione GDPR.",
+    owner: "Legale",
+  },
+  {
+    title: "Scegliere dominio",
+    detail: "Acquistare dominio, collegarlo a Vercel e aggiornare NEXT_PUBLIC_SITE_URL.",
+    owner: "Business",
   },
 ];
 
@@ -105,15 +131,19 @@ export default function BacklogPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <section className="mb-8">
           <p className="mb-3 inline-flex rounded-full bg-mint px-4 py-2 text-sm font-bold text-leaf">
-            Roadmap produzione
+            Roadmap produzione aggiornata
           </p>
           <h1 className="max-w-4xl text-3xl font-black leading-tight text-ink sm:text-5xl">
             Backlog visuale per trasformare DietaSprint AI in una vera app pubblica.
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-ink/65">
-            Una board operativa per decidere cosa fare prima: go-live demo, fondamenta dati,
-            AI reale, pagamenti e qualita da prodotto.
+            Aggiornato dopo l'indirizzamento P0: le fondamenta tecniche per account, database,
+            health check e deploy sono pronte; restano da collegare servizi esterni e dati legali reali.
           </p>
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-ink shadow-sm ring-1 ring-ink/10">
+            <CalendarClock className="h-4 w-4 text-leaf" aria-hidden="true" />
+            Ultimo aggiornamento: P0 technical readiness
+          </div>
         </section>
 
         <section className="grid gap-4 lg:grid-cols-3">
@@ -181,17 +211,13 @@ export default function BacklogPage() {
 
         <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
           <Card>
-            <h2 className="text-2xl font-black text-ink">Milestone</h2>
-            <div className="mt-5 space-y-4">
-              {milestones.map((milestone) => (
-                <div key={milestone.step} className="grid gap-3 rounded-[8px] border border-ink/10 bg-cream p-4 sm:grid-cols-[48px_1fr]">
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-leaf text-lg font-black text-white">
-                    {milestone.step}
-                  </span>
-                  <div>
-                    <h3 className="text-lg font-black text-ink">{milestone.title}</h3>
-                    <p className="mt-1 text-sm leading-6 text-ink/65">{milestone.text}</p>
-                  </div>
+            <h2 className="text-2xl font-black text-ink">Next actions P0</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {nextActions.map((action) => (
+                <div key={action.title} className="rounded-[8px] border border-ink/10 bg-cream p-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-leaf">{action.owner}</p>
+                  <h3 className="mt-2 text-base font-black text-ink">{action.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink/65">{action.detail}</p>
                 </div>
               ))}
             </div>
@@ -215,6 +241,25 @@ export default function BacklogPage() {
                 </li>
               ))}
             </ul>
+          </Card>
+        </section>
+
+        <section className="mt-8">
+          <Card>
+            <h2 className="text-2xl font-black text-ink">Milestone</h2>
+            <div className="mt-5 space-y-4">
+              {milestones.map((milestone) => (
+                <div key={milestone.step} className="grid gap-3 rounded-[8px] border border-ink/10 bg-cream p-4 sm:grid-cols-[48px_1fr]">
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-leaf text-lg font-black text-white">
+                    {milestone.step}
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-black text-ink">{milestone.title}</h3>
+                    <p className="mt-1 text-sm leading-6 text-ink/65">{milestone.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </Card>
         </section>
       </main>
