@@ -60,7 +60,9 @@ const columns = [
       { priority: "OK", title: "Build Next valida", area: "Tech", icon: CheckCircle2 },
       { priority: "OK", title: "Health check /api/health", area: "Deploy", icon: CheckCircle2 },
       { priority: "OK", title: "Schema Supabase con RLS", area: "Dati", icon: CheckCircle2 },
-      { priority: "OK", title: "Scaffold account", area: "Account", icon: CheckCircle2 },
+      { priority: "OK", title: "Auth magic link Supabase", area: "Account", icon: CheckCircle2 },
+      { priority: "OK", title: "API salvataggio piani", area: "Dati", icon: CheckCircle2 },
+      { priority: "OK", title: "Registro richieste GDPR", area: "Legale", icon: CheckCircle2 },
     ],
   },
 ];
@@ -73,7 +75,7 @@ const nextActions = [
   },
   {
     title: "Creare Supabase",
-    detail: "Eseguire supabase/schema.sql, copiare URL e anon key nelle variabili ambiente.",
+    detail: "Eseguire supabase/schema.sql, copiare URL e anon key, poi provare login e salvataggio.",
     owner: "Tech",
   },
   {

@@ -31,27 +31,27 @@ export function getP0Readiness(): ReadinessItem[] {
     {
       id: "privacy-gdpr",
       title: "Privacy/GDPR definitivo",
-      status: "blocked",
+      status: "ready",
       owner: "Legale",
-      detail: "Le pagine MVP esistono. Serve titolare, email, fornitori reali, basi giuridiche e revisione legale.",
+      detail: "Pagine legali, registro consensi e richieste privacy sono pronti. Serve revisione legale con dati reali.",
     },
     {
       id: "auth",
       title: "Autenticazione utenti",
-      status: supabaseReady ? "ready" : "blocked",
+      status: supabaseReady ? "done" : "ready",
       owner: "Tech",
       detail: supabaseReady
-        ? "Variabili Supabase presenti: si puo' attivare il flusso login."
-        : "Scaffold Supabase presente. Mancano NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+        ? "Login magic link Supabase attivo."
+        : "Login magic link, callback e logout implementati. Mancano le variabili Supabase per attivarli.",
     },
     {
       id: "database",
       title: "Database profili e piani",
-      status: supabaseReady ? "ready" : "blocked",
+      status: supabaseReady ? "done" : "ready",
       owner: "Tech",
       detail: supabaseReady
-        ? "Schema SQL pronto da applicare in Supabase."
-        : "Schema SQL pronto, ma serve un progetto Supabase configurato.",
+        ? "API salvataggio profili/piani pronta con sessione utente."
+        : "Schema SQL, RLS e API salvataggio implementati. Serve creare Supabase ed eseguire lo schema.",
     },
   ];
 }

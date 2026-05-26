@@ -5,6 +5,7 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { GroceryList } from "@/components/GroceryList";
 import { MealCard } from "@/components/MealCard";
+import { SavePlanButton } from "@/components/SavePlanButton";
 import { WarningBox } from "@/components/WarningBox";
 import { disclaimerText } from "@/components/DisclaimerText";
 import { generateMealPlan } from "@/lib/generateMealPlan";
@@ -188,6 +189,18 @@ export function ResultsClient() {
 
       <section className="mb-8">
         <GroceryList items={plan.groceryList} />
+      </section>
+
+      <section className="mb-8">
+        <Card>
+          <h2 className="text-xl font-black text-ink">Salva nel tuo account</h2>
+          <p className="mt-2 text-sm leading-6 text-ink/65">
+            Con Supabase configurato puoi salvare profilo, piano settimanale e lista spesa in modo persistente.
+          </p>
+          <div className="mt-5">
+            <SavePlanButton profile={profile} plan={plan} />
+          </div>
+        </Card>
       </section>
 
       <WarningBox>{disclaimerText}</WarningBox>

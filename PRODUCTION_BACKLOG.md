@@ -9,9 +9,10 @@ Portare DietaSprint AI da MVP demo a prodotto pubblico affidabile, sicuro e mone
 P0 technical readiness completata:
 - health endpoint `/api/health`;
 - `.env.example` per Vercel/Supabase;
-- scaffold Supabase client/server;
-- schema `supabase/schema.sql` con RLS;
-- pagina `/account` per stato account/database;
+- auth Supabase magic link con `/login`, callback e logout;
+- API `/api/plans` per salvare profilo e piano;
+- schema `supabase/schema.sql` con RLS, consensi e richieste GDPR;
+- pagina `/account` per stato account/database e `/account/privacy` per richieste GDPR;
 - board `/backlog` con stati P0.
 
 ## Vista rapida
@@ -37,7 +38,7 @@ flowchart LR
 | P1 | Stripe subscriptions | Email contatto/supporto | Audit npm pulito |
 | P1 | Export PDF reale | QA mobile | Build Next valida |
 | P2 | Coach anti-fame reale | Copy conversione | Repo GitHub |
-| P2 | Area famiglia | SEO base | Health check e schema Supabase |
+| P2 | Area famiglia | SEO base | Auth/API/health/schema Supabase |
 
 ## P0 indirizzati ora
 
@@ -45,9 +46,9 @@ flowchart LR
 | --- | --- | --- | --- |
 | Deploy Vercel | Pronto | Build valida, package-lock, health endpoint `/api/health`, `.env.example`. | Collegare Vercel al repo e impostare variabili ambiente. |
 | Dominio custom | Bloccato | App pronta a ricevere `NEXT_PUBLIC_SITE_URL`. | Scegliere/acquistare dominio e configurare DNS. |
-| Privacy/GDPR definitivo | Bloccato | Pagine legali MVP e checklist operative. | Titolare, email ufficiale, fornitori, basi giuridiche e revisione legale. |
-| Autenticazione | Pronto tecnico | Scaffold Supabase, pagina `/account`, env config. | Creare progetto Supabase e provider Auth. |
-| Database profili e piani | Pronto tecnico | Schema `supabase/schema.sql` con RLS per profili e piani. | Eseguire schema in Supabase e collegare salvataggio dai risultati. |
+| Privacy/GDPR definitivo | Pronto tecnico | Pagine legali, registro consensi e richieste GDPR. | Titolare, email ufficiale, fornitori, basi giuridiche e revisione legale. |
+| Autenticazione | Pronto tecnico | `/login`, `/auth/callback`, `/auth/logout`, magic link Supabase. | Creare progetto Supabase e provider Auth. |
+| Database profili e piani | Pronto tecnico | Schema RLS e API `/api/plans`; salvataggio dal risultato generato. | Eseguire schema in Supabase e impostare env. |
 
 ## Next actions P0
 
@@ -55,8 +56,9 @@ flowchart LR
 2. Creare progetto Supabase.
 3. Eseguire `supabase/schema.sql` nel SQL editor Supabase.
 4. Impostare su Vercel `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL`.
-5. Scegliere/acquistare dominio e configurare DNS su Vercel.
-6. Inserire dati legali reali e far revisionare privacy/termini/disclaimer.
+5. Testare login magic link, salvataggio piano e richieste privacy.
+6. Scegliere/acquistare dominio e configurare DNS su Vercel.
+7. Inserire dati legali reali e far revisionare privacy/termini/disclaimer/GDPR.
 
 ## Milestone
 
