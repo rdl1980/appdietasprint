@@ -20,6 +20,14 @@ function translateAuthError(message: string) {
     return "Hai richiesto troppi link in poco tempo. Aspetta qualche minuto prima di riprovare. Per la produzione configura un SMTP personalizzato in Supabase.";
   }
 
+  if (normalized.includes("error sending magic link email")) {
+    return "Supabase non riesce a inviare l'email di accesso. Controlla in Supabase Auth che SMTP Resend sia attivo, che host/porta/utente/password siano corretti e che l'indirizzo mittente usi un dominio verificato in Resend.";
+  }
+
+  if (normalized.includes("email address not authorized")) {
+    return "Questa email non e' autorizzata dal servizio email di test di Supabase. Attiva SMTP personalizzato oppure aggiungi l'email al team del progetto Supabase.";
+  }
+
   return message;
 }
 
