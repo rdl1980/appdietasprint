@@ -18,6 +18,9 @@ export function Header() {
           <Link href="/legal/disclaimer" className="hover:text-ink">
             Disclaimer
           </Link>
+          <Link href="/legal/privacy" className="hover:text-ink">
+            Privacy
+          </Link>
         </nav>
         <Button href="/planner" size="sm">
           Inizia
