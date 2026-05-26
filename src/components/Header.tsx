@@ -12,6 +12,9 @@ export function Header() {
           <Link href="/planner" className="hover:text-ink">
             Planner
           </Link>
+          <Link href="/account" className="hover:text-ink">
+            Account
+          </Link>
           <Link href="/pricing" className="hover:text-ink">
             Prezzi
           </Link>

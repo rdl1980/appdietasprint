@@ -5,6 +5,7 @@ import {
   BarChart3,
   Bot,
   CheckCircle2,
+  CircleDashed,
   CreditCard,
   Database,
   Globe2,
@@ -15,6 +16,13 @@ import {
   TestTube2,
   Users,
 } from "lucide-react";
+import { getP0Readiness, ReadinessStatus } from "@/lib/productionReadiness";
+
+const statusCopy: Record<ReadinessStatus, { label: string; className: string }> = {
+  done: { label: "Fatto", className: "bg-leaf text-white" },
+  ready: { label: "Pronto", className: "bg-lemon/70 text-ink" },
+  blocked: { label: "Bloccato", className: "bg-coral/15 text-coral" },
+};
 
 const columns = [
   {
@@ -89,6 +97,8 @@ const readiness = [
 ];
 
 export default function BacklogPage() {
+  const p0Readiness = getP0Readiness();
+
   return (
     <>
       <Header />
@@ -139,6 +149,36 @@ export default function BacklogPage() {
           ))}
         </section>
 
+        <section className="mt-8">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-black text-ink">P0 indirizzati</h2>
+              <p className="mt-1 text-sm text-ink/60">
+                Cosa e' stato preparato ora e cosa resta bloccato da account esterni o decisioni business.
+              </p>
+            </div>
+            <ButtonLink />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            {p0Readiness.map((item) => {
+              const status = statusCopy[item.status];
+              return (
+                <article key={item.id} className="rounded-[8px] border border-ink/10 bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className={`rounded-full px-3 py-1 text-xs font-black ${status.className}`}>
+                      {status.label}
+                    </span>
+                    <CircleDashed className="h-5 w-5 text-ink/35" aria-hidden="true" />
+                  </div>
+                  <p className="mt-4 text-xs font-bold uppercase tracking-[0.12em] text-ink/45">{item.owner}</p>
+                  <h3 className="mt-1 text-base font-black text-ink">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink/65">{item.detail}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
         <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
           <Card>
             <h2 className="text-2xl font-black text-ink">Milestone</h2>
@@ -179,5 +219,16 @@ export default function BacklogPage() {
         </section>
       </main>
     </>
+  );
+}
+
+function ButtonLink() {
+  return (
+    <a
+      href="/account"
+      className="inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-bold text-ink shadow-sm ring-1 ring-ink/10 transition hover:bg-mint"
+    >
+      Apri account P0
+    </a>
   );
 }

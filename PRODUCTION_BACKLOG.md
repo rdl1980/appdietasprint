@@ -29,6 +29,16 @@ flowchart LR
 | P2 | Coach anti-fame reale | Copy conversione | Repo GitHub |
 | P2 | Area famiglia | SEO base |  |
 
+## P0 indirizzati ora
+
+| P0 | Stato | Cosa e' stato fatto | Cosa manca |
+| --- | --- | --- | --- |
+| Deploy Vercel | Pronto | Build valida, package-lock, health endpoint `/api/health`, `.env.example`. | Collegare Vercel al repo e impostare variabili ambiente. |
+| Dominio custom | Bloccato | App pronta a ricevere `NEXT_PUBLIC_SITE_URL`. | Scegliere/acquistare dominio e configurare DNS. |
+| Privacy/GDPR definitivo | Bloccato | Pagine legali MVP e checklist operative. | Titolare, email ufficiale, fornitori, basi giuridiche e revisione legale. |
+| Autenticazione | Pronto tecnico | Scaffold Supabase, pagina `/account`, env config. | Creare progetto Supabase e provider Auth. |
+| Database profili e piani | Pronto tecnico | Schema `supabase/schema.sql` con RLS per profili e piani. | Eseguire schema in Supabase e collegare salvataggio dai risultati. |
+
 ## Milestone
 
 ### 1. Go-live demo
