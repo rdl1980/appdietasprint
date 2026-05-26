@@ -33,7 +33,7 @@ export function getP0Readiness(): ReadinessItem[] {
       title: "Privacy/GDPR definitivo",
       status: "ready",
       owner: "Legale",
-      detail: "Pagine legali, registro consensi e richieste privacy sono pronti. Serve revisione legale con dati reali.",
+      detail: "Pacchetto revisione, registro trattamenti, pagine legali e richieste privacy sono pronti. Serve validazione professionale con dati reali.",
     },
     {
       id: "auth",

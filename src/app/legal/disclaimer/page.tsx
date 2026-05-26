@@ -29,6 +29,13 @@ export default function DisclaimerPage() {
             e non raccomanda diete molto restrittive come soluzione generale.
           </p>
         </Card>
+        <Card className="mt-4">
+          <h2 className="text-xl font-black text-ink">Quando non usarlo senza supporto professionale</h2>
+          <p className="mt-3 leading-7 text-ink/70">
+            Non usare DietaSprint AI come guida autonoma in caso di gravidanza, allattamento, diabete, patologie,
+            disturbi alimentari, uso di farmaci, eta minore di 18 anni o dieta molto restrittiva.
+          </p>
+        </Card>
       </main>
     </>
   );

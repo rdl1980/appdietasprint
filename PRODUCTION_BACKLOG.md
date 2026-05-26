@@ -13,6 +13,7 @@ P0 technical readiness completata:
 - API `/api/plans` per salvare profilo e piano;
 - schema `supabase/schema.sql` con RLS, consensi e richieste GDPR;
 - pagina `/account` per stato account/database e `/account/privacy` per richieste GDPR;
+- `LEGAL_REVIEW_PACKET.md` con registro trattamenti, campi legali mancanti e checklist consulente;
 - board `/backlog` con stati P0.
 
 ## Vista rapida
@@ -46,7 +47,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | Deploy Vercel | Pronto | Build valida, package-lock, health endpoint `/api/health`, `.env.example`. | Collegare Vercel al repo e impostare variabili ambiente. |
 | Dominio custom | Bloccato | App pronta a ricevere `NEXT_PUBLIC_SITE_URL`. | Scegliere/acquistare dominio e configurare DNS. |
-| Privacy/GDPR definitivo | Pronto tecnico | Pagine legali, registro consensi e richieste GDPR. | Titolare, email ufficiale, fornitori, basi giuridiche e revisione legale. |
+| Privacy/GDPR definitivo | Pronto per review | Pagine legali, registro consensi, richieste GDPR, legal review packet. | Titolare, email ufficiale, fornitori, basi giuridiche e validazione professionale. |
 | Autenticazione | Pronto tecnico | `/login`, `/auth/callback`, `/auth/logout`, magic link Supabase. | Creare progetto Supabase e provider Auth. |
 | Database profili e piani | Pronto tecnico | Schema RLS e API `/api/plans`; salvataggio dal risultato generato. | Eseguire schema in Supabase e impostare env. |
 
@@ -58,7 +59,7 @@ flowchart LR
 4. Impostare su Vercel `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL`.
 5. Testare login magic link, salvataggio piano e richieste privacy.
 6. Scegliere/acquistare dominio e configurare DNS su Vercel.
-7. Inserire dati legali reali e far revisionare privacy/termini/disclaimer/GDPR.
+7. Inserire dati legali reali e far revisionare privacy/termini/disclaimer/GDPR usando `LEGAL_REVIEW_PACKET.md`.
 
 ## Milestone
 
