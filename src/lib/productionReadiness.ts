@@ -41,8 +41,8 @@ export function getP0Readiness(): ReadinessItem[] {
       status: supabaseReady ? "done" : "ready",
       owner: "Tech",
       detail: supabaseReady
-        ? "Login magic link Supabase attivo."
-        : "Login magic link, callback e logout implementati. Mancano le variabili Supabase per attivarli.",
+        ? "Login email/password, registrazione e logout attivi."
+        : "Login email/password, registrazione, recupero password e logout implementati. Mancano le variabili Supabase per attivarli.",
     },
     {
       id: "database",

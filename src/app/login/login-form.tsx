@@ -8,24 +8,21 @@ import { Input } from "@/components/Input";
 import { WarningBox } from "@/components/WarningBox";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/env";
-import { MailCheck } from "lucide-react";
-
-const loginCooldownKey = "dietaSprintLoginCooldownUntil";
-const loginCooldownMs = 60 * 1000;
+import { LogIn } from "lucide-react";
 
 function translateAuthError(message: string) {
   const normalized = message.toLowerCase();
 
-  if (normalized.includes("rate limit")) {
-    return "Hai richiesto troppi link in poco tempo. Aspetta qualche minuto prima di riprovare. Per la produzione configura un SMTP personalizzato in Supabase.";
+  if (normalized.includes("invalid login credentials")) {
+    return "Email o password non corretti.";
   }
 
-  if (normalized.includes("error sending magic link email")) {
-    return "Supabase non riesce a inviare l'email di accesso. Controlla in Supabase Auth che SMTP Resend sia attivo, che host/porta/utente/password siano corretti e che l'indirizzo mittente usi un dominio verificato in Resend.";
+  if (normalized.includes("email not confirmed")) {
+    return "Email non confermata. Controlla la posta e completa la registrazione.";
   }
 
-  if (normalized.includes("email address not authorized")) {
-    return "Questa email non e' autorizzata dal servizio email di test di Supabase. Attiva SMTP personalizzato oppure aggiungi l'email al team del progetto Supabase.";
+  if (normalized.includes("too many requests") || normalized.includes("rate limit")) {
+    return "Troppi tentativi in poco tempo. Aspetta qualche minuto prima di riprovare.";
   }
 
   return message;
@@ -33,12 +30,11 @@ function translateAuthError(message: string) {
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
-  const [accepted, setAccepted] = useState(false);
+  const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
-  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const configured = isSupabaseConfigured();
-  const isCoolingDown = cooldownUntil > Date.now();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -51,47 +47,37 @@ export function LoginForm() {
     if (authError === "supabase_not_configured") {
       setError("Supabase non e' ancora configurato.");
     }
+
+    if (params.get("registered") === "1") {
+      setStatus("Registrazione avviata. Se Supabase richiede conferma email, completa il passaggio dalla tua casella di posta.");
+    }
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setStatus("");
-
-    const storedCooldown = Number(window.localStorage.getItem(loginCooldownKey) || 0);
-    if (storedCooldown > Date.now()) {
-      setCooldownUntil(storedCooldown);
-      setError("Link gia' richiesto da poco. Attendi un minuto prima di inviarne un altro.");
-      return;
-    }
-
-    if (!accepted) {
-      setError("Per creare un account devi accettare privacy policy e termini.");
-      return;
-    }
+    setIsSubmitting(true);
 
     const supabase = createSupabaseBrowserClient();
     if (!supabase) {
       setError("Supabase non e' ancora configurato.");
+      setIsSubmitting(false);
       return;
     }
 
-    const { error: authError } = await supabase.auth.signInWithOtp({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
-      },
+      password,
     });
 
     if (authError) {
       setError(translateAuthError(authError.message));
+      setIsSubmitting(false);
       return;
     }
 
-    const nextCooldown = Date.now() + loginCooldownMs;
-    window.localStorage.setItem(loginCooldownKey, String(nextCooldown));
-    setCooldownUntil(nextCooldown);
-    setStatus("Controlla la tua email: ti abbiamo inviato un link di accesso.");
+    window.location.replace("/account");
   }
 
   return (
@@ -99,11 +85,11 @@ export function LoginForm() {
       <Card>
         <div className="mb-6 flex items-center gap-3">
           <span className="grid h-12 w-12 place-items-center rounded-full bg-mint text-leaf">
-            <MailCheck size={22} aria-hidden="true" />
+            <LogIn size={22} aria-hidden="true" />
           </span>
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.12em] text-leaf">Accesso</p>
-            <h1 className="text-2xl font-black text-ink">Entra con email</h1>
+            <h1 className="text-2xl font-black text-ink">Accedi al tuo account</h1>
           </div>
         </div>
 
@@ -124,25 +110,33 @@ export function LoginForm() {
             onChange={(event) => setEmail(event.target.value)}
             placeholder="nome@email.it"
           />
-          <label className="flex items-start gap-3 rounded-[8px] border border-ink/10 bg-cream p-4 text-sm leading-6 text-ink/70">
-            <input
-              type="checkbox"
-              checked={accepted}
-              onChange={(event) => setAccepted(event.target.checked)}
-              className="mt-1 h-4 w-4 accent-leaf"
-            />
-            <span>
-              Accetto <Link className="font-bold text-leaf" href="/legal/privacy">privacy policy</Link>,{" "}
-              <Link className="font-bold text-leaf" href="/legal/terms">termini</Link> e trattamento dei dati
-              necessari a salvare profili alimentari e piani.
-            </span>
-          </label>
+          <Input
+            label="Password"
+            type="password"
+            required
+            minLength={8}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="La tua password"
+          />
           {error ? <WarningBox tone="strong">{error}</WarningBox> : null}
           {status ? <WarningBox>{status}</WarningBox> : null}
-          <Button type="submit" className="w-full" disabled={!configured || isCoolingDown}>
-            {isCoolingDown ? "Attendi prima di reinviare" : "Invia link di accesso"}
+          <Button type="submit" className="w-full" disabled={!configured || isSubmitting}>
+            {isSubmitting ? "Accesso in corso" : "Accedi"}
           </Button>
         </form>
+
+        <div className="mt-5 flex flex-col gap-2 text-sm text-ink/65 sm:flex-row sm:items-center sm:justify-between">
+          <Link className="font-bold text-leaf hover:text-ink" href="/forgot-password">
+            Password dimenticata?
+          </Link>
+          <span>
+            Non hai un account?{" "}
+            <Link className="font-bold text-leaf hover:text-ink" href="/register">
+              Registrati
+            </Link>
+          </span>
+        </div>
       </Card>
     </main>
   );

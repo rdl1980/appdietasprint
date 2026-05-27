@@ -18,6 +18,9 @@ export function Header() {
           <Link href="/login" className="hover:text-ink">
             Login
           </Link>
+          <Link href="/register" className="hover:text-ink">
+            Registrati
+          </Link>
           <Link href="/pricing" className="hover:text-ink">
             Prezzi
           </Link>

@@ -2,175 +2,254 @@ import { Header } from "@/components/Header";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { WarningBox } from "@/components/WarningBox";
-import { getP0Readiness } from "@/lib/productionReadiness";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { CalendarDays, CheckCircle2, LockKeyhole, ShieldAlert } from "lucide-react";
+import { CalendarDays, KeyRound, ListChecks, LockKeyhole, Plus, ShieldCheck, UserRound } from "lucide-react";
+
+type ProfileRow = {
+  id: string;
+  diet_type: string;
+  target_calories: number | null;
+  meals_per_day: number;
+  created_at: string;
+};
+
+type PlanRow = {
+  id: string;
+  daily_calories: number;
+  warnings: string[] | null;
+  created_at: string;
+};
+
+const dietLabels: Record<string, string> = {
+  ketogenic: "Chetogenica",
+  mediterranean: "Mediterranea",
+  lowCarb: "Low carb",
+  balanced: "Bilanciata ipocalorica",
+  vegetarian: "Vegetariana",
+};
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("it-IT", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default async function AccountPage() {
   const supabaseConfigured = isSupabaseConfigured();
-  const readiness = getP0Readiness().filter((item) => item.id === "auth" || item.id === "database");
   const supabase = await createSupabaseServerClient();
   const { data: userResult } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
   const user = userResult.user;
+
   const { data: profiles } =
     supabase && user
       ? await supabase
           .from("user_profiles")
           .select("id,diet_type,target_calories,meals_per_day,created_at")
           .order("created_at", { ascending: false })
-          .limit(5)
-      : { data: [] };
+          .limit(4)
+      : { data: [] as ProfileRow[] };
+
   const { data: plans } =
     supabase && user
       ? await supabase
           .from("meal_plans")
           .select("id,daily_calories,warnings,created_at")
           .order("created_at", { ascending: false })
-          .limit(5)
-      : { data: [] };
+          .limit(4)
+      : { data: [] as PlanRow[] };
+
+  const latestProfile = profiles?.[0] as ProfileRow | undefined;
+  const latestPlan = plans?.[0] as PlanRow | undefined;
 
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-        <p className="mb-3 inline-flex rounded-full bg-mint px-4 py-2 text-sm font-bold text-leaf">
-          Account P0
-        </p>
-        <h1 className="max-w-3xl text-3xl font-black leading-tight text-ink sm:text-5xl">
-          Area account pronta per il collegamento a Supabase.
-        </h1>
-        <p className="mt-4 max-w-3xl leading-7 text-ink/65">
-          Questa pagina e' il punto di ingresso per login, profili salvati e piani persistenti.
-          Nella demo resta disattivata finche' non sono configurate le variabili ambiente.
-        </p>
-
-        <div className="mt-6">
-          {supabaseConfigured ? (
-            <WarningBox>
-              Supabase e' configurato. Puoi usare login magic link e salvare profili/piani dal risultato generato.
-            </WarningBox>
-          ) : (
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        {!supabaseConfigured ? (
+          <div className="mb-6">
             <WarningBox tone="strong">
-              Mancano le variabili Supabase. Configura NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY
-              su Vercel e nel file locale `.env.local`.
+              Account non disponibile: mancano le variabili Supabase nell'ambiente di produzione.
             </WarningBox>
-          )}
-        </div>
+          </div>
+        ) : null}
 
-        <Card className="mt-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-leaf">Sessione</p>
-              <h2 className="mt-1 text-xl font-black text-ink">
-                {user ? user.email || "Utente autenticato" : "Nessun utente autenticato"}
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-ink/65">
-                {user
-                  ? "I nuovi piani salvati appariranno qui."
-                  : "Accedi per salvare profilo alimentare, piano settimanale e lista spesa."}
-              </p>
+        {!user ? (
+          <section className="mx-auto max-w-3xl py-10 text-center">
+            <p className="mx-auto mb-4 inline-flex rounded-full bg-mint px-4 py-2 text-sm font-bold text-leaf">
+              Area personale
+            </p>
+            <h1 className="text-3xl font-black leading-tight text-ink sm:text-5xl">
+              Accedi per salvare e ritrovare i tuoi piani.
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl leading-7 text-ink/65">
+              Con un account puoi conservare profili alimentari, piani settimanali e liste spesa in modo persistente.
+            </p>
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button href="/login">Accedi</Button>
+              <Button href="/register" variant="secondary">Crea account</Button>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              {user ? (
+          </section>
+        ) : (
+          <>
+            <section className="flex flex-col gap-5 rounded-[8px] border border-ink/10 bg-white p-5 shadow-soft sm:p-7 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-start gap-4">
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-mint text-leaf">
+                  <UserRound size={26} aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-sm font-bold uppercase tracking-[0.12em] text-leaf">Account</p>
+                  <h1 className="mt-1 text-2xl font-black text-ink sm:text-4xl">
+                    Ciao, {user.email}
+                  </h1>
+                  <p className="mt-2 text-sm leading-6 text-ink/65">
+                    Gestisci piani, profili alimentari, privacy e sicurezza del tuo account.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button href="/planner">
+                  <Plus size={18} aria-hidden="true" />
+                  Nuovo piano
+                </Button>
                 <Button href="/auth/logout" variant="secondary">
                   Esci
                 </Button>
-              ) : (
-                <Button href="/login">
-                  Vai al login
-                </Button>
-              )}
-              <Button href="/planner" variant="secondary">
-                Crea piano
-              </Button>
-              <Button href="/account/privacy" variant="secondary">
-                Privacy
-              </Button>
-            </div>
-          </div>
-        </Card>
-
-        {user ? (
-          <section className="mt-6 grid gap-4 lg:grid-cols-2">
-            <Card>
-              <h2 className="text-xl font-black text-ink">Profili recenti</h2>
-              <div className="mt-4 space-y-3">
-                {profiles?.length ? (
-                  profiles.map((profile) => (
-                    <div key={profile.id} className="rounded-[8px] bg-cream p-3 text-sm text-ink/70">
-                      <p className="font-bold text-ink">{profile.diet_type}</p>
-                      <p>
-                        {profile.meals_per_day} pasti - {profile.target_calories || "calorie suggerite"} kcal
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-ink/60">Nessun profilo salvato.</p>
-                )}
               </div>
-            </Card>
-            <Card>
-              <h2 className="text-xl font-black text-ink">Piani salvati</h2>
-              <div className="mt-4 space-y-3">
-                {plans?.length ? (
-                  plans.map((plan) => (
-                    <div key={plan.id} className="flex items-start gap-3 rounded-[8px] bg-cream p-3 text-sm text-ink/70">
-                      <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />
-                      <div>
-                        <p className="font-bold text-ink">{plan.daily_calories} kcal</p>
-                        <p>{new Date(plan.created_at).toLocaleDateString("it-IT")}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-ink/60">Nessun piano salvato.</p>
-                )}
-              </div>
-            </Card>
-          </section>
-        ) : null}
+            </section>
 
-        <section className="mt-6 grid gap-4 md:grid-cols-2">
-          {readiness.map((item) => (
-            <Card key={item.id}>
-              <div className="flex items-start gap-3">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-mint text-leaf">
-                  {item.status === "ready" ? (
-                    <CheckCircle2 size={20} aria-hidden="true" />
-                  ) : (
-                    <ShieldAlert size={20} aria-hidden="true" />
-                  )}
-                </span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-ink/45">{item.owner}</p>
-                  <h2 className="mt-1 text-xl font-black text-ink">{item.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-ink/65">{item.detail}</p>
+            <section className="mt-5 grid gap-4 md:grid-cols-3">
+              <Card>
+                <div className="flex items-center gap-3">
+                  <CalendarDays className="h-5 w-5 text-leaf" aria-hidden="true" />
+                  <h2 className="text-lg font-black text-ink">Ultimo piano</h2>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </section>
+                <p className="mt-3 text-3xl font-black text-ink">
+                  {latestPlan ? `${latestPlan.daily_calories} kcal` : "--"}
+                </p>
+                <p className="mt-1 text-sm text-ink/60">
+                  {latestPlan ? formatDate(latestPlan.created_at) : "Crea il primo piano dal planner."}
+                </p>
+              </Card>
+              <Card>
+                <div className="flex items-center gap-3">
+                  <ListChecks className="h-5 w-5 text-leaf" aria-hidden="true" />
+                  <h2 className="text-lg font-black text-ink">Profilo attivo</h2>
+                </div>
+                <p className="mt-3 text-2xl font-black text-ink">
+                  {latestProfile ? dietLabels[latestProfile.diet_type] || latestProfile.diet_type : "Non salvato"}
+                </p>
+                <p className="mt-1 text-sm text-ink/60">
+                  {latestProfile
+                    ? `${latestProfile.meals_per_day} pasti al giorno`
+                    : "Salva un piano per creare il profilo."}
+                </p>
+              </Card>
+              <Card>
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="h-5 w-5 text-leaf" aria-hidden="true" />
+                  <h2 className="text-lg font-black text-ink">Privacy</h2>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-ink/65">
+                  Richieste GDPR, consensi e dati personali restano accessibili dalla tua area.
+                </p>
+                <Button href="/account/privacy" variant="secondary" size="sm" className="mt-4">
+                  Gestisci privacy
+                </Button>
+              </Card>
+            </section>
 
-        <Card className="mt-6">
-          <div className="flex items-start gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-leaf text-white">
-              <LockKeyhole size={20} aria-hidden="true" />
-            </span>
-            <div>
-              <h2 className="text-xl font-black text-ink">Setup richiesto</h2>
-              <ol className="mt-3 space-y-2 text-sm leading-6 text-ink/70">
-                <li>1. Crea un progetto Supabase.</li>
-                <li>2. Esegui `supabase/schema.sql` nel SQL editor.</li>
-                <li>3. Copia URL e anon key in `.env.local` e su Vercel.</li>
-                <li>4. Attiva provider email o OAuth in Supabase Auth.</li>
-              </ol>
-              <Button href="/backlog" variant="secondary" className="mt-5">
-                Torna al backlog
-              </Button>
-            </div>
-          </div>
-        </Card>
+            <section className="mt-5 grid gap-4 lg:grid-cols-2">
+              <Card>
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-xl font-black text-ink">Piani salvati</h2>
+                  <Button href="/planner" variant="secondary" size="sm">Crea</Button>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {plans?.length ? (
+                    plans.map((plan) => (
+                      <div key={plan.id} className="rounded-[8px] border border-ink/10 bg-cream p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-black text-ink">{plan.daily_calories} kcal giornaliere</p>
+                            <p className="mt-1 text-sm text-ink/60">{formatDate(plan.created_at)}</p>
+                          </div>
+                          <CalendarDays className="h-5 w-5 shrink-0 text-leaf" aria-hidden="true" />
+                        </div>
+                        {plan.warnings?.length ? (
+                          <p className="mt-2 text-xs font-semibold text-coral">
+                            {plan.warnings.length} avviso calorie/sicurezza
+                          </p>
+                        ) : null}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="rounded-[8px] bg-cream p-4 text-sm text-ink/60">
+                      Nessun piano salvato. Genera un piano dal planner e salvalo nei risultati.
+                    </p>
+                  )}
+                </div>
+              </Card>
+
+              <Card>
+                <h2 className="text-xl font-black text-ink">Profili alimentari</h2>
+                <div className="mt-4 space-y-3">
+                  {profiles?.length ? (
+                    profiles.map((profile) => (
+                      <div key={profile.id} className="rounded-[8px] border border-ink/10 bg-cream p-4">
+                        <p className="font-black text-ink">
+                          {dietLabels[profile.diet_type] || profile.diet_type}
+                        </p>
+                        <p className="mt-1 text-sm text-ink/60">
+                          {profile.meals_per_day} pasti - {profile.target_calories || "calorie suggerite"} kcal
+                        </p>
+                        <p className="mt-1 text-xs text-ink/45">{formatDate(profile.created_at)}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="rounded-[8px] bg-cream p-4 text-sm text-ink/60">
+                      Nessun profilo salvato. Il profilo nasce quando salvi un piano.
+                    </p>
+                  )}
+                </div>
+              </Card>
+            </section>
+
+            <section className="mt-5 grid gap-4 md:grid-cols-2">
+              <Card>
+                <div className="flex items-start gap-3">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-mint text-leaf">
+                    <KeyRound size={20} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h2 className="text-xl font-black text-ink">Sicurezza</h2>
+                    <p className="mt-2 text-sm leading-6 text-ink/65">
+                      Aggiorna la password del tuo account quando vuoi.
+                    </p>
+                    <Button href="/account/password" variant="secondary" size="sm" className="mt-4">
+                      Cambia password
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+              <Card>
+                <div className="flex items-start gap-3">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-mint text-leaf">
+                    <LockKeyhole size={20} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h2 className="text-xl font-black text-ink">Accesso</h2>
+                    <p className="mt-2 text-sm leading-6 text-ink/65">
+                      Il tuo account usa email e password. L'accesso tramite magic link non e' disponibile.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </section>
+          </>
+        )}
       </main>
     </>
   );

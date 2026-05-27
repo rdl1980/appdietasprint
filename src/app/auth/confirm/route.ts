@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get("code");
   const tokenHash = requestUrl.searchParams.get("token_hash");
   const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
-  const next = requestUrl.searchParams.get("next") || "/account";
+  const next = requestUrl.searchParams.get("next") || (type === "recovery" ? "/account/password" : "/account");
 
   const redirectTo = request.nextUrl.clone();
   redirectTo.pathname = next.startsWith("/") ? next : "/account";

@@ -9,7 +9,7 @@ Portare DietaSprint AI da MVP demo a prodotto pubblico affidabile, sicuro e mone
 P0 technical readiness completata:
 - health endpoint `/api/health`;
 - `.env.example` per Vercel/Supabase;
-- auth Supabase magic link con `/login`, callback e logout;
+- auth Supabase email/password con `/register`, `/login`, recupero password e logout;
 - API `/api/plans` per salvare profilo e piano;
 - schema `supabase/schema.sql` con RLS, consensi e richieste GDPR;
 - pagina `/account` per stato account/database e `/account/privacy` per richieste GDPR;
@@ -48,7 +48,7 @@ flowchart LR
 | Deploy Vercel | Pronto | Build valida, package-lock, health endpoint `/api/health`, `.env.example`. | Collegare Vercel al repo e impostare variabili ambiente. |
 | Dominio custom | Bloccato | App pronta a ricevere `NEXT_PUBLIC_SITE_URL`. | Scegliere/acquistare dominio e configurare DNS. |
 | Privacy/GDPR definitivo | Pronto per review | Pagine legali, registro consensi, richieste GDPR, legal review packet. | Titolare, email ufficiale, fornitori, basi giuridiche e validazione professionale. |
-| Autenticazione | Pronto tecnico | `/login`, `/auth/callback`, `/auth/logout`, magic link Supabase. | Creare progetto Supabase e provider Auth. |
+| Autenticazione | Pronto tecnico | `/register`, `/login`, `/forgot-password`, `/auth/logout`, email/password Supabase. | Attivare email/password e template conferma/recupero in Supabase Auth. |
 | Database profili e piani | Pronto tecnico | Schema RLS e API `/api/plans`; salvataggio dal risultato generato. | Eseguire schema in Supabase e impostare env. |
 
 ## Next actions P0
@@ -57,7 +57,7 @@ flowchart LR
 2. Creare progetto Supabase.
 3. Eseguire `supabase/schema.sql` nel SQL editor Supabase.
 4. Impostare su Vercel `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL`.
-5. Testare login magic link, salvataggio piano e richieste privacy.
+5. Testare registrazione, conferma email, login con password, salvataggio piano e richieste privacy.
 6. Scegliere/acquistare dominio e configurare DNS su Vercel.
 7. Inserire dati legali reali e far revisionare privacy/termini/disclaimer/GDPR usando `LEGAL_REVIEW_PACKET.md`.
 
