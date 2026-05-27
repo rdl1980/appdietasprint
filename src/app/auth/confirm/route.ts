@@ -20,14 +20,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectTo);
   }
 
+  const supabase = await createSupabaseServerClient();
+
   if (code) {
-    const callbackUrl = request.nextUrl.clone();
-    callbackUrl.pathname = "/auth/callback";
-    return NextResponse.redirect(callbackUrl);
+    const { error } = await supabase!.auth.exchangeCodeForSession(code);
+    if (!error) {
+      return NextResponse.redirect(redirectTo);
+    }
+
+    redirectTo.pathname = "/login";
+    redirectTo.searchParams.set("authError", "link_invalid_or_expired");
+    return NextResponse.redirect(redirectTo);
   }
 
   if (tokenHash && type) {
-    const supabase = await createSupabaseServerClient();
     const { error } = await supabase!.auth.verifyOtp({
       type,
       token_hash: tokenHash,
