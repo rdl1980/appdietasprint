@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -39,6 +39,19 @@ export function LoginForm() {
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const configured = isSupabaseConfigured();
   const isCoolingDown = cooldownUntil > Date.now();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get("authError");
+
+    if (authError === "link_invalid_or_expired") {
+      setError("Il link di accesso non e' valido o e' scaduto. Richiedi una nuova email e usa l'ultimo link ricevuto.");
+    }
+
+    if (authError === "supabase_not_configured") {
+      setError("Supabase non e' ancora configurato.");
+    }
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

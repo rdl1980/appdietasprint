@@ -7,6 +7,16 @@ import { WarningBox } from "@/components/WarningBox";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { LoaderCircle } from "lucide-react";
 
+function translateCallbackError(message: string) {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("pkce code verifier not found")) {
+    return "Il link e' stato aperto in un browser o dominio diverso da quello usato per richiederlo. Richiedi un nuovo link dal dominio ufficiale e apri l'ultima email ricevuta nello stesso browser.";
+  }
+
+  return message;
+}
+
 export function AuthCallbackClient() {
   const [error, setError] = useState("");
 
@@ -27,7 +37,7 @@ export function AuthCallbackClient() {
       if (code) {
         const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
         if (exchangeError) {
-          setError(exchangeError.message);
+          setError(translateCallbackError(exchangeError.message));
           return;
         }
       }
@@ -36,7 +46,7 @@ export function AuthCallbackClient() {
       for (let attempt = 0; attempt < 10; attempt += 1) {
         const { data, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) {
-          setError(sessionError.message);
+          setError(translateCallbackError(sessionError.message));
           return;
         }
 
