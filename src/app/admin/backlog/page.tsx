@@ -19,6 +19,9 @@ import { Button } from "@/components/Button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/admin";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const columns = [
   {
     title: "Fatto",
@@ -83,7 +86,7 @@ export default async function AdminBacklogPage() {
   const user = data.user;
 
   if (!user) {
-    redirect("/login?authError=admin_login_required");
+    redirect("/login?authError=admin_login_required&from=/admin/backlog");
   }
 
   if (!isAdminUser(user)) {
