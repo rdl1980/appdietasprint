@@ -6,27 +6,8 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Input } from "@/components/Input";
 import { WarningBox } from "@/components/WarningBox";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/env";
 import { LogIn } from "lucide-react";
-
-function translateAuthError(message: string) {
-  const normalized = message.toLowerCase();
-
-  if (normalized.includes("invalid login credentials")) {
-    return "Email o password non corretti.";
-  }
-
-  if (normalized.includes("email not confirmed")) {
-    return "Email non confermata. Controlla la posta e completa la registrazione.";
-  }
-
-  if (normalized.includes("too many requests") || normalized.includes("rate limit")) {
-    return "Troppi tentativi in poco tempo. Aspetta qualche minuto prima di riprovare.";
-  }
-
-  return message;
-}
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -63,25 +44,22 @@ export function LoginForm() {
     setStatus("");
     setIsSubmitting(true);
 
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) {
-      setError("Supabase non e' ancora configurato.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
     });
 
-    if (authError) {
-      setError(translateAuthError(authError.message));
+    const result = await response.json();
+
+    if (!response.ok) {
+      setError(result.error || "Accesso non riuscito.");
       setIsSubmitting(false);
       return;
     }
 
-    await supabase.auth.getSession();
     window.location.replace("/account");
   }
 
