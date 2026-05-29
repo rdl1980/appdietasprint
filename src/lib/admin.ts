@@ -1,6 +1,7 @@
 import { User } from "@supabase/supabase-js";
 
 const defaultAdminUsernames = ["rdladmin"];
+const defaultAdminEmails = ["abbonamenti.dileva@gmail.com"];
 
 function splitEnvList(value: string | undefined) {
   return (value || "")
@@ -14,7 +15,7 @@ export function isAdminUser(user: User | null | undefined) {
     return false;
   }
 
-  const adminEmails = splitEnvList(process.env.ADMIN_EMAILS);
+  const adminEmails = [...defaultAdminEmails, ...splitEnvList(process.env.ADMIN_EMAILS)];
   const adminUsernames = [...defaultAdminUsernames, ...splitEnvList(process.env.ADMIN_USERNAMES)];
   const email = user.email?.toLowerCase() || "";
   const username = String(user.app_metadata?.username || "").toLowerCase();
