@@ -61,6 +61,20 @@ Il backlog interno vive su `/admin/backlog` ed e' protetto lato server. La voce 
 
 Per creare l'admin `rdladmin`:
 
+Opzione consigliata, script locale:
+
+```bash
+set NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
+set SUPABASE_SERVICE_ROLE_KEY=service-role-key
+set ADMIN_EMAIL=abbonamenti.dileva@gmail.com
+set ADMIN_USERNAME=rdladmin
+npm run admin:create
+```
+
+Lo script chiedera' la password senza salvarla nel repository. In PowerShell usa `$env:NOME_VARIABILE="valore"` al posto di `set`.
+
+Opzione manuale:
+
 1. Vai in Supabase > Authentication > Users.
 2. Crea un nuovo utente con una email reale e la password scelta fuori dal repository.
 3. Imposta negli app metadata dell'utente:

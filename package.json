@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "admin:create": "node scripts/create-admin-user.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
