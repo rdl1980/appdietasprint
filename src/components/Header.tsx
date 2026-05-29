@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Button } from "./Button";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isAdminUser } from "@/lib/admin";
 
-export function Header() {
+export async function Header() {
+  const supabase = await createSupabaseServerClient();
+  const { data } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const isAdmin = isAdminUser(data.user);
+
   return (
     <header className="sticky top-0 z-20 border-b border-ink/10 bg-cream/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
@@ -24,6 +30,11 @@ export function Header() {
           <Link href="/legal/privacy" className="hover:text-ink">
             Privacy
           </Link>
+          {isAdmin ? (
+            <Link href="/admin/backlog" className="hover:text-ink">
+              Backlog
+            </Link>
+          ) : null}
         </nav>
         <Button href="/login" size="sm">
           Accedi / Registrati

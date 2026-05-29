@@ -54,3 +54,29 @@ In **Authentication > URL Configuration** imposta:
 - Redirect URL: `http://127.0.0.1:3000/auth/confirm`
 
 Il progetto usa database e autenticazione Supabase quando le variabili pubbliche Supabase sono configurate.
+
+## Admin
+
+Il backlog interno vive su `/admin/backlog` ed e' protetto lato server. La voce di menu appare solo agli utenti admin.
+
+Per creare l'admin `rdladmin`:
+
+1. Vai in Supabase > Authentication > Users.
+2. Crea un nuovo utente con una email reale e la password scelta fuori dal repository.
+3. Imposta negli app metadata dell'utente:
+
+```json
+{
+  "username": "rdladmin",
+  "role": "admin"
+}
+```
+
+4. In alternativa, imposta su Vercel una di queste variabili server-only:
+
+```bash
+ADMIN_EMAILS=email-admin@dominio.it
+ADMIN_USERNAMES=rdladmin
+```
+
+Non salvare password admin in codice, README o variabili pubbliche `NEXT_PUBLIC_*`.

@@ -14,7 +14,7 @@ P0 technical readiness completata:
 - schema `supabase/schema.sql` con RLS, consensi e richieste GDPR;
 - pagina `/account` per stato account/database e `/account/privacy` per richieste GDPR;
 - `LEGAL_REVIEW_PACKET.md` con registro trattamenti, campi legali mancanti e checklist consulente;
-- board `/backlog` con stati P0.
+- board admin `/admin/backlog` protetta e visibile solo agli utenti admin.
 
 ## Vista rapida
 
