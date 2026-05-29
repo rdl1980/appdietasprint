@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -10,11 +10,8 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { LogIn } from "lucide-react";
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const configured = isSupabaseConfigured();
 
   useEffect(() => {
@@ -33,35 +30,14 @@ export function LoginForm() {
       setError("Per aprire il backlog admin devi accedere con l'account amministratore.");
     }
 
+    if (authError === "login_failed") {
+      setError(params.get("message") || "Accesso non riuscito.");
+    }
+
     if (params.get("registered") === "1") {
       setStatus("Registrazione avviata. Se Supabase richiede conferma email, completa il passaggio dalla tua casella di posta.");
     }
   }, []);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-    setStatus("");
-    setIsSubmitting(true);
-
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      setError(result.error || "Accesso non riuscito.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    window.location.replace("/account");
-  }
 
   return (
     <main className="mx-auto max-w-xl px-4 py-10 sm:px-6">
@@ -84,28 +60,26 @@ export function LoginForm() {
           </div>
         ) : null}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form action="/api/auth/login" method="post" className="space-y-4">
           <Input
             label="Email"
+            name="email"
             type="email"
             required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
             placeholder="nome@email.it"
           />
           <Input
             label="Password"
+            name="password"
             type="password"
             required
             minLength={8}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
             placeholder="La tua password"
           />
           {error ? <WarningBox tone="strong">{error}</WarningBox> : null}
           {status ? <WarningBox>{status}</WarningBox> : null}
-          <Button type="submit" className="w-full" disabled={!configured || isSubmitting}>
-            {isSubmitting ? "Accesso in corso" : "Accedi"}
+          <Button type="submit" className="w-full" disabled={!configured}>
+            Accedi
           </Button>
         </form>
 

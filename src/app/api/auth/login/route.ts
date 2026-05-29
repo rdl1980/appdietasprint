@@ -25,11 +25,24 @@ function translateAuthError(message: string) {
 
 export async function POST(request: NextRequest) {
   if (!isSupabaseConfigured()) {
-    return NextResponse.json({ error: "Supabase non e' ancora configurato." }, { status: 503 });
+    return NextResponse.redirect(new URL("/login?authError=supabase_not_configured", request.url), 303);
   }
 
-  const { email, password } = await request.json();
-  let response: NextResponse = NextResponse.json({ ok: true });
+  const contentType = request.headers.get("content-type") || "";
+  let email = "";
+  let password = "";
+
+  if (contentType.includes("application/json")) {
+    const body = await request.json();
+    email = body.email || "";
+    password = body.password || "";
+  } else {
+    const formData = await request.formData();
+    email = String(formData.get("email") || "");
+    password = String(formData.get("password") || "");
+  }
+
+  let response: NextResponse = NextResponse.redirect(new URL("/account", request.url), 303);
 
   const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
     cookies: {
@@ -50,7 +63,10 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
-    response = NextResponse.json({ error: translateAuthError(error.message) }, { status: 401 });
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("authError", "login_failed");
+    loginUrl.searchParams.set("message", translateAuthError(error.message));
+    response = NextResponse.redirect(loginUrl, 303);
   }
 
   return response;
