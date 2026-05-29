@@ -15,12 +15,6 @@ export function Header() {
           <Link href="/account" className="hover:text-ink">
             Account
           </Link>
-          <Link href="/login" className="hover:text-ink">
-            Login
-          </Link>
-          <Link href="/register" className="hover:text-ink">
-            Registrati
-          </Link>
           <Link href="/pricing" className="hover:text-ink">
             Prezzi
           </Link>
@@ -31,8 +25,8 @@ export function Header() {
             Privacy
           </Link>
         </nav>
-        <Button href="/planner" size="sm">
-          Inizia
+        <Button href="/login" size="sm">
+          Accedi / Registrati
         </Button>
       </div>
     </header>
