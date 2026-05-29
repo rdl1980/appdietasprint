@@ -48,6 +48,10 @@ export function LoginForm() {
       setError("Supabase non e' ancora configurato.");
     }
 
+    if (authError === "admin_login_required") {
+      setError("Per aprire il backlog admin devi accedere con l'account amministratore.");
+    }
+
     if (params.get("registered") === "1") {
       setStatus("Registrazione avviata. Se Supabase richiede conferma email, completa il passaggio dalla tua casella di posta.");
     }

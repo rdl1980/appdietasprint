@@ -83,11 +83,11 @@ export default async function AdminBacklogPage() {
   const user = data.user;
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?authError=admin_login_required");
   }
 
   if (!isAdminUser(user)) {
-    redirect("/account");
+    redirect("/account?adminError=not_admin");
   }
 
   return (
