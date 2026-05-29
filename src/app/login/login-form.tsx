@@ -81,6 +81,7 @@ export function LoginForm() {
       return;
     }
 
+    await supabase.auth.getSession();
     window.location.replace("/account");
   }
 
