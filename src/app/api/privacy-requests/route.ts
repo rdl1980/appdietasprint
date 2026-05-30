@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/env";
+import { notifyPrivacyRequest } from "@/lib/email";
 
 const allowedRequestTypes = ["access", "rectification", "export", "erasure", "objection"] as const;
 
@@ -42,5 +43,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error?.message || "Richiesta non salvata." }, { status: 500 });
   }
 
-  return NextResponse.json({ requestId: data.id });
+  const emailResult = await notifyPrivacyRequest({
+    requestId: data.id,
+    email: userResult.user.email,
+    requestType: body.requestType,
+    notes: body.notes,
+  });
+
+  return NextResponse.json({ requestId: data.id, emailSent: emailResult.sent });
 }
