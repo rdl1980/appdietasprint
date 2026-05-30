@@ -1,6 +1,6 @@
 export const env = {
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "ciao@dietasprint.ai",
+  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "ciao@dietsprintai.com",
   legalController: process.env.NEXT_PUBLIC_LEGAL_CONTROLLER || "Titolare da definire",
   legalAddress: process.env.NEXT_PUBLIC_LEGAL_ADDRESS || "Indirizzo sede da definire",
   legalVat: process.env.NEXT_PUBLIC_LEGAL_VAT || "P.IVA / codice fiscale da definire",

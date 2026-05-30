@@ -42,7 +42,7 @@ export async function sendEmail({ to, subject, text, html, replyTo }: SendEmailI
   }
 
   const { error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || "DietaSprint AI <noreply@dietsprintai.com>",
+    from: process.env.RESEND_FROM_EMAIL || "DietaSprint AI <no-reply@dietsprintai.com>",
     to,
     subject,
     text,

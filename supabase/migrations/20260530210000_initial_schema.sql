@@ -1,5 +1,5 @@
--- DietaSprint AI production foundation
--- Run this in the Supabase SQL editor after creating the project.
+-- DietaSprint AI MVP schema.
+-- Safe to apply to an empty database or reapply to the current MVP database.
 
 create extension if not exists "pgcrypto";
 

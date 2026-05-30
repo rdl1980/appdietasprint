@@ -55,6 +55,42 @@ In **Authentication > URL Configuration** imposta:
 
 Il progetto usa database e autenticazione Supabase quando le variabili pubbliche Supabase sono configurate.
 
+## Email
+
+Le email applicative usano Resend lato server. Le email di conferma account e recupero password usano Resend tramite il custom SMTP di Supabase Auth.
+
+Configurazione SMTP Supabase:
+
+```text
+Host: smtp.resend.com
+Porta: 465
+Username: resend
+Mittente: DietaSprint AI <no-reply@dietsprintai.com>
+```
+
+La password SMTP e' una API key Resend con permesso di invio sul dominio `dietsprintai.com`. Non salvarla nel repository.
+
+Variabili server-only:
+
+```bash
+RESEND_API_KEY=
+RESEND_FROM_EMAIL="DietaSprint AI <no-reply@dietsprintai.com>"
+PRIVACY_NOTIFICATION_EMAIL=
+```
+
+## Database
+
+Lo snapshot iniziale vive in `supabase/schema.sql`. Le migrazioni versionate vivono in `supabase/migrations`.
+
+Le tabelle MVP sono:
+
+- `user_profiles`
+- `meal_plans`
+- `privacy_consents`
+- `data_subject_requests`
+
+Tutte hanno Row Level Security attiva. Le policy consentono agli utenti autenticati di accedere solo ai propri dati.
+
 ## Admin
 
 Il backlog interno vive su `/admin/backlog` ed e' protetto lato server. La voce di menu appare solo agli utenti admin.
