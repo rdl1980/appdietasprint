@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ClipboardList } from "lucide-react";
 import { Button } from "./Button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/admin";
@@ -30,15 +31,29 @@ export async function Header() {
           <Link href="/legal/privacy" className="hover:text-ink">
             Privacy
           </Link>
+          <Link href="/backlog" className="inline-flex items-center gap-1.5 font-bold text-leaf hover:text-ink">
+            Backlog
+            <span className="rounded-full bg-lemon/70 px-1.5 py-0.5 text-[10px] font-black uppercase text-ink">temp</span>
+          </Link>
           {isAdmin ? (
             <Link href="/admin/backlog" className="hover:text-ink">
-              Backlog
+              Admin
             </Link>
           ) : null}
         </nav>
-        <Button href="/login" size="sm">
-          Accedi / Registrati
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/backlog"
+            className="grid h-10 w-10 place-items-center rounded-full bg-white text-leaf shadow-sm ring-1 ring-ink/10 sm:hidden"
+            aria-label="Apri backlog temporaneo"
+            title="Backlog temporaneo"
+          >
+            <ClipboardList className="h-5 w-5" aria-hidden="true" />
+          </Link>
+          <Button href="/login" size="sm">
+            Accedi / Registrati
+          </Button>
+        </div>
       </div>
     </header>
   );
