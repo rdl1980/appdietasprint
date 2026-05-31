@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
 import { isAdminUser } from "@/lib/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = supabase
-    ? await supabase.auth.getUser()
-    : { data: { user: null }, error: null };
-
-  const user = data.user;
+  const user = await getAuthenticatedUser();
 
   return NextResponse.json(
     {
@@ -19,7 +14,7 @@ export async function GET() {
       email: user?.email || null,
       isAdmin: isAdminUser(user),
       appMetadata: user?.app_metadata || null,
-      error: error?.message || null,
+      error: null,
     },
     {
       headers: {

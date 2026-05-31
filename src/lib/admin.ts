@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import type { AppUser } from "@/lib/supabase/data";
 
 const defaultAdminUsernames = ["rdladmin"];
 const defaultAdminEmails = ["abbonamenti.dileva@gmail.com"];
@@ -10,7 +10,7 @@ function splitEnvList(value: string | undefined) {
     .filter(Boolean);
 }
 
-export function isAdminUser(user: User | null | undefined) {
+export function isAdminUser(user: AppUser | null | undefined) {
   if (!user) {
     return false;
   }

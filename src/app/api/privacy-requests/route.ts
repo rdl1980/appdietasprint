@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { notifyPrivacyRequest } from "@/lib/email";
 
@@ -21,18 +21,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Tipo richiesta non valido." }, { status: 400 });
   }
 
-  const supabase = await createSupabaseServerClient();
-  const { data: userResult, error: userError } = await supabase!.auth.getUser();
+  const { supabase, user } = await createAuthenticatedSupabaseClient();
 
-  if (userError || !userResult.user?.email) {
+  if (!supabase || !user?.email) {
     return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
   }
 
-  const { data, error } = await supabase!
+  const { data, error } = await supabase
     .from("data_subject_requests")
     .insert({
-      user_id: userResult.user.id,
-      email: userResult.user.email,
+      user_id: user.id,
+      email: user.email,
       request_type: body.requestType,
       notes: body.notes || null,
     })
@@ -45,7 +44,7 @@ export async function POST(request: NextRequest) {
 
   const emailResult = await notifyPrivacyRequest({
     requestId: data.id,
-    email: userResult.user.email,
+    email: user.email,
     requestType: body.requestType,
     notes: body.notes,
   });

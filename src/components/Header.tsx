@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { ClipboardList } from "lucide-react";
 import { Button } from "./Button";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/admin";
+import { getAuthenticatedUser } from "@/lib/supabase/data";
 
 export async function Header() {
-  const supabase = await createSupabaseServerClient();
-  const { data } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const isAdmin = isAdminUser(data.user);
+  const user = await getAuthenticatedUser();
+  const isAdmin = isAdminUser(user);
 
   return (
     <header className="sticky top-0 z-20 border-b border-ink/10 bg-cream/85 backdrop-blur">

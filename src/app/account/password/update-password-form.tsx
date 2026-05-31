@@ -6,7 +6,6 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Input } from "@/components/Input";
 import { WarningBox } from "@/components/WarningBox";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function UpdatePasswordForm() {
   const [password, setPassword] = useState("");
@@ -26,18 +25,17 @@ export function UpdatePasswordForm() {
     }
 
     setIsSubmitting(true);
-    const supabase = createSupabaseBrowserClient();
+    const response = await fetch("/api/account/password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password }),
+    });
+    const result = (await response.json()) as { error?: string };
 
-    if (!supabase) {
-      setError("Supabase non e' ancora configurato.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-
-    if (updateError) {
-      setError(updateError.message);
+    if (!response.ok) {
+      setError(result.error || "Password non aggiornata.");
       setIsSubmitting(false);
       return;
     }

@@ -2,14 +2,12 @@ import { Header } from "@/components/Header";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { WarningBox } from "@/components/WarningBox";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { PrivacyRequestForm } from "./privacy-request-form";
 
 export default async function AccountPrivacyPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: userResult } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const user = userResult.user;
+  const { supabase, user } = await createAuthenticatedSupabaseClient();
   const { data: requests } =
     supabase && user
       ? await supabase

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { isValidProfile, mealPlanToRow, profileToRow } from "@/lib/databaseMappers";
 import { MealPlan, UserProfile } from "@/lib/types";
@@ -15,14 +15,13 @@ export async function GET() {
     return NextResponse.json({ error: "Supabase non configurato" }, { status: 503 });
   }
 
-  const supabase = await createSupabaseServerClient();
-  const { data: userResult, error: userError } = await supabase!.auth.getUser();
+  const { supabase, user } = await createAuthenticatedSupabaseClient();
 
-  if (userError || !userResult.user) {
+  if (!supabase || !user) {
     return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
   }
 
-  const { data, error } = await supabase!
+  const { data, error } = await supabase
     .from("meal_plans")
     .select("id,daily_calories,warnings,created_at")
     .order("created_at", { ascending: false })
@@ -50,16 +49,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Profilo o piano non validi." }, { status: 400 });
   }
 
-  const supabase = await createSupabaseServerClient();
-  const { data: userResult, error: userError } = await supabase!.auth.getUser();
+  const { supabase, user } = await createAuthenticatedSupabaseClient();
 
-  if (userError || !userResult.user) {
+  if (!supabase || !user) {
     return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
   }
 
-  const userId = userResult.user.id;
+  const userId = user.id;
 
-  const { data: profileRow, error: profileError } = await supabase!
+  const { data: profileRow, error: profileError } = await supabase
     .from("user_profiles")
     .insert(profileToRow(body.profile, userId))
     .select("id")
@@ -69,7 +67,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: profileError?.message || "Profilo non salvato." }, { status: 500 });
   }
 
-  const { data: planRow, error: planError } = await supabase!
+  const { data: planRow, error: planError } = await supabase
     .from("meal_plans")
     .insert(mealPlanToRow(body.plan, userId, profileRow.id))
     .select("id")
@@ -79,7 +77,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: planError?.message || "Piano non salvato." }, { status: 500 });
   }
 
-  await supabase!.from("privacy_consents").insert({
+  await supabase.from("privacy_consents").insert({
     user_id: userId,
     document: "privacy",
     version: "mvp-2026-05",

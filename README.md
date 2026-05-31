@@ -23,9 +23,17 @@ npm run build
 - `/account`
 - `/legal/disclaimer`
 
-## Supabase Auth
+## Auth.js + Supabase Auth
 
-L'accesso utente usa email e password. Non esporre il magic link come metodo di login.
+Le sessioni dell'app sono gestite da Auth.js (`next-auth@5`) con strategia JWT. Supabase Auth continua a gestire utenti, password, conferma email e recupero password. Il token Supabase resta nel cookie cifrato Auth.js e viene usato lato server per rispettare le policy RLS.
+
+Genera e configura un segreto server-only:
+
+```bash
+AUTH_SECRET=
+```
+
+Non esporre il magic link come metodo di login.
 
 In Supabase vai su **Authentication > Providers > Email** e abilita:
 

@@ -3,7 +3,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { WarningBox } from "@/components/WarningBox";
 import { isSupabaseConfigured } from "@/lib/env";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { CalendarDays, KeyRound, ListChecks, LockKeyhole, Plus, ShieldCheck, UserRound } from "lucide-react";
 
 type ProfileRow = {
@@ -39,9 +39,7 @@ function formatDate(value: string) {
 
 export default async function AccountPage() {
   const supabaseConfigured = isSupabaseConfigured();
-  const supabase = await createSupabaseServerClient();
-  const { data: userResult } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const user = userResult.user;
+  const { supabase, user } = await createAuthenticatedSupabaseClient();
 
   const { data: profiles } =
     supabase && user

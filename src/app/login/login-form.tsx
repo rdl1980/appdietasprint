@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Input } from "@/components/Input";
@@ -10,8 +11,11 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { LogIn } from "lucide-react";
 
 export function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const configured = isSupabaseConfigured();
 
   useEffect(() => {
@@ -37,7 +41,32 @@ export function LoginForm() {
     if (params.get("registered") === "1") {
       setStatus("Registrazione avviata. Se Supabase richiede conferma email, completa il passaggio dalla tua casella di posta.");
     }
+
+    if (params.get("confirmed") === "1") {
+      setStatus("Email confermata. Ora puoi accedere al tuo account.");
+    }
   }, []);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setStatus("");
+    setIsSubmitting(true);
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Email o password non corretti, oppure email non ancora confermata.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    window.location.replace("/account");
+  }
 
   return (
     <main className="mx-auto max-w-xl px-4 py-10 sm:px-6">
@@ -60,26 +89,28 @@ export function LoginForm() {
           </div>
         ) : null}
 
-        <form action="/api/auth/login" method="post" className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Email"
-            name="email"
             type="email"
             required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
             placeholder="nome@email.it"
           />
           <Input
             label="Password"
-            name="password"
             type="password"
             required
             minLength={8}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
             placeholder="La tua password"
           />
           {error ? <WarningBox tone="strong">{error}</WarningBox> : null}
           {status ? <WarningBox>{status}</WarningBox> : null}
-          <Button type="submit" className="w-full" disabled={!configured}>
-            Accedi
+          <Button type="submit" className="w-full" disabled={!configured || isSubmitting}>
+            {isSubmitting ? "Accesso" : "Accedi"}
           </Button>
         </form>
 

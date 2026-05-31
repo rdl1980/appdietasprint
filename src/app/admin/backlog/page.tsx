@@ -16,7 +16,7 @@ import {
 import { Header } from "@/components/Header";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/data";
 import { isAdminUser } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
@@ -81,9 +81,7 @@ const checklist = [
 ];
 
 export default async function AdminBacklogPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const user = data.user;
+  const user = await getAuthenticatedUser();
 
   if (!user) {
     redirect("/login?authError=admin_login_required&from=/admin/backlog");

@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { UserPlus } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -77,7 +78,13 @@ export function RegisterForm() {
     }
 
     if (data.session) {
-      window.location.replace("/account");
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      window.location.replace(result?.error ? "/login?registered=1" : "/account");
       return;
     }
 

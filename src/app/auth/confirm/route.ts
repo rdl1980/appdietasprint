@@ -8,16 +8,11 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get("code");
   const tokenHash = requestUrl.searchParams.get("token_hash");
   const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
-  const next = requestUrl.searchParams.get("next") || (type === "recovery" ? "/account/password" : "/account");
-
-  const redirectTo = request.nextUrl.clone();
-  redirectTo.pathname = next.startsWith("/") ? next : "/account";
-  redirectTo.search = "";
+  const next = requestUrl.searchParams.get("next") || (type === "recovery" ? "/account/password" : "/login?confirmed=1");
+  const redirectTo = new URL(next.startsWith("/") ? next : "/login?confirmed=1", request.url);
 
   if (!isSupabaseConfigured()) {
-    redirectTo.pathname = "/login";
-    redirectTo.searchParams.set("authError", "supabase_not_configured");
-    return NextResponse.redirect(redirectTo);
+    return NextResponse.redirect(new URL("/login?authError=supabase_not_configured", request.url));
   }
 
   const supabase = await createSupabaseServerClient();
@@ -28,9 +23,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(redirectTo);
     }
 
-    redirectTo.pathname = "/login";
-    redirectTo.searchParams.set("authError", "link_invalid_or_expired");
-    return NextResponse.redirect(redirectTo);
+    return NextResponse.redirect(new URL("/login?authError=link_invalid_or_expired", request.url));
   }
 
   if (tokenHash && type) {
@@ -44,7 +37,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  redirectTo.pathname = "/login";
-  redirectTo.searchParams.set("authError", "link_invalid_or_expired");
-  return NextResponse.redirect(redirectTo);
+  return NextResponse.redirect(new URL("/login?authError=link_invalid_or_expired", request.url));
 }

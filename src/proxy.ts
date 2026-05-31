@@ -28,6 +28,8 @@ export async function proxy(request: NextRequest) {
     },
   });
 
+  // Keep Supabase cookies alive only for email confirmation and password recovery.
+  // Normal application sessions are managed by Auth.js.
   await supabase.auth.getUser();
 
   return response;
