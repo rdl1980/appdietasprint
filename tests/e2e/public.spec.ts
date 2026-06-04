@@ -1,17 +1,24 @@
 import { expect, type Page, test } from "@playwright/test";
 
-async function dismissCookieBanner(page: Page) {
-  const necessaryButton = page.getByRole("button", { name: /solo necessari/i });
-
-  if (await necessaryButton.isVisible().catch(() => false)) {
-    await necessaryButton.click();
-  }
+async function seedNecessaryCookieConsent(page: Page) {
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      "dietaSprintCookieConsent",
+      JSON.stringify({
+        version: "cookies-2026-06-04",
+        essential: true,
+        analytics: false,
+        marketing: false,
+        acceptedAt: "2026-06-04T00:00:00.000Z",
+      }),
+    );
+  });
 }
 
 test("home, planner and results flow render without login", async ({ page }) => {
+  await seedNecessaryCookieConsent(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /si adatta alla tua vita reale/i })).toBeVisible();
-  await dismissCookieBanner(page);
 
   await page.goto("/planner");
   await expect(page.getByRole("heading", { name: /costruiamo il tuo piano realistico/i })).toBeVisible();
@@ -26,8 +33,8 @@ test("home, planner and results flow render without login", async ({ page }) => 
 });
 
 test("medical screening blocks automatic plan generation", async ({ page }) => {
+  await seedNecessaryCookieConsent(page);
   await page.goto("/planner");
-  await dismissCookieBanner(page);
   await page.getByLabel(/diabete/i).check();
   await page.getByRole("button", { name: /genera piano/i }).click();
 
