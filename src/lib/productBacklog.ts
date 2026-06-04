@@ -193,7 +193,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Avvisi per gravidanza, patologie, farmaci, diabete e disturbi alimentari.",
     area: "Planner",
     priority: "P0",
-    status: "next",
+    status: "done",
   },
   {
     id: "planner-allergies",

@@ -13,6 +13,16 @@ export type DietType =
 
 export type SimplicityLevel = "zeroSbatti" | "standard" | "mealPrep";
 
+export type MedicalScreeningFlag =
+  | "pregnancy"
+  | "breastfeeding"
+  | "diabetes"
+  | "eatingDisorder"
+  | "kidneyDisease"
+  | "heartDisease"
+  | "bariatricSurgery"
+  | "medications";
+
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 export type UserProfile = {
@@ -28,6 +38,7 @@ export type UserProfile = {
   excludedFoods: string[];
   simplicityLevel: SimplicityLevel;
   budgetMode: boolean;
+  medicalFlags?: MedicalScreeningFlag[];
 };
 
 export type Ingredient = {

@@ -9,7 +9,8 @@ import { Input } from "@/components/Input";
 import { Select } from "@/components/Select";
 import { WarningBox } from "@/components/WarningBox";
 import { calculateCalories } from "@/lib/calories";
-import { ActivityLevel, DietType, Goal, Sex, SimplicityLevel, UserProfile } from "@/lib/types";
+import { getMedicalScreeningBlock, medicalScreeningOptions } from "@/lib/medicalScreening";
+import { ActivityLevel, DietType, Goal, MedicalScreeningFlag, Sex, SimplicityLevel, UserProfile } from "@/lib/types";
 import { Calculator, CheckCircle2 } from "lucide-react";
 
 const initialProfile: UserProfile = {
@@ -24,6 +25,7 @@ const initialProfile: UserProfile = {
   excludedFoods: [],
   simplicityLevel: "zeroSbatti",
   budgetMode: false,
+  medicalFlags: [],
 };
 
 export function PlannerClient() {
@@ -38,9 +40,27 @@ export function PlannerClient() {
     setProfile((current) => ({ ...current, [key]: value }));
   }
 
+  function toggleMedicalFlag(flag: MedicalScreeningFlag, enabled: boolean) {
+    setProfile((current) => {
+      const currentFlags = current.medicalFlags || [];
+      const medicalFlags = enabled
+        ? [...new Set([...currentFlags, flag])]
+        : currentFlags.filter((currentFlag) => currentFlag !== flag);
+
+      return { ...current, medicalFlags };
+    });
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+
+    const medicalBlock = getMedicalScreeningBlock(profile.medicalFlags);
+
+    if (medicalBlock) {
+      setError(medicalBlock);
+      return;
+    }
 
     if (profile.age < 18) {
       setError("Questo MVP e' pensato per adulti. Per minorenni serve un professionista.");
@@ -134,6 +154,26 @@ export function PlannerClient() {
             value={profile.weightKg}
             onChange={(event) => updateProfile("weightKg", Number(event.target.value))}
           />
+        </FormSection>
+
+        <FormSection
+          title="Screening salute"
+          description="Seleziona solo condizioni gia note. In questi casi il piano automatico viene bloccato."
+        >
+          {medicalScreeningOptions.map((option) => (
+            <label
+              key={option.value}
+              className="flex min-h-12 items-start gap-3 rounded-[8px] border border-ink/10 bg-white px-4 py-3"
+            >
+              <input
+                type="checkbox"
+                checked={(profile.medicalFlags || []).includes(option.value)}
+                onChange={(event) => toggleMedicalFlag(option.value, event.target.checked)}
+                className="mt-1 h-5 w-5 accent-coral"
+              />
+              <span className="text-sm font-semibold leading-6 text-ink">{option.label}</span>
+            </label>
+          ))}
         </FormSection>
 
         <FormSection title="Obiettivo e calorie" description="Puoi usare il suggerimento o impostare un target manuale.">
