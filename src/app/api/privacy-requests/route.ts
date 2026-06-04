@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Tipo richiesta non valido." }, { status: 400 });
   }
 
-  const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient();
+  const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
 
   if (!user?.email) {
     return NextResponse.json({ error: "Login richiesto" }, { status: 401 });

@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { SignJWT } from "jose";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 import { auth } from "@/auth";
 import { env, isSupabaseConfigured } from "@/lib/env";
 
@@ -25,6 +27,37 @@ export async function getAuthenticatedUser(): Promise<AppUser | null> {
     id: session.user.id,
     email: session.user.email,
     app_metadata: session.user.appMetadata,
+  };
+}
+
+async function getAuthenticatedUserFromRequest(request?: NextRequest): Promise<AppUser | null> {
+  const session = await auth();
+
+  if (session?.user?.id && !session.authError) {
+    return {
+      id: session.user.id,
+      email: session.user.email,
+      app_metadata: session.user.appMetadata,
+    };
+  }
+
+  if (!request || !process.env.AUTH_SECRET) {
+    return null;
+  }
+
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+  });
+
+  if (!token?.userId || token.authError) {
+    return null;
+  }
+
+  return {
+    id: token.userId,
+    email: token.email,
+    app_metadata: token.appMetadata,
   };
 }
 
@@ -66,9 +99,7 @@ async function createSupabaseRlsToken(user: AppUser) {
     .sign(secret);
 }
 
-export async function createAuthenticatedSupabaseClient() {
-  const session = await auth();
-
+export async function createAuthenticatedSupabaseClient(request?: NextRequest) {
   if (!isSupabaseConfigured()) {
     return {
       supabase: null,
@@ -78,7 +109,9 @@ export async function createAuthenticatedSupabaseClient() {
     };
   }
 
-  if (!session?.user?.id || session.authError) {
+  const user = await getAuthenticatedUserFromRequest(request);
+
+  if (!user) {
     return {
       supabase: null,
       user: null,
@@ -87,11 +120,6 @@ export async function createAuthenticatedSupabaseClient() {
     };
   }
 
-  const user = {
-    id: session.user.id,
-    email: session.user.email,
-    app_metadata: session.user.appMetadata,
-  } satisfies AppUser;
   const rlsToken = await createSupabaseRlsToken(user);
 
   if (rlsToken) {
