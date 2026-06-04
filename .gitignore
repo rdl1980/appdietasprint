@@ -10,6 +10,8 @@ yarn-error.log*
 pnpm-debug.log*
 dev-server*.log
 tsconfig.tsbuildinfo
+playwright-report/
+test-results/
 backups/
 
 .vercel

@@ -49,3 +49,23 @@ Questo documento prepara la revisione professionale. Non sostituisce parere lega
 - Retention approvata.
 - Cookie policy coerente con strumenti effettivamente installati.
 - Disclaimer validato per prodotto non medico.
+
+## Superfici applicative pronte per verifica
+
+- `/legal/privacy`, `/legal/terms`, `/legal/cookies`, `/legal/gdpr`, `/legal/disclaimer`.
+- `/account/privacy`: export JSON, storico consensi e richieste GDPR utente.
+- `/admin/privacy`: coda richieste GDPR con stati `open`, `in_review`, `completed`, `rejected`.
+- Cookie banner granulare con consenso necessari / analytics / marketing salvato localmente.
+- Salvataggio piano: registra consensi versionati per privacy, termini e disclaimer.
+
+## Esito richiesto al legale
+
+Compilare una delle seguenti decisioni prima della beta pubblica:
+
+| Area | Approvato | Modifiche richieste | Note |
+| --- | --- | --- | --- |
+| Informative e titolare |  |  |  |
+| Base giuridica profili alimentari |  |  |  |
+| Cookie e analytics |  |  |  |
+| Processo export/cancellazione |  |  |  |
+| Disclaimer salute |  |  |  |

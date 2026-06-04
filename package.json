@@ -7,6 +7,8 @@
     "build": "next build",
     "lint": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "test:watch": "vitest",
     "db:backup": "node scripts/backup-supabase.mjs",
     "db:restore": "node scripts/restore-supabase.mjs",
@@ -24,6 +26,7 @@
     "resend": "^6.12.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",

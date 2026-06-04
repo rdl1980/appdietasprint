@@ -38,6 +38,9 @@ const columns = [
       { priority: "OK", title: "Spesa categorie/checklist", area: "Spesa", icon: CheckCircle2 },
       { priority: "OK", title: "Macro, rigenera, sostituzioni", area: "Nutrizione", icon: CheckCircle2 },
       { priority: "OK", title: "Cookie, export, workflow GDPR", area: "GDPR", icon: ShieldCheck },
+      { priority: "OK", title: "Playwright CI/CD", area: "Qualita", icon: TestTube2 },
+      { priority: "OK", title: "Error monitoring MVP", area: "Qualita", icon: AlertTriangle },
+      { priority: "OK", title: "Guardrail salute AI", area: "AI", icon: Bot },
       { priority: "OK", title: "Screening salute planner", area: "Sicurezza", icon: ShieldCheck },
       { priority: "OK", title: "Email Resend funzionante", area: "Comunicazioni", icon: CheckCircle2 },
       { priority: "OK", title: "Backup/restore script", area: "Dati", icon: Database },
@@ -47,10 +50,8 @@ const columns = [
     title: "Da chiudere P0",
     tone: "bg-white",
     items: [
-      { priority: "P0", title: "QA registrazione end-to-end", area: "Account", icon: TestTube2 },
       { priority: "P0", title: "Revisione legale reale", area: "GDPR", icon: ShieldCheck },
       { priority: "P0", title: "Revisione nutrizionista", area: "Nutrizione", icon: ShieldCheck },
-      { priority: "P0", title: "Error tracking produzione", area: "Qualita", icon: AlertTriangle },
     ],
   },
   {
@@ -77,7 +78,7 @@ const columns = [
 
 const metrics = [
   { label: "Core MVP", value: "96%", detail: "Planner, salvataggio, storico, profilo, GDPR operativo e macro sono attivi." },
-  { label: "Pronto beta", value: "78%", detail: "Mancano QA automatizzato, legale finale, nutrizionista e monitoraggio errori." },
+  { label: "Pronto beta", value: "84%", detail: "Mancano validazione legale/nutrizionista e test con account/secret in CI." },
   { label: "Monetizzazione", value: "15%", detail: "Pricing mock presente, Stripe ancora da implementare." },
 ];
 

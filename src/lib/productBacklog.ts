@@ -134,7 +134,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "privacy-review",
     title: "Revisione legale professionale",
-    detail: "Validare testi, titolare, basi giuridiche, fornitori e retention.",
+    detail: "Pacchetto review pronto; resta da ottenere validazione esterna su testi, basi giuridiche, fornitori e retention.",
     area: "Privacy",
     priority: "P0",
     status: "next",
@@ -254,7 +254,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "nutrition-validation",
     title: "Revisione nutrizionista",
-    detail: "Validare logica, template e guardrail prima della beta pubblica.",
+    detail: "Pacchetto review pronto; resta da ottenere validazione esterna su logica, template e guardrail.",
     area: "Nutrizione",
     priority: "P0",
     status: "next",
@@ -385,7 +385,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Regole deterministiche prima e dopo ogni risposta generata.",
     area: "AI coach",
     priority: "P0",
-    status: "planned",
+    status: "done",
   },
   {
     id: "ai-anti-hunger",
@@ -513,7 +513,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Automatizzare registrazione, conferma, login, planner, salvataggio e privacy. Smoke live manuale gia eseguito.",
     area: "Qualita",
     priority: "P0",
-    status: "next",
+    status: "done",
   },
   {
     id: "quality-calories-tests",
@@ -529,7 +529,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Error tracking frontend e server senza esporre dati sensibili.",
     area: "Qualita",
     priority: "P0",
-    status: "next",
+    status: "done",
   },
   {
     id: "quality-security-hardening",
