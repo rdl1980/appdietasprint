@@ -92,10 +92,21 @@ export type CalorieResult = {
   warnings: string[];
 };
 
+export type MacroTarget = {
+  proteinPercent: [number, number];
+  carbsPercent: [number, number];
+  fatsPercent: [number, number];
+  proteinGrams: [number, number];
+  carbsGrams: [number, number];
+  fatsGrams: [number, number];
+  note: string;
+};
+
 export type MealPlan = {
   days: MealPlanDay[];
   dailyCalories: number;
   groceryList: GroceryItem[];
   warnings: string[];
   calorieResult: CalorieResult;
+  macroTarget: MacroTarget;
 };

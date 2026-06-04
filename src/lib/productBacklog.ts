@@ -145,7 +145,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Storico consensi per versione documento e timestamp.",
     area: "Privacy",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "privacy-cookie-banner",
@@ -153,7 +153,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Consenso granulare prima di analytics o strumenti non essenziali.",
     area: "Privacy",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "privacy-export",
@@ -161,7 +161,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Generare un archivio leggibile con profilo, piani e consensi.",
     area: "Privacy",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "privacy-request-workflow",
@@ -169,7 +169,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Stati, assegnazione, scadenze, note interne e chiusura richiesta.",
     area: "Privacy",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "planner-core",
@@ -241,7 +241,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Range indicativi per proteine, carboidrati e grassi per stile alimentare.",
     area: "Nutrizione",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "nutrition-fiber",
@@ -297,7 +297,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Sostituire una proposta mantenendo dieta, calorie e semplicità.",
     area: "Piani",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "plans-substitutions",
@@ -305,7 +305,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Alternative equivalenti per gusto, reperibilità e costo.",
     area: "Piani",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "plans-favorites",

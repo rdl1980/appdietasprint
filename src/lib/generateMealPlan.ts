@@ -1,4 +1,5 @@
 import { calculateCalories } from "./calories";
+import { getMacroTarget } from "./macroTargets";
 import { mealTemplates } from "./mealTemplates";
 import { excludedFoodsFromAllergies } from "./plannerPreferences";
 import { GroceryItem, Meal, MealPlan, MealType, PlannedMeal, UserProfile } from "./types";
@@ -30,7 +31,7 @@ function scoreMeal(meal: Meal, targetCalories: number, profile: UserProfile, ind
   return score;
 }
 
-function selectMeal(slot: MealType, targetCalories: number, profile: UserProfile, day: number, slotIndex: number) {
+function getMealPool(slot: MealType, profile: UserProfile) {
   const compatible = mealTemplates.filter(
     (meal) =>
       meal.mealType === slot &&
@@ -43,7 +44,11 @@ function selectMeal(slot: MealType, targetCalories: number, profile: UserProfile
   );
 
   const unrestricted = mealTemplates.filter((meal) => meal.mealType === slot);
-  const pool = compatible.length > 0 ? compatible : fallback.length > 0 ? fallback : unrestricted;
+  return compatible.length > 0 ? compatible : fallback.length > 0 ? fallback : unrestricted;
+}
+
+function selectMeal(slot: MealType, targetCalories: number, profile: UserProfile, day: number, slotIndex: number) {
+  const pool = getMealPool(slot, profile);
   const offset = day + slotIndex;
 
   return [...pool]
@@ -63,7 +68,7 @@ function distributeCalories(dailyCalories: number, slots: MealType[]) {
   return slots.map((slot) => Math.round((dailyCalories * ratios[slot]) / totalRatio));
 }
 
-function buildGroceryList(meals: PlannedMeal[]): GroceryItem[] {
+export function buildGroceryList(meals: PlannedMeal[]): GroceryItem[] {
   const groceryMap = new Map<string, number>();
 
   meals.forEach((meal) => {
@@ -77,11 +82,69 @@ function buildGroceryList(meals: PlannedMeal[]): GroceryItem[] {
     .sort((a, b) => a.name.localeCompare(b.name, "it"));
 }
 
-export function generateMealPlan(profile: UserProfile): MealPlan {
-  const normalizedProfile = {
+function refreshDayTotals(day: MealPlan["days"][number]) {
+  return {
+    ...day,
+    calories: day.meals.reduce((sum, meal) => sum + meal.calories, 0),
+    protein: day.meals.reduce((sum, meal) => sum + meal.protein, 0),
+    carbs: day.meals.reduce((sum, meal) => sum + meal.carbs, 0),
+    fats: day.meals.reduce((sum, meal) => sum + meal.fats, 0),
+  };
+}
+
+function normalizeProfile(profile: UserProfile): UserProfile {
+  return {
     ...profile,
     excludedFoods: [...profile.excludedFoods, ...excludedFoodsFromAllergies(profile.allergyFlags)],
   };
+}
+
+export function getMealSubstitutions(meal: Meal, profile: UserProfile, limit = 3) {
+  const normalizedProfile = normalizeProfile(profile);
+
+  return getMealPool(meal.mealType, normalizedProfile)
+    .filter((candidate) => candidate.id !== meal.id)
+    .sort((a, b) => Math.abs(a.calories - meal.calories) - Math.abs(b.calories - meal.calories))
+    .slice(0, limit);
+}
+
+export function regenerateMeal(plan: MealPlan, profile: UserProfile, dayNumber: number, mealIndex: number): MealPlan {
+  const dayIndex = plan.days.findIndex((day) => day.day === dayNumber);
+
+  if (dayIndex < 0) {
+    return plan;
+  }
+
+  const day = plan.days[dayIndex];
+  const currentMeal = day.meals[mealIndex];
+
+  if (!currentMeal) {
+    return plan;
+  }
+
+  const replacements = getMealSubstitutions(currentMeal, profile, 8);
+  const replacement = replacements[(dayNumber + mealIndex) % Math.max(replacements.length, 1)];
+
+  if (!replacement) {
+    return plan;
+  }
+
+  const nextMeals = day.meals.map((meal, index) =>
+    index === mealIndex ? { ...replacement, day: day.day } : meal,
+  );
+  const nextDays = plan.days.map((currentDay, index) =>
+    index === dayIndex ? refreshDayTotals({ ...currentDay, meals: nextMeals }) : currentDay,
+  );
+
+  return {
+    ...plan,
+    days: nextDays,
+    groceryList: buildGroceryList(nextDays.flatMap((nextDay) => nextDay.meals)),
+  };
+}
+
+export function generateMealPlan(profile: UserProfile): MealPlan {
+  const normalizedProfile = normalizeProfile(profile);
   const calorieResult = calculateCalories(normalizedProfile);
   const dailyCalories = normalizedProfile.targetCalories ?? calorieResult.suggestedCalories;
   const slots = slotByMealsPerDay[normalizedProfile.mealsPerDay] || slotByMealsPerDay[3];
@@ -115,5 +178,6 @@ export function generateMealPlan(profile: UserProfile): MealPlan {
     groceryList: buildGroceryList(days.flatMap((day) => day.meals)),
     warnings,
     calorieResult,
+    macroTarget: getMacroTarget(normalizedProfile.dietType, dailyCalories),
   };
 }

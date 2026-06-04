@@ -82,6 +82,15 @@ describe("mealPlanToRow", () => {
         suggestedRange: [1710, 1890],
         warnings: ["warning"],
       },
+      macroTarget: {
+        proteinPercent: [20, 25],
+        carbsPercent: [40, 50],
+        fatsPercent: [25, 35],
+        proteinGrams: [90, 113],
+        carbsGrams: [180, 225],
+        fatsGrams: [50, 70],
+        note: "Macro note",
+      },
     };
 
     expect(mealPlanToRow(plan, "user-1", "profile-1", profile)).toEqual({
@@ -91,6 +100,7 @@ describe("mealPlanToRow", () => {
       plan: {
         days: [],
         calorieResult: plan.calorieResult,
+        macroTarget: plan.macroTarget,
         profile,
       },
       grocery_list: [{ name: "riso", grams: 200 }],

@@ -3,6 +3,7 @@ import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { rateLimit, readJsonBody } from "@/lib/api";
 import { isValidProfile, mealPlanToRow, profileToRow } from "@/lib/databaseMappers";
+import { consentDocuments } from "@/lib/legalVersions";
 import { MealPlan, UserProfile } from "@/lib/types";
 
 type SavePlanBody = {
@@ -106,15 +107,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Piano non salvato." }, { status: 500 });
   }
 
-  await supabase.from("privacy_consents").insert({
-    user_id: userId,
-    document: "privacy",
-    version: "mvp-2026-05",
-    metadata: {
-      source: "save_plan",
-      planId: planRow.id,
-    },
-  });
+  await supabase.from("privacy_consents").insert(
+    consentDocuments.map((document) => ({
+      user_id: userId,
+      document: document.document,
+      version: document.version,
+      metadata: {
+        source: "save_plan",
+        planId: planRow.id,
+      },
+    })),
+  );
 
   return NextResponse.json({ profileId: profileRow.id, planId: planRow.id });
 }

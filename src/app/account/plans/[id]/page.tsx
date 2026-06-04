@@ -10,7 +10,9 @@ import { MealCard } from "@/components/MealCard";
 import { WarningBox } from "@/components/WarningBox";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { profileFromRow } from "@/lib/databaseMappers";
-import type { CalorieResult, GroceryItem, MealPlanDay, UserProfile } from "@/lib/types";
+import { getMealSubstitutions } from "@/lib/generateMealPlan";
+import { getMacroTarget } from "@/lib/macroTargets";
+import type { CalorieResult, GroceryItem, MacroTarget, MealPlanDay, UserProfile } from "@/lib/types";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -20,6 +22,7 @@ type PlanPayload = {
   days?: MealPlanDay[];
   calorieResult?: CalorieResult;
   profile?: UserProfile;
+  macroTarget?: MacroTarget;
 };
 
 type PlanRow = {
@@ -97,6 +100,7 @@ export default async function AccountPlanDetailPage({ params }: PageProps) {
   const userProfile = planRow.plan?.profile || (profile ? profileFromRow(profile as ProfileRow) : null);
   const days = planRow.plan?.days || [];
   const calorieResult = planRow.plan?.calorieResult;
+  const macroTarget = planRow.plan?.macroTarget || (userProfile ? getMacroTarget(userProfile.dietType, planRow.daily_calories) : null);
 
   return (
     <>
@@ -179,6 +183,29 @@ export default async function AccountPlanDetailPage({ params }: PageProps) {
           </section>
         ) : null}
 
+        {macroTarget ? (
+          <section className="mb-6">
+            <Card>
+              <h2 className="text-xl font-black text-ink">Macro coerenti</h2>
+              <p className="mt-2 text-sm leading-6 text-ink/65">{macroTarget.note}</p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                <div className="rounded-[8px] bg-cream p-3 text-sm">
+                  <span className="block text-ink/55">Proteine</span>
+                  <strong>{macroTarget.proteinGrams[0]}-{macroTarget.proteinGrams[1]} g</strong>
+                </div>
+                <div className="rounded-[8px] bg-cream p-3 text-sm">
+                  <span className="block text-ink/55">Carboidrati</span>
+                  <strong>{macroTarget.carbsGrams[0]}-{macroTarget.carbsGrams[1]} g</strong>
+                </div>
+                <div className="rounded-[8px] bg-cream p-3 text-sm">
+                  <span className="block text-ink/55">Grassi</span>
+                  <strong>{macroTarget.fatsGrams[0]}-{macroTarget.fatsGrams[1]} g</strong>
+                </div>
+              </div>
+            </Card>
+          </section>
+        ) : null}
+
         <section className="mb-8">
           <h2 className="mb-4 text-2xl font-black text-ink">Piano 7 giorni</h2>
           <div className="space-y-4">
@@ -192,7 +219,11 @@ export default async function AccountPlanDetailPage({ params }: PageProps) {
                 </div>
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
                   {day.meals.map((meal, index) => (
-                    <MealCard key={`${day.day}-${meal.id}-${meal.mealType}-${index}`} meal={meal} />
+                    <MealCard
+                      key={`${day.day}-${meal.id}-${meal.mealType}-${index}`}
+                      meal={meal}
+                      substitutions={userProfile ? getMealSubstitutions(meal, userProfile) : []}
+                    />
                   ))}
                 </div>
               </Card>

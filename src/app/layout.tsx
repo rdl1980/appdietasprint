@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { CookieBanner } from "@/components/CookieBanner";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="it">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { GroceryList } from "@/components/GroceryList";
@@ -8,7 +8,7 @@ import { MealCard } from "@/components/MealCard";
 import { SavePlanButton } from "@/components/SavePlanButton";
 import { WarningBox } from "@/components/WarningBox";
 import { disclaimerText } from "@/components/DisclaimerText";
-import { generateMealPlan } from "@/lib/generateMealPlan";
+import { generateMealPlan, getMealSubstitutions, regenerateMeal } from "@/lib/generateMealPlan";
 import { MealPlan, UserProfile } from "@/lib/types";
 import { CalendarDays, Download, HeartPulse, RefreshCw, ShieldCheck } from "lucide-react";
 
@@ -20,13 +20,6 @@ const dietCopy: Record<UserProfile["dietType"], string> = {
   vegetarian: "Opzioni con uova, latticini, legumi e tofu per sostenere proteine e sazieta.",
 };
 
-const substitutions = [
-  "Pollo -> tacchino, tonno al naturale o tofu compatto.",
-  "Farro/riso/quinoa -> patate, pane integrale o legumi in porzioni equivalenti.",
-  "Yogurt/skyr -> ricotta magra, kefir o alternativa vegetale proteica.",
-  "Salmone/orata -> sgombro, merluzzo o uova se preferisci un'opzione piu economica.",
-];
-
 const hungerTips = [
   "Inserisci verdure voluminose a pranzo e cena prima di aumentare le calorie.",
   "Tieni una quota proteica in ogni pasto: aiuta a gestire fame e snack impulsivi.",
@@ -36,15 +29,24 @@ const hungerTips = [
 
 export function ResultsClient() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [plan, setPlan] = useState<MealPlan | null>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("dietaSprintProfile");
     if (stored) {
-      setProfile(JSON.parse(stored) as UserProfile);
+      const nextProfile = JSON.parse(stored) as UserProfile;
+      setProfile(nextProfile);
+      setPlan(generateMealPlan(nextProfile));
     }
   }, []);
 
-  const plan: MealPlan | null = useMemo(() => (profile ? generateMealPlan(profile) : null), [profile]);
+  function regenerateSingleMeal(dayNumber: number, mealIndex: number) {
+    if (!profile || !plan) {
+      return;
+    }
+
+    setPlan(regenerateMeal(plan, profile, dayNumber, mealIndex));
+  }
 
   if (!profile || !plan) {
     return (
@@ -106,6 +108,11 @@ export function ResultsClient() {
           <ShieldCheck className="h-6 w-6 text-leaf" aria-hidden="true" />
           <h2 className="mt-3 text-lg font-bold text-ink">Tendenza macro</h2>
           <p className="mt-2 text-sm leading-6 text-ink/65">{dietCopy[profile.dietType]}</p>
+          <p className="mt-2 text-sm font-semibold text-ink">
+            P {plan.macroTarget.proteinGrams[0]}-{plan.macroTarget.proteinGrams[1]} g / C{" "}
+            {plan.macroTarget.carbsGrams[0]}-{plan.macroTarget.carbsGrams[1]} g / G{" "}
+            {plan.macroTarget.fatsGrams[0]}-{plan.macroTarget.fatsGrams[1]} g
+          </p>
         </Card>
         <Card>
           <CalendarDays className="h-6 w-6 text-leaf" aria-hidden="true" />
@@ -136,7 +143,12 @@ export function ResultsClient() {
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {firstDay.meals.map((meal, index) => (
-            <MealCard key={`${firstDay.day}-${meal.id}-${index}`} meal={meal} />
+            <MealCard
+              key={`${firstDay.day}-${meal.id}-${index}`}
+              meal={meal}
+              substitutions={getMealSubstitutions(meal, profile)}
+              onRegenerate={() => regenerateSingleMeal(firstDay.day, index)}
+            />
           ))}
         </div>
       </section>
@@ -160,7 +172,12 @@ export function ResultsClient() {
               </div>
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
                 {day.meals.map((meal, index) => (
-                  <MealCard key={`${day.day}-${meal.id}-${meal.mealType}-${index}`} meal={meal} />
+                  <MealCard
+                    key={`${day.day}-${meal.id}-${meal.mealType}-${index}`}
+                    meal={meal}
+                    substitutions={getMealSubstitutions(meal, profile)}
+                    onRegenerate={() => regenerateSingleMeal(day.day, index)}
+                  />
                 ))}
               </div>
             </Card>
@@ -171,11 +188,10 @@ export function ResultsClient() {
       <section className="mb-8 grid gap-4 lg:grid-cols-2">
         <Card>
           <h2 className="text-xl font-black text-ink">Sostituzioni</h2>
-          <ul className="mt-4 space-y-3 text-sm leading-6 text-ink/70">
-            {substitutions.map((substitution) => (
-              <li key={substitution}>{substitution}</li>
-            ))}
-          </ul>
+          <p className="mt-4 text-sm leading-6 text-ink/70">
+            Ogni card pasto mostra alternative compatibili per dieta, allergie e cibi esclusi. Il pulsante rigenera
+            sostituisce solo quel pasto e aggiorna lista spesa e totali del giorno.
+          </p>
         </Card>
         <Card>
           <h2 className="text-xl font-black text-ink">Strategia anti-fame</h2>

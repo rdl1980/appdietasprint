@@ -35,9 +35,14 @@ export async function Header() {
             <span className="rounded-full bg-lemon/70 px-1.5 py-0.5 text-[10px] font-black uppercase text-ink">temp</span>
           </Link>
           {isAdmin ? (
-            <Link href="/admin/backlog" className="hover:text-ink">
-              Admin
-            </Link>
+            <>
+              <Link href="/admin/backlog" className="hover:text-ink">
+                Admin
+              </Link>
+              <Link href="/admin/privacy" className="hover:text-ink">
+                GDPR
+              </Link>
+            </>
           ) : null}
         </nav>
         <div className="flex items-center gap-2">

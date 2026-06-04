@@ -59,6 +59,7 @@ export function mealPlanToRow(plan: MealPlan, userId: string, profileId: string,
     plan: {
       days: plan.days,
       calorieResult: plan.calorieResult,
+      macroTarget: plan.macroTarget,
       profile,
     },
     grocery_list: plan.groceryList,

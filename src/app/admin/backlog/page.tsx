@@ -36,6 +36,8 @@ const columns = [
       { priority: "OK", title: "Modifica profilo alimentare", area: "Account", icon: LockKeyhole },
       { priority: "OK", title: "Bozza planner e allergie", area: "Planner", icon: CheckCircle2 },
       { priority: "OK", title: "Spesa categorie/checklist", area: "Spesa", icon: CheckCircle2 },
+      { priority: "OK", title: "Macro, rigenera, sostituzioni", area: "Nutrizione", icon: CheckCircle2 },
+      { priority: "OK", title: "Cookie, export, workflow GDPR", area: "GDPR", icon: ShieldCheck },
       { priority: "OK", title: "Screening salute planner", area: "Sicurezza", icon: ShieldCheck },
       { priority: "OK", title: "Email Resend funzionante", area: "Comunicazioni", icon: CheckCircle2 },
       { priority: "OK", title: "Backup/restore script", area: "Dati", icon: Database },
@@ -74,8 +76,8 @@ const columns = [
 ];
 
 const metrics = [
-  { label: "Core MVP", value: "94%", detail: "Planner, risultati, salvataggio, storico, profilo e screening salute sono attivi." },
-  { label: "Pronto beta", value: "72%", detail: "Mancano QA automatizzato, legale finale, nutrizionista e monitoraggio errori." },
+  { label: "Core MVP", value: "96%", detail: "Planner, salvataggio, storico, profilo, GDPR operativo e macro sono attivi." },
+  { label: "Pronto beta", value: "78%", detail: "Mancano QA automatizzato, legale finale, nutrizionista e monitoraggio errori." },
   { label: "Monetizzazione", value: "15%", detail: "Pricing mock presente, Stripe ancora da implementare." },
 ];
 
@@ -183,6 +185,7 @@ export default async function AdminBacklogPage() {
               <Button href="/planner">Testa planner</Button>
               <Button href="/account" variant="secondary">Apri account</Button>
               <Button href="/account/privacy" variant="secondary">Privacy utente</Button>
+              <Button href="/admin/privacy" variant="secondary">Coda GDPR</Button>
             </div>
           </Card>
         </section>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateMealPlan } from "./generateMealPlan";
+import { generateMealPlan, getMealSubstitutions, regenerateMeal } from "./generateMealPlan";
 import type { UserProfile } from "./types";
 
 const profile: UserProfile = {
@@ -34,6 +34,7 @@ describe("generateMealPlan", () => {
     expect(plan.days.every((day) => day.meals.length === 3)).toBe(true);
     expect(plan.dailyCalories).toBe(1800);
     expect(plan.groceryList.length).toBeGreaterThan(0);
+    expect(plan.macroTarget.proteinGrams[0]).toBeGreaterThan(0);
   });
 
   it("supports expected meal counts and falls back to three meals", () => {
@@ -84,5 +85,24 @@ describe("generateMealPlan", () => {
     expect(ingredientNames).not.toContain("salmone");
     expect(ingredientNames).not.toContain("tonno");
     expect(ingredientNames).not.toContain("orata");
+  });
+
+  it("returns compatible substitutions for a meal", () => {
+    const plan = generateMealPlan(profile);
+    const meal = plan.days[0].meals[0];
+    const substitutions = getMealSubstitutions(meal, profile);
+
+    expect(substitutions.length).toBeGreaterThan(0);
+    expect(substitutions.every((substitution) => substitution.mealType === meal.mealType)).toBe(true);
+    expect(substitutions.some((substitution) => substitution.id === meal.id)).toBe(false);
+  });
+
+  it("regenerates a single meal and refreshes totals", () => {
+    const plan = generateMealPlan(profile);
+    const nextPlan = regenerateMeal(plan, profile, plan.days[0].day, 0);
+
+    expect(nextPlan.days[0].meals[0].id).not.toBe(plan.days[0].meals[0].id);
+    expect(nextPlan.days[0].calories).toBe(nextPlan.days[0].meals.reduce((sum, meal) => sum + meal.calories, 0));
+    expect(nextPlan.groceryList.length).toBeGreaterThan(0);
   });
 });
