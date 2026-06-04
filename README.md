@@ -7,8 +7,10 @@ MVP Next.js per un planner alimentare assistito da logica locale deterministica.
 ```bash
 npm install
 npm run dev
+npm test
 npm run lint
 npm run build
+npm run db:backup
 ```
 
 ## Rotte
@@ -89,6 +91,7 @@ PRIVACY_NOTIFICATION_EMAIL=
 ## Database
 
 Lo snapshot iniziale vive in `supabase/schema.sql`. Le migrazioni versionate vivono in `supabase/migrations`.
+La procedura operativa per backup e restore vive in `docs/backup-restore-runbook.md`.
 
 Le tabelle MVP sono:
 
@@ -98,6 +101,13 @@ Le tabelle MVP sono:
 - `data_subject_requests`
 
 Tutte hanno Row Level Security attiva. Le policy consentono agli utenti autenticati di accedere solo ai propri dati.
+
+Comandi database:
+
+```bash
+npm run db:backup
+npm run db:restore -- backups/supabase-YYYY-MM-DD.dump
+```
 
 ## Admin
 

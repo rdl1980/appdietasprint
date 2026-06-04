@@ -7,6 +7,9 @@ export const env = {
   dpoEmail: process.env.NEXT_PUBLIC_DPO_EMAIL || "",
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+  supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET || "",
+  debugAuthEndpoint: process.env.DEBUG_AUTH_ENDPOINT === "true",
 };
 
 export function isSupabaseConfigured() {

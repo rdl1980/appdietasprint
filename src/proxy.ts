@@ -7,7 +7,11 @@ export async function proxy(request: NextRequest) {
     request,
   });
 
-  if (!isSupabaseConfigured()) {
+  const pathname = request.nextUrl.pathname;
+  const needsSupabaseCookieBridge =
+    pathname === "/auth/confirm" || pathname === "/account/password" || pathname.startsWith("/api/account/password");
+
+  if (!needsSupabaseCookieBridge || !isSupabaseConfigured()) {
     return response;
   }
 

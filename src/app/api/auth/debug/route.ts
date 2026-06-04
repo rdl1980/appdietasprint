@@ -1,11 +1,17 @@
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
+  if (process.env.NODE_ENV === "production" && !env.debugAuthEndpoint) {
+    notFound();
+  }
+
   const cookieStore = await cookies();
   const cookieNames = cookieStore.getAll().map((cookie) => cookie.name);
   const supabaseCookieNames = cookieNames.filter((name) => name.startsWith("sb-"));

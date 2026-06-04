@@ -113,7 +113,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       session.user.appMetadata = token.appMetadata;
-      session.supabaseAccessToken = token.supabaseAccessToken;
       session.authError = token.authError;
 
       return session;

@@ -6,7 +6,6 @@ declare module "next-auth" {
       id: string;
       appMetadata?: Record<string, unknown>;
     } & DefaultSession["user"];
-    supabaseAccessToken?: string;
     authError?: "RefreshAccessTokenError";
   }
 

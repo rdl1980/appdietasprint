@@ -10,7 +10,7 @@ export function profileToRow(profile: UserProfile, userId: string) {
     activity_level: profile.activityLevel,
     goal: profile.goal,
     diet_type: profile.dietType,
-    target_calories: profile.targetCalories || null,
+    target_calories: profile.targetCalories ?? null,
     meals_per_day: profile.mealsPerDay,
     excluded_foods: profile.excludedFoods,
     simplicity_level: profile.simplicityLevel,

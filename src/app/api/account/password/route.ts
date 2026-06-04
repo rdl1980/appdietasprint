@@ -1,39 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
-import { env, isSupabaseConfigured } from "@/lib/env";
-import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
+import { isSupabaseConfigured } from "@/lib/env";
+import { createSupabaseAdminClient, getAuthenticatedUser } from "@/lib/supabase/data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { rateLimit, readJsonBody } from "@/lib/api";
 
 type UpdatePasswordBody = {
   password?: string;
 };
 
 export async function POST(request: NextRequest) {
+  const limited = rateLimit(request, {
+    key: "account-password",
+    limit: 5,
+    windowMs: 10 * 60 * 1000,
+  });
+
+  if (limited) {
+    return limited;
+  }
+
   if (!isSupabaseConfigured()) {
     return NextResponse.json({ error: "Supabase non configurato." }, { status: 503 });
   }
 
-  const body = (await request.json()) as UpdatePasswordBody;
+  const body = await readJsonBody<UpdatePasswordBody>(request);
 
-  if (!body.password || body.password.length < 8) {
+  if (!body?.password || body.password.length < 8) {
     return NextResponse.json({ error: "Usa una password di almeno 8 caratteri." }, { status: 400 });
   }
 
-  const { accessToken } = await createAuthenticatedSupabaseClient();
+  const user = await getAuthenticatedUser();
 
-  if (accessToken) {
-    const response = await fetch(`${env.supabaseUrl}/auth/v1/user`, {
-      method: "PUT",
-      headers: {
-        apikey: env.supabaseAnonKey,
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ password: body.password }),
+  if (user) {
+    const supabaseAdmin = await createSupabaseAdminClient();
+
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: "Servizio account non configurato." }, { status: 503 });
+    }
+
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      password: body.password,
     });
 
-    if (!response.ok) {
-      const result = (await response.json()) as { message?: string };
-      return NextResponse.json({ error: result.message || "Password non aggiornata." }, { status: response.status });
+    if (error) {
+      console.error("password_update_failed", { userId: user.id, error: error.message });
+      return NextResponse.json({ error: "Password non aggiornata." }, { status: 500 });
     }
 
     return NextResponse.json({ updated: true });
@@ -50,7 +61,8 @@ export async function POST(request: NextRequest) {
   const { error } = await supabase.auth.updateUser({ password: body.password });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    console.error("recovery_password_update_failed", { error: error.message });
+    return NextResponse.json({ error: "Password non aggiornata. Richiedi un nuovo link di recupero." }, { status: 400 });
   }
 
   return NextResponse.json({ updated: true });

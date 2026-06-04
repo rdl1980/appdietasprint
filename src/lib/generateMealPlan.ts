@@ -75,7 +75,7 @@ function buildGroceryList(meals: PlannedMeal[]): GroceryItem[] {
 
 export function generateMealPlan(profile: UserProfile): MealPlan {
   const calorieResult = calculateCalories(profile);
-  const dailyCalories = profile.targetCalories || calorieResult.suggestedCalories;
+  const dailyCalories = profile.targetCalories ?? calorieResult.suggestedCalories;
   const slots = slotByMealsPerDay[profile.mealsPerDay] || slotByMealsPerDay[3];
   const slotTargets = distributeCalories(dailyCalories, slots);
   const warnings = [...calorieResult.warnings];

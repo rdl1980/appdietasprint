@@ -24,7 +24,7 @@ export function calculateCalories(profile: UserProfile): CalorieResult {
   const tdee = Math.round(bmr * activityMultipliers[profile.activityLevel]);
   const deficit = deficitByGoal[profile.goal];
   const suggestedCalories = Math.round(tdee * (1 - deficit));
-  const selectedCalories = profile.targetCalories || suggestedCalories;
+  const selectedCalories = profile.targetCalories ?? suggestedCalories;
   const rangeMin = Math.round(suggestedCalories * 0.95);
   const rangeMax = Math.round(suggestedCalories * 1.05);
   const warnings: string[] = [];

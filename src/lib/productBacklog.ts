@@ -513,7 +513,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Copertura formule, soglie e casi limite.",
     area: "Qualita",
     priority: "P0",
-    status: "next",
+    status: "done",
   },
   {
     id: "quality-error-tracking",

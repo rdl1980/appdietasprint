@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
+import { rateLimit, readJsonBody } from "@/lib/api";
 import { isValidProfile, mealPlanToRow, profileToRow } from "@/lib/databaseMappers";
 import { MealPlan, UserProfile } from "@/lib/types";
 
@@ -28,18 +29,33 @@ export async function GET() {
     .limit(10);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("plans_list_failed", { userId: user.id, error: error.message });
+    return NextResponse.json({ error: "Piani non disponibili." }, { status: 500 });
   }
 
   return NextResponse.json({ plans: data });
 }
 
 export async function POST(request: NextRequest) {
+  const limited = rateLimit(request, {
+    key: "plans-post",
+    limit: 20,
+    windowMs: 10 * 60 * 1000,
+  });
+
+  if (limited) {
+    return limited;
+  }
+
   if (!isSupabaseConfigured()) {
     return NextResponse.json({ error: "Supabase non configurato" }, { status: 503 });
   }
 
-  const body = (await request.json()) as SavePlanBody;
+  const body = await readJsonBody<SavePlanBody>(request);
+
+  if (!body) {
+    return NextResponse.json({ error: "Richiesta non valida." }, { status: 400 });
+  }
 
   if (!body.privacyConsent) {
     return NextResponse.json({ error: "Consenso privacy richiesto per salvare dati alimentari." }, { status: 400 });
@@ -64,7 +80,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (profileError || !profileRow) {
-    return NextResponse.json({ error: profileError?.message || "Profilo non salvato." }, { status: 500 });
+    console.error("profile_save_failed", { userId, error: profileError?.message });
+    return NextResponse.json({ error: "Profilo non salvato." }, { status: 500 });
   }
 
   const { data: planRow, error: planError } = await supabase
@@ -74,7 +91,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (planError || !planRow) {
-    return NextResponse.json({ error: planError?.message || "Piano non salvato." }, { status: 500 });
+    console.error("plan_save_failed", { userId, error: planError?.message });
+    return NextResponse.json({ error: "Piano non salvato." }, { status: 500 });
   }
 
   await supabase.from("privacy_consents").insert({
