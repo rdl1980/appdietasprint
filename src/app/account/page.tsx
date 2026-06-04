@@ -46,6 +46,7 @@ export default async function AccountPage() {
       ? await supabase
           .from("user_profiles")
           .select("id,diet_type,target_calories,meals_per_day,created_at")
+          .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(4)
       : { data: [] as ProfileRow[] };
@@ -55,6 +56,7 @@ export default async function AccountPage() {
       ? await supabase
           .from("meal_plans")
           .select("id,daily_calories,warnings,created_at")
+          .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(4)
       : { data: [] as PlanRow[] };

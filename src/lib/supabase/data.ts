@@ -9,6 +9,11 @@ export type AppUser = {
   app_metadata?: Record<string, unknown>;
 };
 
+type AuthenticatedSupabaseUnavailableReason =
+  | "unauthenticated"
+  | "supabase_not_configured"
+  | "data_service_not_configured";
+
 export async function getAuthenticatedUser(): Promise<AppUser | null> {
   const session = await auth();
 
@@ -64,14 +69,21 @@ async function createSupabaseRlsToken(user: AppUser) {
 export async function createAuthenticatedSupabaseClient() {
   const session = await auth();
 
-  if (
-    !isSupabaseConfigured() ||
-    !session?.user?.id ||
-    session.authError
-  ) {
+  if (!isSupabaseConfigured()) {
     return {
       supabase: null,
       user: null,
+      mode: null,
+      unavailableReason: "supabase_not_configured" satisfies AuthenticatedSupabaseUnavailableReason,
+    };
+  }
+
+  if (!session?.user?.id || session.authError) {
+    return {
+      supabase: null,
+      user: null,
+      mode: null,
+      unavailableReason: "unauthenticated" satisfies AuthenticatedSupabaseUnavailableReason,
     };
   }
 
@@ -82,28 +94,49 @@ export async function createAuthenticatedSupabaseClient() {
   } satisfies AppUser;
   const rlsToken = await createSupabaseRlsToken(user);
 
-  if (!rlsToken) {
+  if (rlsToken) {
+    const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        persistSession: false,
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${rlsToken}`,
+        },
+      },
+    });
+
     return {
-      supabase: null,
-      user: null,
+      supabase,
+      user,
+      mode: "rls" as const,
+      unavailableReason: null,
     };
   }
 
-  const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
-    auth: {
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-      persistSession: false,
-    },
-    global: {
-      headers: {
-        Authorization: `Bearer ${rlsToken}`,
-      },
-    },
-  });
+  const supabase = createSupabaseServiceClient();
+
+  if (!supabase) {
+    console.error("authenticated_data_client_unavailable", {
+      userId: user.id,
+      hasSupabaseJwtSecret: Boolean(env.supabaseJwtSecret),
+      hasServiceRoleKey: Boolean(env.supabaseServiceRoleKey),
+    });
+
+    return {
+      supabase: null,
+      user,
+      mode: null,
+      unavailableReason: "data_service_not_configured" satisfies AuthenticatedSupabaseUnavailableReason,
+    };
+  }
 
   return {
     supabase,
     user,
+    mode: "service" as const,
+    unavailableReason: null,
   };
 }

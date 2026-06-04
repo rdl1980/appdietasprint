@@ -32,10 +32,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Tipo richiesta non valido." }, { status: 400 });
   }
 
-  const { supabase, user } = await createAuthenticatedSupabaseClient();
+  const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient();
 
-  if (!supabase || !user?.email) {
+  if (!user?.email) {
     return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+  }
+
+  if (!supabase) {
+    const status = unavailableReason === "data_service_not_configured" ? 503 : 401;
+    return NextResponse.json({ error: "Richiesta non disponibile." }, { status });
   }
 
   const { data, error } = await supabase

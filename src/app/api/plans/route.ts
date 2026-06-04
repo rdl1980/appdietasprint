@@ -16,15 +16,21 @@ export async function GET() {
     return NextResponse.json({ error: "Supabase non configurato" }, { status: 503 });
   }
 
-  const { supabase, user } = await createAuthenticatedSupabaseClient();
+  const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient();
 
-  if (!supabase || !user) {
+  if (!user) {
     return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+  }
+
+  if (!supabase) {
+    const status = unavailableReason === "data_service_not_configured" ? 503 : 401;
+    return NextResponse.json({ error: "Piani non disponibili." }, { status });
   }
 
   const { data, error } = await supabase
     .from("meal_plans")
     .select("id,daily_calories,warnings,created_at")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -65,10 +71,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Profilo o piano non validi." }, { status: 400 });
   }
 
-  const { supabase, user } = await createAuthenticatedSupabaseClient();
+  const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient();
 
-  if (!supabase || !user) {
+  if (!user) {
     return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+  }
+
+  if (!supabase) {
+    const status = unavailableReason === "data_service_not_configured" ? 503 : 401;
+    return NextResponse.json({ error: "Salvataggio non disponibile." }, { status });
   }
 
   const userId = user.id;

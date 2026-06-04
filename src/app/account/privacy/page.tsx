@@ -13,6 +13,7 @@ export default async function AccountPrivacyPage() {
       ? await supabase
           .from("data_subject_requests")
           .select("id,request_type,status,created_at")
+          .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(10)
       : { data: [] };
