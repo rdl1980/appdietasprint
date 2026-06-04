@@ -31,7 +31,10 @@ const columns = [
       { priority: "OK", title: "Auth email/password", area: "Account", icon: LockKeyhole },
       { priority: "OK", title: "Supabase profili e piani", area: "Dati", icon: Database },
       { priority: "OK", title: "Planner + piano 7 giorni", area: "Prodotto", icon: CheckCircle2 },
+      { priority: "OK", title: "Salvataggio piano autenticato", area: "Prodotto", icon: Database },
+      { priority: "OK", title: "Screening salute planner", area: "Sicurezza", icon: ShieldCheck },
       { priority: "OK", title: "Email Resend funzionante", area: "Comunicazioni", icon: CheckCircle2 },
+      { priority: "OK", title: "Backup/restore script", area: "Dati", icon: Database },
     ],
   },
   {
@@ -40,8 +43,8 @@ const columns = [
     items: [
       { priority: "P0", title: "QA registrazione end-to-end", area: "Account", icon: TestTube2 },
       { priority: "P0", title: "Revisione legale reale", area: "GDPR", icon: ShieldCheck },
+      { priority: "P0", title: "Revisione nutrizionista", area: "Nutrizione", icon: ShieldCheck },
       { priority: "P0", title: "Error tracking produzione", area: "Qualita", icon: AlertTriangle },
-      { priority: "P0", title: "Backup e retention dati", area: "Dati", icon: Database },
     ],
   },
   {
@@ -67,14 +70,14 @@ const columns = [
 ];
 
 const metrics = [
-  { label: "Core MVP", value: "85%", detail: "Planner, risultati, salvataggio e account sono attivi." },
-  { label: "Pronto beta", value: "62%", detail: "Mancano QA, legale finale e monitoraggio errori." },
+  { label: "Core MVP", value: "90%", detail: "Planner, risultati, salvataggio, account e screening salute sono attivi." },
+  { label: "Pronto beta", value: "68%", detail: "Mancano QA automatizzato, legale finale, nutrizionista e monitoraggio errori." },
   { label: "Monetizzazione", value: "15%", detail: "Pricing mock presente, Stripe ancora da implementare." },
 ];
 
 const checklist = [
   "Registrazione -> conferma email -> login -> account",
-  "Planner -> risultati -> salva piano -> storico account",
+  "Planner -> screening salute -> risultati -> salva piano -> storico account",
   "Reset password -> cambio password -> nuovo login",
   "Richiesta privacy/GDPR salvata correttamente",
   "Controllo responsive mobile su landing, planner, risultati e account",
@@ -109,7 +112,7 @@ export default async function AdminBacklogPage() {
           </div>
           <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-ink shadow-sm ring-1 ring-ink/10">
             <CalendarClock className="h-4 w-4 text-leaf" aria-hidden="true" />
-            Aggiornato: area admin
+            Aggiornato: 04 giu 2026
           </div>
         </section>
 

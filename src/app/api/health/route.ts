@@ -6,7 +6,7 @@ export function GET() {
   return NextResponse.json({
     ok: true,
     app: "DietaSprint AI",
-    build: "admin-session-diagnostics-2026-05-29",
+    build: "backlog-refresh-2026-06-04",
     supabaseConfigured: isSupabaseConfigured(),
     emailConfigured: isEmailConfigured(),
     timestamp: new Date().toISOString(),

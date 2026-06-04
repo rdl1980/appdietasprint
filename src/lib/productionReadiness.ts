@@ -17,16 +17,16 @@ export function getP0Readiness(): ReadinessItem[] {
     {
       id: "deploy-vercel",
       title: "Deploy Vercel",
-      status: "ready",
+      status: "done",
       owner: "Tech",
-      detail: "Build e package-lock sono pronti. Collegare il repo GitHub a Vercel e impostare le variabili ambiente.",
+      detail: "Deploy automatico da GitHub a Vercel attivo e dominio produzione pubblicato.",
     },
     {
       id: "domain",
       title: "Dominio custom",
-      status: "blocked",
+      status: "done",
       owner: "Business",
-      detail: "Serve scegliere e acquistare il dominio, poi configurare DNS su Vercel.",
+      detail: "dietsprintai.com e www.dietsprintai.com sono collegati alla produzione Vercel.",
     },
     {
       id: "privacy-gdpr",
@@ -41,7 +41,7 @@ export function getP0Readiness(): ReadinessItem[] {
       status: supabaseReady ? "done" : "ready",
       owner: "Tech",
       detail: supabaseReady
-        ? "Login email/password, registrazione e logout attivi."
+        ? "Login email/password, registrazione, recupero password, cambio password e logout attivi."
         : "Login email/password, registrazione, recupero password e logout implementati. Mancano le variabili Supabase per attivarli.",
     },
     {
@@ -50,7 +50,7 @@ export function getP0Readiness(): ReadinessItem[] {
       status: supabaseReady ? "done" : "ready",
       owner: "Tech",
       detail: supabaseReady
-        ? "API salvataggio profili/piani pronta con sessione utente."
+        ? "API salvataggio profili/piani verificata con sessione Auth.js e filtri utente."
         : "Schema SQL, RLS e API salvataggio implementati. Serve creare Supabase ed eseguire lo schema.",
     },
   ];

@@ -62,10 +62,10 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "foundation-backups",
     title: "Backup e ripristino database",
-    detail: "Strategia backup, retention e prova periodica di restore.",
+    detail: "Script backup/restore e runbook operativo presenti. La prova periodica resta processo ricorrente.",
     area: "Fondamenta",
     priority: "P0",
-    status: "next",
+    status: "done",
   },
   {
     id: "account-email-password",
@@ -81,7 +81,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Reset via email e aggiornamento credenziali dall'account.",
     area: "Account",
     priority: "P0",
-    status: "next",
+    status: "done",
   },
   {
     id: "account-profile-edit",
@@ -263,6 +263,14 @@ export const backlogItems: BacklogItem[] = [
     id: "plans-daily-weekly",
     title: "Piano giornaliero e settimanale",
     detail: "Generazione deterministica con ingredienti, quantità e macro.",
+    area: "Piani",
+    priority: "P0",
+    status: "done",
+  },
+  {
+    id: "plans-authenticated-save",
+    title: "Salvataggio piani autenticato",
+    detail: "Profilo, piano, lista spesa e consenso vengono salvati su Supabase con sessione Auth.js.",
     area: "Piani",
     priority: "P0",
     status: "done",
@@ -502,7 +510,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "quality-e2e",
     title: "Test E2E flusso principale",
-    detail: "Registrazione, conferma, login, planner, salvataggio e privacy.",
+    detail: "Automatizzare registrazione, conferma, login, planner, salvataggio e privacy. Smoke live manuale gia eseguito.",
     area: "Qualita",
     priority: "P0",
     status: "next",
@@ -522,6 +530,14 @@ export const backlogItems: BacklogItem[] = [
     area: "Qualita",
     priority: "P0",
     status: "next",
+  },
+  {
+    id: "quality-security-hardening",
+    title: "Hardening sicurezza MVP",
+    detail: "Rate limit, header sicurezza, debug auth disabilitato in produzione e token non esposti al client.",
+    area: "Qualita",
+    priority: "P0",
+    status: "done",
   },
   {
     id: "quality-accessibility",
