@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
   const { data: planRow, error: planError } = await supabase
     .from("meal_plans")
-    .insert(mealPlanToRow(body.plan, userId, profileRow.id))
+    .insert(mealPlanToRow(body.plan, userId, profileRow.id, body.profile))
     .select("id")
     .single();
 

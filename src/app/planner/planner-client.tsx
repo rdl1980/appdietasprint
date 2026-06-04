@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -10,8 +10,9 @@ import { Select } from "@/components/Select";
 import { WarningBox } from "@/components/WarningBox";
 import { calculateCalories } from "@/lib/calories";
 import { getMedicalScreeningBlock, medicalScreeningOptions } from "@/lib/medicalScreening";
-import { ActivityLevel, DietType, Goal, MedicalScreeningFlag, Sex, SimplicityLevel, UserProfile } from "@/lib/types";
-import { Calculator, CheckCircle2 } from "lucide-react";
+import { allergyOptions, cookingTimeOptions } from "@/lib/plannerPreferences";
+import { ActivityLevel, AllergyFlag, DietType, Goal, MedicalScreeningFlag, Sex, SimplicityLevel, UserProfile } from "@/lib/types";
+import { Calculator, CheckCircle2, Save } from "lucide-react";
 
 const initialProfile: UserProfile = {
   sex: "female",
@@ -26,6 +27,8 @@ const initialProfile: UserProfile = {
   simplicityLevel: "zeroSbatti",
   budgetMode: false,
   medicalFlags: [],
+  allergyFlags: [],
+  cookingTime: "standard",
 };
 
 export function PlannerClient() {
@@ -33,8 +36,26 @@ export function PlannerClient() {
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
   const [excludedText, setExcludedText] = useState("");
   const [error, setError] = useState("");
+  const [draftStatus, setDraftStatus] = useState("");
 
   const calorieResult = useMemo(() => calculateCalories(profile), [profile]);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("dietaSprintDraftProfile") || window.localStorage.getItem("dietaSprintProfile");
+
+    if (!stored) {
+      return;
+    }
+
+    try {
+      const draft = JSON.parse(stored) as UserProfile;
+      setProfile({ ...initialProfile, ...draft });
+      setExcludedText((draft.excludedFoods || []).join(", "));
+      setDraftStatus("Bozza caricata.");
+    } catch {
+      window.localStorage.removeItem("dietaSprintDraftProfile");
+    }
+  }, []);
 
   function updateProfile<Key extends keyof UserProfile>(key: Key, value: UserProfile[Key]) {
     setProfile((current) => ({ ...current, [key]: value }));
@@ -51,9 +72,36 @@ export function PlannerClient() {
     });
   }
 
+  function toggleAllergyFlag(flag: AllergyFlag, enabled: boolean) {
+    setProfile((current) => {
+      const currentFlags = current.allergyFlags || [];
+      const allergyFlags = enabled
+        ? [...new Set([...currentFlags, flag])]
+        : currentFlags.filter((currentFlag) => currentFlag !== flag);
+
+      return { ...current, allergyFlags };
+    });
+  }
+
+  function buildProfileFromForm() {
+    return {
+      ...profile,
+      excludedFoods: excludedText
+        .split(",")
+        .map((food) => food.trim())
+        .filter(Boolean),
+    };
+  }
+
+  function saveDraft() {
+    window.localStorage.setItem("dietaSprintDraftProfile", JSON.stringify(buildProfileFromForm()));
+    setDraftStatus("Bozza salvata su questo dispositivo.");
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setDraftStatus("");
 
     const medicalBlock = getMedicalScreeningBlock(profile.medicalFlags);
 
@@ -72,15 +120,10 @@ export function PlannerClient() {
       return;
     }
 
-    const finalProfile = {
-      ...profile,
-      excludedFoods: excludedText
-        .split(",")
-        .map((food) => food.trim())
-        .filter(Boolean),
-    };
+    const finalProfile = buildProfileFromForm();
 
     window.localStorage.setItem("dietaSprintProfile", JSON.stringify(finalProfile));
+    window.localStorage.setItem("dietaSprintDraftProfile", JSON.stringify(finalProfile));
     router.push("/results");
   }
 
@@ -246,6 +289,12 @@ export function PlannerClient() {
               { value: "mealPrep", label: "Meal prep" },
             ]}
           />
+          <Select
+            label="Tempo cucina"
+            value={profile.cookingTime || "standard"}
+            onChange={(event) => updateProfile("cookingTime", event.target.value as UserProfile["cookingTime"])}
+            options={cookingTimeOptions}
+          />
           <Input
             label="Cibi esclusi"
             helper="separati da virgola, es. tonno, latte"
@@ -264,6 +313,23 @@ export function PlannerClient() {
           </label>
         </FormSection>
 
+        <FormSection title="Allergie e intolleranze" description="Selezioni strutturate che escludono ingredienti compatibili.">
+          {allergyOptions.map((option) => (
+            <label
+              key={option.value}
+              className="flex min-h-12 items-start gap-3 rounded-[8px] border border-ink/10 bg-white px-4 py-3"
+            >
+              <input
+                type="checkbox"
+                checked={(profile.allergyFlags || []).includes(option.value)}
+                onChange={(event) => toggleAllergyFlag(option.value, event.target.checked)}
+                className="mt-1 h-5 w-5 accent-leaf"
+              />
+              <span className="text-sm font-semibold leading-6 text-ink">{option.label}</span>
+            </label>
+          ))}
+        </FormSection>
+
         {calorieResult.warnings.length ? (
           <WarningBox tone="strong">
             <ul className="space-y-1">
@@ -275,15 +341,22 @@ export function PlannerClient() {
         ) : null}
 
         {error ? <WarningBox tone="strong">{error}</WarningBox> : null}
+        {draftStatus ? <WarningBox>{draftStatus}</WarningBox> : null}
 
         <div className="flex flex-col gap-3 rounded-[8px] bg-white/70 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-sm font-semibold text-ink/70">
             <CheckCircle2 size={18} className="text-leaf" aria-hidden="true" />
             Nessuna diagnosi, solo pianificazione alimentare orientativa.
           </div>
-          <Button type="submit" size="lg">
-            Genera piano
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button type="button" variant="secondary" size="lg" onClick={saveDraft}>
+              <Save size={18} aria-hidden="true" />
+              Salva bozza
+            </Button>
+            <Button type="submit" size="lg">
+              Genera piano
+            </Button>
+          </div>
         </div>
       </form>
     </main>

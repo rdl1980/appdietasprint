@@ -32,6 +32,10 @@ const columns = [
       { priority: "OK", title: "Supabase profili e piani", area: "Dati", icon: Database },
       { priority: "OK", title: "Planner + piano 7 giorni", area: "Prodotto", icon: CheckCircle2 },
       { priority: "OK", title: "Salvataggio piano autenticato", area: "Prodotto", icon: Database },
+      { priority: "OK", title: "Storico e dettaglio piani", area: "Prodotto", icon: FileText },
+      { priority: "OK", title: "Modifica profilo alimentare", area: "Account", icon: LockKeyhole },
+      { priority: "OK", title: "Bozza planner e allergie", area: "Planner", icon: CheckCircle2 },
+      { priority: "OK", title: "Spesa categorie/checklist", area: "Spesa", icon: CheckCircle2 },
       { priority: "OK", title: "Screening salute planner", area: "Sicurezza", icon: ShieldCheck },
       { priority: "OK", title: "Email Resend funzionante", area: "Comunicazioni", icon: CheckCircle2 },
       { priority: "OK", title: "Backup/restore script", area: "Dati", icon: Database },
@@ -51,10 +55,10 @@ const columns = [
     title: "Prossimo sprint",
     tone: "bg-white",
     items: [
-      { priority: "P1", title: "Modifica profilo utente", area: "Account", icon: LockKeyhole },
-      { priority: "P1", title: "Dettaglio piano salvato", area: "Prodotto", icon: FileText },
       { priority: "P1", title: "Elimina piano/profilo", area: "GDPR", icon: ShieldCheck },
       { priority: "P1", title: "Analytics privacy-first", area: "Misura", icon: BarChart3 },
+      { priority: "P1", title: "Layer AI server-side", area: "AI", icon: Bot },
+      { priority: "P1", title: "Stripe subscriptions", area: "Revenue", icon: CreditCard },
     ],
   },
   {
@@ -70,14 +74,14 @@ const columns = [
 ];
 
 const metrics = [
-  { label: "Core MVP", value: "90%", detail: "Planner, risultati, salvataggio, account e screening salute sono attivi." },
-  { label: "Pronto beta", value: "68%", detail: "Mancano QA automatizzato, legale finale, nutrizionista e monitoraggio errori." },
+  { label: "Core MVP", value: "94%", detail: "Planner, risultati, salvataggio, storico, profilo e screening salute sono attivi." },
+  { label: "Pronto beta", value: "72%", detail: "Mancano QA automatizzato, legale finale, nutrizionista e monitoraggio errori." },
   { label: "Monetizzazione", value: "15%", detail: "Pricing mock presente, Stripe ancora da implementare." },
 ];
 
 const checklist = [
   "Registrazione -> conferma email -> login -> account",
-  "Planner -> screening salute -> risultati -> salva piano -> storico account",
+  "Planner -> screening salute -> risultati -> salva piano -> storico/dettaglio account",
   "Reset password -> cambio password -> nuovo login",
   "Richiesta privacy/GDPR salvata correttamente",
   "Controllo responsive mobile su landing, planner, risultati e account",

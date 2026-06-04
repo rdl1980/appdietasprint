@@ -72,4 +72,17 @@ describe("generateMealPlan", () => {
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, "it")));
     expect(new Set(names).size).toBe(names.length);
   });
+
+  it("applies structured allergy exclusions", () => {
+    const plan = generateMealPlan({
+      ...profile,
+      dietType: "mediterranean",
+      allergyFlags: ["fish"],
+    });
+    const ingredientNames = plan.groceryList.map((item) => item.name.toLowerCase()).join(" ");
+
+    expect(ingredientNames).not.toContain("salmone");
+    expect(ingredientNames).not.toContain("tonno");
+    expect(ingredientNames).not.toContain("orata");
+  });
 });

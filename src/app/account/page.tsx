@@ -165,12 +165,19 @@ export default async function AccountPage() {
               <Card>
                 <div className="flex items-center justify-between gap-4">
                   <h2 className="text-xl font-black text-ink">Piani salvati</h2>
-                  <Button href="/planner" variant="secondary" size="sm">Crea</Button>
+                  <div className="flex gap-2">
+                    <Button href="/account/plans" variant="secondary" size="sm">Vedi tutti</Button>
+                    <Button href="/planner" variant="secondary" size="sm">Crea</Button>
+                  </div>
                 </div>
                 <div className="mt-4 space-y-3">
                   {plans?.length ? (
                     plans.map((plan) => (
-                      <div key={plan.id} className="rounded-[8px] border border-ink/10 bg-cream p-4">
+                      <a
+                        key={plan.id}
+                        href={`/account/plans/${plan.id}`}
+                        className="block rounded-[8px] border border-ink/10 bg-cream p-4 transition hover:border-leaf/40 hover:bg-mint/40"
+                      >
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="font-black text-ink">{plan.daily_calories} kcal giornaliere</p>
@@ -183,7 +190,7 @@ export default async function AccountPage() {
                             {plan.warnings.length} avviso calorie/sicurezza
                           </p>
                         ) : null}
-                      </div>
+                      </a>
                     ))
                   ) : (
                     <p className="rounded-[8px] bg-cream p-4 text-sm text-ink/60">
@@ -194,7 +201,10 @@ export default async function AccountPage() {
               </Card>
 
               <Card>
-                <h2 className="text-xl font-black text-ink">Profili alimentari</h2>
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-xl font-black text-ink">Profili alimentari</h2>
+                  <Button href="/account/profile" variant="secondary" size="sm">Modifica</Button>
+                </div>
                 <div className="mt-4 space-y-3">
                   {profiles?.length ? (
                     profiles.map((profile) => (

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidProfile, mealPlanToRow, profileToRow } from "./databaseMappers";
+import { isValidProfile, mealPlanToRow, profileFromRow, profileToRow } from "./databaseMappers";
 import type { MealPlan, UserProfile } from "./types";
 
 const profile: UserProfile = {
@@ -41,6 +41,33 @@ describe("profileToRow", () => {
   });
 });
 
+describe("profileFromRow", () => {
+  it("maps database rows back to planner profile shape", () => {
+    expect(
+      profileFromRow({
+        sex: "male",
+        age: 42,
+        height_cm: 178,
+        weight_kg: "84.5",
+        activity_level: "light",
+        goal: "mild",
+        diet_type: "mediterranean",
+        target_calories: null,
+        meals_per_day: 4,
+        excluded_foods: ["tonno"],
+        simplicity_level: "mealPrep",
+        budget_mode: true,
+      }),
+    ).toEqual({
+      ...profile,
+      weightKg: 84.5,
+      targetCalories: undefined,
+      budgetMode: true,
+      medicalFlags: [],
+    });
+  });
+});
+
 describe("mealPlanToRow", () => {
   it("keeps plan json and top-level grocery/warnings fields separate", () => {
     const plan: MealPlan = {
@@ -57,13 +84,14 @@ describe("mealPlanToRow", () => {
       },
     };
 
-    expect(mealPlanToRow(plan, "user-1", "profile-1")).toEqual({
+    expect(mealPlanToRow(plan, "user-1", "profile-1", profile)).toEqual({
       user_id: "user-1",
       profile_id: "profile-1",
       daily_calories: 1800,
       plan: {
         days: [],
         calorieResult: plan.calorieResult,
+        profile,
       },
       grocery_list: [{ name: "riso", grams: 200 }],
       warnings: ["warning"],

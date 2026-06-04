@@ -89,7 +89,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Aggiornare dati, preferenze, esclusioni e obiettivi salvati.",
     area: "Account",
     priority: "P1",
-    status: "next",
+    status: "done",
   },
   {
     id: "account-onboarding",
@@ -182,10 +182,10 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "planner-save-draft",
     title: "Salvataggio bozza planner",
-    detail: "Riprendere la compilazione su altro dispositivo o in seguito.",
+    detail: "Bozza locale su dispositivo e ripresa automatica del planner.",
     area: "Planner",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "planner-medical-screening",
@@ -201,7 +201,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Selezioni dedicate separate dalle semplici preferenze.",
     area: "Planner",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "planner-time",
@@ -209,7 +209,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Preferenze per pasti pronti, rapidi, batch cooking o cucina completa.",
     area: "Planner",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "planner-pantry",
@@ -281,7 +281,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Aprire, duplicare, archiviare ed eliminare i piani precedenti.",
     area: "Piani",
     priority: "P1",
-    status: "next",
+    status: "done",
   },
   {
     id: "plans-detail",
@@ -289,7 +289,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Vista completa con giorni, pasti, ingredienti e note.",
     area: "Piani",
     priority: "P1",
-    status: "next",
+    status: "done",
   },
   {
     id: "plans-regenerate-meal",
@@ -345,7 +345,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Ortofrutta, dispensa, freschi, surgelati e quantità consolidate.",
     area: "Spesa",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "grocery-checklist",
@@ -353,7 +353,7 @@ export const backlogItems: BacklogItem[] = [
     detail: "Spuntare prodotti e mantenere stato per piano.",
     area: "Spesa",
     priority: "P1",
-    status: "planned",
+    status: "done",
   },
   {
     id: "grocery-budget",

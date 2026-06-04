@@ -1,5 +1,6 @@
 import { calculateCalories } from "./calories";
 import { mealTemplates } from "./mealTemplates";
+import { excludedFoodsFromAllergies } from "./plannerPreferences";
 import { GroceryItem, Meal, MealPlan, MealType, PlannedMeal, UserProfile } from "./types";
 
 const dayNames = ["Lunedi", "Martedi", "Mercoledi", "Giovedi", "Venerdi", "Sabato", "Domenica"];
@@ -23,6 +24,9 @@ function scoreMeal(meal: Meal, targetCalories: number, profile: UserProfile, ind
   if (profile.budgetMode && meal.tags.includes("budget")) score -= 80;
   if (profile.simplicityLevel === "zeroSbatti" && meal.tags.includes("zeroSbatti")) score -= 70;
   if (profile.simplicityLevel === "mealPrep" && meal.tags.includes("meal prep")) score -= 70;
+  if (profile.cookingTime === "ready" && meal.tags.includes("zeroSbatti")) score -= 80;
+  if (profile.cookingTime === "quick" && meal.tags.includes("semplice")) score -= 60;
+  if (profile.cookingTime === "batch" && meal.tags.includes("meal prep")) score -= 80;
   return score;
 }
 
@@ -74,19 +78,23 @@ function buildGroceryList(meals: PlannedMeal[]): GroceryItem[] {
 }
 
 export function generateMealPlan(profile: UserProfile): MealPlan {
-  const calorieResult = calculateCalories(profile);
-  const dailyCalories = profile.targetCalories ?? calorieResult.suggestedCalories;
-  const slots = slotByMealsPerDay[profile.mealsPerDay] || slotByMealsPerDay[3];
+  const normalizedProfile = {
+    ...profile,
+    excludedFoods: [...profile.excludedFoods, ...excludedFoodsFromAllergies(profile.allergyFlags)],
+  };
+  const calorieResult = calculateCalories(normalizedProfile);
+  const dailyCalories = normalizedProfile.targetCalories ?? calorieResult.suggestedCalories;
+  const slots = slotByMealsPerDay[normalizedProfile.mealsPerDay] || slotByMealsPerDay[3];
   const slotTargets = distributeCalories(dailyCalories, slots);
   const warnings = [...calorieResult.warnings];
 
-  if (profile.dietType === "ketogenic") {
+  if (normalizedProfile.dietType === "ketogenic") {
     warnings.push("La chetogenica e' molto restrittiva: valuta il percorso con un professionista, soprattutto se assumi farmaci o hai patologie.");
   }
 
   const days = Array.from({ length: 7 }, (_, dayIndex) => {
     const meals = slots.map((slot, slotIndex) => ({
-      ...selectMeal(slot, slotTargets[slotIndex], profile, dayIndex, slotIndex),
+      ...selectMeal(slot, slotTargets[slotIndex], normalizedProfile, dayIndex, slotIndex),
       day: dayIndex + 1,
     }));
 

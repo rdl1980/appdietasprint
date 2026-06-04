@@ -23,6 +23,10 @@ export type MedicalScreeningFlag =
   | "bariatricSurgery"
   | "medications";
 
+export type AllergyFlag = "gluten" | "lactose" | "eggs" | "fish" | "soy" | "nuts";
+
+export type CookingTimePreference = "ready" | "quick" | "standard" | "batch";
+
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 export type UserProfile = {
@@ -39,6 +43,8 @@ export type UserProfile = {
   simplicityLevel: SimplicityLevel;
   budgetMode: boolean;
   medicalFlags?: MedicalScreeningFlag[];
+  allergyFlags?: AllergyFlag[];
+  cookingTime?: CookingTimePreference;
 };
 
 export type Ingredient = {
