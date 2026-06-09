@@ -14,6 +14,8 @@ import { getMealSubstitutions } from "@/lib/generateMealPlan";
 import { getMacroTarget } from "@/lib/macroTargets";
 import type { CalorieResult, GroceryItem, MacroTarget, MealPlanDay, UserProfile } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 type PageProps = {
   params: Promise<{ id: string }>;
 };
@@ -61,7 +63,7 @@ export default async function AccountPlanDetailPage({ params }: PageProps) {
   const { supabase, user } = await createAuthenticatedSupabaseClient();
 
   if (!user) {
-    redirect("/login");
+    redirect(`/login?from=/account/plans/${encodeURIComponent(id)}`);
   }
 
   if (!supabase) {

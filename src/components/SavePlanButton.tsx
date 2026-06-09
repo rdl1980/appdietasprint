@@ -39,8 +39,13 @@ export function SavePlanButton({ profile, plan, disabled = false }: SavePlanButt
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ profile, plan, privacyConsent: accepted }),
     });
-    const data = (await response.json()) as { error?: string; planId?: string };
+    const data = (await response.json()) as { error?: string; planId?: string; loginUrl?: string };
     setIsSaving(false);
+
+    if (response.status === 401 && data.loginUrl) {
+      window.location.assign(data.loginUrl);
+      return;
+    }
 
     if (!response.ok) {
       setError(data.error || "Salvataggio non riuscito.");

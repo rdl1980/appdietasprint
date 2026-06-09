@@ -19,7 +19,7 @@ type AuthenticatedSupabaseUnavailableReason =
 export async function getAuthenticatedUser(): Promise<AppUser | null> {
   const session = await auth();
 
-  if (!session?.user?.id || session.authError) {
+  if (!session?.user?.id) {
     return null;
   }
 
@@ -53,7 +53,7 @@ async function refreshUserMetadata(user: AppUser): Promise<AppUser> {
 async function getAuthenticatedUserFromRequest(request?: NextRequest): Promise<AppUser | null> {
   const session = await auth();
 
-  if (session?.user?.id && !session.authError) {
+  if (session?.user?.id) {
     return refreshUserMetadata({
       id: session.user.id,
       email: session.user.email,
@@ -70,7 +70,7 @@ async function getAuthenticatedUserFromRequest(request?: NextRequest): Promise<A
     secret: process.env.AUTH_SECRET,
   });
 
-  if (!token?.userId || token.authError) {
+  if (!token?.userId) {
     return null;
   }
 

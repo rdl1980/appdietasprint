@@ -46,8 +46,13 @@ export function ProfileForm({ profileId, initialProfile }: ProfileFormProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ profileId, profile: nextProfile }),
     });
-    const data = (await response.json().catch(() => null)) as { error?: string } | null;
+    const data = (await response.json().catch(() => null)) as { error?: string; loginUrl?: string } | null;
     setIsSaving(false);
+
+    if (response.status === 401 && data?.loginUrl) {
+      window.location.assign(data.loginUrl);
+      return;
+    }
 
     if (!response.ok) {
       setError(data?.error || "Profilo non aggiornato.");

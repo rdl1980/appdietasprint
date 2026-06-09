@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { notifyPrivacyRequest } from "@/lib/email";
-import { rateLimit, readJsonBody } from "@/lib/api";
+import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
 
 const allowedRequestTypes = ["access", "rectification", "export", "erasure", "objection"] as const;
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
 
   if (!user?.email) {
-    return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+    return loginRequiredResponse(request);
   }
 
   if (!supabase) {

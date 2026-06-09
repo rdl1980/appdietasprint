@@ -25,9 +25,14 @@ export function DeletePlanButton({ planId }: DeletePlanButtonProps) {
     setIsDeleting(true);
     const response = await fetch(`/api/plans/${planId}`, { method: "DELETE" });
     setIsDeleting(false);
+    const data = (await response.json().catch(() => null)) as { error?: string; loginUrl?: string } | null;
+
+    if (response.status === 401 && data?.loginUrl) {
+      window.location.assign(data.loginUrl);
+      return;
+    }
 
     if (!response.ok) {
-      const data = (await response.json().catch(() => null)) as { error?: string } | null;
       setError(data?.error || "Piano non eliminato.");
       return;
     }

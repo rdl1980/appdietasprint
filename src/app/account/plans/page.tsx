@@ -1,10 +1,13 @@
 import { CalendarDays, FileText, Plus } from "lucide-react";
+import { redirect } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { DeletePlanButton } from "@/components/DeletePlanButton";
 import { WarningBox } from "@/components/WarningBox";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
+
+export const dynamic = "force-dynamic";
 
 type PlanRow = {
   id: string;
@@ -23,6 +26,10 @@ function formatDate(value: string) {
 
 export default async function AccountPlansPage() {
   const { supabase, user } = await createAuthenticatedSupabaseClient();
+
+  if (!user) {
+    redirect("/login?from=/account/plans");
+  }
 
   const { data: plans, error } =
     supabase && user
@@ -53,14 +60,6 @@ export default async function AccountPlansPage() {
             Nuovo piano
           </Button>
         </section>
-
-        {!user ? (
-          <Card>
-            <h2 className="text-xl font-black text-ink">Login richiesto</h2>
-            <p className="mt-2 text-sm leading-6 text-ink/65">Accedi per vedere i tuoi piani salvati.</p>
-            <Button href="/login" className="mt-5">Vai al login</Button>
-          </Card>
-        ) : null}
 
         {error ? (
           <div className="mb-5">

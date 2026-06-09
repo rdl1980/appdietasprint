@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { rateLimit } from "@/lib/api";
+import { loginRequiredResponse, rateLimit } from "@/lib/api";
 import { env } from "@/lib/env";
 import { isPremiumUser } from "@/lib/entitlements";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   const { user } = await createAuthenticatedSupabaseClient(request);
 
   if (!user) {
-    return NextResponse.json({ error: "Login richiesto per acquistare Premium." }, { status: 401 });
+    return loginRequiredResponse(request, "Login richiesto per acquistare Premium.");
   }
 
   if (isPremiumUser(user)) {

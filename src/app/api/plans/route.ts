@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
-import { rateLimit, readJsonBody } from "@/lib/api";
+import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
 import { isValidProfile, mealPlanToRow, profileToRow } from "@/lib/databaseMappers";
 import { isPremiumUser } from "@/lib/entitlements";
 import { consentDocuments } from "@/lib/legalVersions";
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
 
   if (!user) {
-    return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+    return loginRequiredResponse(request);
   }
 
   if (!isPremiumUser(user)) {
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
 
   if (!user) {
-    return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+    return loginRequiredResponse(request);
   }
 
   if (!supabase) {
