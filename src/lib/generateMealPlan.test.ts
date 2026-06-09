@@ -44,6 +44,13 @@ describe("generateMealPlan", () => {
     expect(generateMealPlan({ ...profile, mealsPerDay: 99 }).days[0].meals).toHaveLength(3);
   });
 
+  it("can generate a single-day plan for Free users", () => {
+    const plan = generateMealPlan(profile, { days: 1 });
+
+    expect(plan.days).toHaveLength(1);
+    expect(plan.groceryList.length).toBeGreaterThan(0);
+  });
+
   it("keeps day totals equal to the sum of planned meals", () => {
     const plan = generateMealPlan(profile);
 

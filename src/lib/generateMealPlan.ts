@@ -6,6 +6,10 @@ import { GroceryItem, Meal, MealPlan, MealType, PlannedMeal, UserProfile } from 
 
 const dayNames = ["Lunedi", "Martedi", "Mercoledi", "Giovedi", "Venerdi", "Sabato", "Domenica"];
 
+type GenerateMealPlanOptions = {
+  days?: number;
+};
+
 const slotByMealsPerDay: Record<number, MealType[]> = {
   2: ["lunch", "dinner"],
   3: ["breakfast", "lunch", "dinner"],
@@ -143,19 +147,20 @@ export function regenerateMeal(plan: MealPlan, profile: UserProfile, dayNumber: 
   };
 }
 
-export function generateMealPlan(profile: UserProfile): MealPlan {
+export function generateMealPlan(profile: UserProfile, options: GenerateMealPlanOptions = {}): MealPlan {
   const normalizedProfile = normalizeProfile(profile);
   const calorieResult = calculateCalories(normalizedProfile);
   const dailyCalories = normalizedProfile.targetCalories ?? calorieResult.suggestedCalories;
   const slots = slotByMealsPerDay[normalizedProfile.mealsPerDay] || slotByMealsPerDay[3];
   const slotTargets = distributeCalories(dailyCalories, slots);
   const warnings = [...calorieResult.warnings];
+  const dayCount = Math.min(Math.max(options.days ?? 7, 1), 7);
 
   if (normalizedProfile.dietType === "ketogenic") {
     warnings.push("La chetogenica e' molto restrittiva: valuta il percorso con un professionista, soprattutto se assumi farmaci o hai patologie.");
   }
 
-  const days = Array.from({ length: 7 }, (_, dayIndex) => {
+  const days = Array.from({ length: dayCount }, (_, dayIndex) => {
     const meals = slots.map((slot, slotIndex) => ({
       ...selectMeal(slot, slotTargets[slotIndex], normalizedProfile, dayIndex, slotIndex),
       day: dayIndex + 1,

@@ -1,10 +1,10 @@
-# DietaSprint AI - riepilogo progetto e backlog
+# Diet Sprint AI - riepilogo progetto e backlog
 
 Aggiornato al 5 giugno 2026.
 
 ## Visione
 
-DietaSprint AI e' una web app per creare piani alimentari realistici, pratici e sostenibili. La prima versione e' web, con architettura pensata per arrivare in seguito a iOS e Android usando gli stessi servizi backend.
+Diet Sprint AI e' una web app per creare piani alimentari realistici, pratici e sostenibili. La prima versione e' web, con architettura pensata per arrivare in seguito a iOS e Android usando gli stessi servizi backend.
 
 Il posizionamento attuale e' volutamente prudente: planner alimentare orientativo, non dispositivo medico, non diagnosi e non sostituzione di medico, dietista o nutrizionista.
 
@@ -19,12 +19,16 @@ Il posizionamento attuale e' volutamente prudente: planner alimentare orientativ
 - Test: Vitest per logica applicativa, Playwright per flussi browser desktop e mobile.
 - Admin: pannelli protetti per backlog e privacy.
 
+## Sorgente backlog
+
+Questo documento e' il riepilogo markdown unico del progetto. La vista applicativa del backlog usa `src/lib/productBacklog.ts`; non mantenere altri file markdown di backlog paralleli.
+
 ## Caratteristiche gia implementate
 
 ### Esperienza pubblica
 
 - Homepage prodotto con accesso al planner.
-- Pricing mock Free, Premium e Pro.
+- Pricing Free e Premium: Free giornaliero senza salvataggio, Premium una tantum con tutte le funzioni.
 - Pagine legali: privacy, termini, cookie, GDPR e disclaimer salute.
 - Cookie banner granulare con consenso necessari / analytics / marketing.
 
@@ -94,18 +98,18 @@ Il posizionamento attuale e' volutamente prudente: planner alimentare orientativ
 | Account | Registrazione, login, logout | Fatto | Auth.js + Supabase Auth. |
 | Account | Recupero/cambio password | Fatto | Flusso email configurabile. |
 | Privacy | Pagine legali MVP | Fatto | Privacy, termini, cookie, GDPR, disclaimer. |
-| Privacy | Revisione legale professionale | Prossimo | Pacchetto pronto, manca validazione esterna. |
 | Planner | Planner guidato MVP | Fatto | Core flow operativo. |
 | Planner | Screening salute | Fatto | Blocchi prudenziali presenti. |
+| Planner | Decisione chetogenica in beta | Fatto | Inclusa in beta, con conferma richiesta nelle review. |
 | Nutrizione | BMR/TDEE e calorie | Fatto | Formula e warning testati. |
 | Nutrizione | Guardrail calorie basse | Fatto | Avvisi e blocchi presenti. |
-| Nutrizione | Revisione nutrizionista | Prossimo | Pacchetto pronto, manca validazione esterna. |
 | Piani | Piano giornaliero/settimanale | Fatto | Generazione deterministica MVP. |
 | Piani | Salvataggio autenticato | Fatto | Supabase + consensi. |
 | Spesa | Lista spesa aggregata | Fatto | Categorie e checklist. |
 | AI coach | Guardrail salute AI | Fatto | Regole deterministiche implementate. |
 | Admin | Backlog admin protetto | Fatto | `/admin/backlog`. |
 | Qualita | E2E flusso principale | Fatto | Playwright in CI/CD. |
+| Qualita | E2E autenticati con secret CI | Fatto lato repo | Step CI dedicato; si attiva con GitHub Secrets. |
 | Qualita | Test motore calorie | Fatto | Vitest. |
 | Qualita | Monitoraggio errori | Fatto | MVP server/client. |
 | Qualita | Hardening sicurezza MVP | Fatto | Rate limit, header, segreti non client. |
@@ -114,13 +118,15 @@ Il posizionamento attuale e' volutamente prudente: planner alimentare orientativ
 
 ### Fondamenta
 
+Completato per P1:
 - Ambiente preview separato con variabili e database staging.
 
 ### Account
 
+Completato per P1:
 - Onboarding guidato progressivo.
-- Notifiche sicurezza account.
 - Eliminazione account self-service.
+- Notifiche sicurezza account.
 
 ### Privacy
 
@@ -146,15 +152,16 @@ Completato per P1:
 
 ### AI coach
 
+Completato per P1:
 - Layer AI server-side con prompt protetti.
 - Valutazione qualita output AI con dataset e controlli regressione.
 
 ### Premium
 
-- Piani Free, Premium e Pro con feature gate.
-- Checkout Stripe.
-- Webhook Stripe e stato abbonamento.
-- Portale cliente per carta, fatture, upgrade, downgrade e cancellazione.
+Completato per P1:
+- Piani Free e Premium con feature gate.
+- Checkout Stripe una tantum.
+- Webhook Stripe e stato acquisto Premium.
 
 ### Admin
 
@@ -164,13 +171,16 @@ Completato per P1:
 
 ### Qualita
 
+Completato per P1:
 - Accessibilita base: tastiera, focus, contrasto, label, screen reader.
 - Performance mobile: Lighthouse, bundle, immagini, tempi risposta.
 - Security review: header, rate limit, CAPTCHA, segreti, dipendenze.
 
 ### Growth
 
+Completato per P1:
 - Analytics privacy-first con consenso.
+
 - Funnel onboarding.
 
 ## Backlog P2
@@ -202,15 +212,49 @@ Completato per P1:
 - Notifiche push.
 - Consultazione offline di piano e lista spesa.
 
+## Backlog residuo ordinato
+
+### P1 - Prossimo sprint prodotto
+
+1. Gestione utenti admin.
+2. Dashboard richieste privacy con audit trail completo.
+3. Gestione admin template pasti, ingredienti, ricette, tag dieta e sostituzioni.
+
+### P2 - Dopo beta
+
+1. Export PDF reale del piano e della lista spesa.
+2. SEO tecnico: metadata, sitemap, robots e Open Graph.
+3. PWA installabile.
+4. Budget stimato della spesa.
+5. Meal prep settimanale.
+6. Pasti preferiti.
+7. Feedback rapido sui pasti.
+8. Dispensa disponibile.
+9. Indicatori fibre e idratazione non medicali.
+10. Coach anti-fame reale e contestuale.
+11. Newsletter e onboarding email.
+12. Trial e coupon.
+13. Fatturazione e ricevute.
+14. Metriche prodotto admin.
+15. Supporto utenti admin.
+
+### P3 - Espansioni
+
+1. Profili famiglia.
+2. Chat coach contestuale sul piano attivo.
+3. Personalizzazione progressiva da feedback e preferiti.
+4. Referral.
+5. Contenuti educativi.
+6. App Expo React Native per iOS e Android.
+7. Notifiche push.
+8. Consultazione offline di piano e lista spesa.
+
 ## Prossime decisioni consigliate
 
-1. Chiudere revisione legale professionale prima della beta pubblica.
-2. Chiudere revisione nutrizionista su formule, soglie, template e claim.
-3. Decidere se la beta include o esclude la dieta chetogenica.
-4. Configurare secret GitHub per attivare anche gli E2E autenticati in CI.
-5. Portare Stripe da mock a flusso reale.
-6. Scegliere analytics privacy-first e abilitarli solo dopo consenso.
-7. Fare un pass dedicato su accessibilita e performance mobile.
+1. Verificare che i GitHub Secrets attivino lo step E2E autenticato in CI.
+2. Portare Stripe da mock a checkout una tantum.
+3. Definire prezzo finale Premium e copy pagamento.
+4. Collegare webhook Stripe allo sblocco Premium.
 
 ## Definition of Done per beta pubblica
 

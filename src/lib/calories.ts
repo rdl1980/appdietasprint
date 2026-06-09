@@ -49,7 +49,7 @@ export function calculateCalories(profile: UserProfile): CalorieResult {
 
   if (selectedCalories < 1000) {
     warnings.push(
-      "DietaSprint AI non presenta piani da 800-900 kcal come raccomandazione generale."
+      "Diet Sprint AI non presenta piani da 800-900 kcal come raccomandazione generale."
     );
   }
 

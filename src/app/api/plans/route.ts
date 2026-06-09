@@ -3,6 +3,7 @@ import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { rateLimit, readJsonBody } from "@/lib/api";
 import { isValidProfile, mealPlanToRow, profileToRow } from "@/lib/databaseMappers";
+import { isPremiumUser } from "@/lib/entitlements";
 import { consentDocuments } from "@/lib/legalVersions";
 import { MealPlan, UserProfile } from "@/lib/types";
 
@@ -21,6 +22,10 @@ export async function GET(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+  }
+
+  if (!isPremiumUser(user)) {
+    return NextResponse.json({ error: "Il salvataggio e' disponibile solo con Premium." }, { status: 402 });
   }
 
   if (!supabase) {

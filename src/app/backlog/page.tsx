@@ -14,7 +14,7 @@ export default function BacklogRedirectPage() {
               Tab temporanea
             </p>
             <h1 className="mt-4 max-w-4xl text-3xl font-black leading-tight text-ink sm:text-5xl">
-              Backlog completo DietaSprint AI.
+              Backlog completo Diet Sprint AI.
             </h1>
             <p className="mt-4 max-w-3xl leading-7 text-ink/65">
               Inventario operativo delle funzionalità: dal nucleo MVP fino a premium, AI e app mobile.

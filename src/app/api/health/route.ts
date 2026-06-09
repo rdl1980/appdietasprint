@@ -5,7 +5,7 @@ import { isEmailConfigured } from "@/lib/email";
 export function GET() {
   return NextResponse.json({
     ok: true,
-    app: "DietaSprint AI",
+    app: "Diet Sprint AI",
     build: "p0-ci-guardrails-2026-06-04",
     supabaseConfigured: isSupabaseConfigured(),
     emailConfigured: isEmailConfigured(),

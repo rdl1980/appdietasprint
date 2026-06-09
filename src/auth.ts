@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import type { JWT } from "next-auth/jwt";
 import { createClient } from "@supabase/supabase-js";
 import { env, isSupabaseConfigured } from "@/lib/env";
+import { notifySecurityEvent } from "@/lib/email";
 
 function createSupabaseAuthClient() {
   return createClient(env.supabaseUrl, env.supabaseAnonKey, {
@@ -69,6 +70,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (error || !data.user || !data.session) {
           return null;
+        }
+
+        if (data.user.email) {
+          notifySecurityEvent({ email: data.user.email, event: "login" }).catch((notifyError) => {
+            console.error("security_login_notification_failed", { error: notifyError });
+          });
         }
 
         return {

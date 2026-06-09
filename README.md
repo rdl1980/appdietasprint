@@ -1,4 +1,4 @@
-# DietaSprint AI
+# Diet Sprint AI
 
 MVP Next.js per un planner alimentare assistito da logica locale deterministica.
 
@@ -8,6 +8,7 @@ MVP Next.js per un planner alimentare assistito da logica locale deterministica.
 npm install
 npm run dev
 npm test
+npm run test:ai-eval
 npm run lint
 npm run build
 npm run db:backup
@@ -16,6 +17,7 @@ npm run db:backup
 ## Rotte
 
 - `/`
+- `/onboarding`
 - `/planner`
 - `/results`
 - `/pricing`
@@ -23,6 +25,7 @@ npm run db:backup
 - `/login`
 - `/forgot-password`
 - `/account`
+- `/account/privacy`
 - `/legal/disclaimer`
 
 ## Auth.js + Supabase Auth
@@ -75,7 +78,7 @@ Configurazione SMTP Supabase:
 Host: smtp.resend.com
 Porta: 465
 Username: resend
-Mittente: DietaSprint AI <no-reply@dietsprintai.com>
+Mittente: Diet Sprint AI <no-reply@dietsprintai.com>
 ```
 
 La password SMTP e' una API key Resend con permesso di invio sul dominio `dietsprintai.com`. Non salvarla nel repository.
@@ -84,7 +87,7 @@ Variabili server-only:
 
 ```bash
 RESEND_API_KEY=
-RESEND_FROM_EMAIL="DietaSprint AI <no-reply@dietsprintai.com>"
+RESEND_FROM_EMAIL="Diet Sprint AI <no-reply@dietsprintai.com>"
 PRIVACY_NOTIFICATION_EMAIL=
 ```
 
@@ -92,6 +95,8 @@ PRIVACY_NOTIFICATION_EMAIL=
 
 Lo snapshot iniziale vive in `supabase/schema.sql`. Le migrazioni versionate vivono in `supabase/migrations`.
 La procedura operativa per backup e restore vive in `docs/backup-restore-runbook.md`.
+La procedura preview/staging vive in `docs/preview-staging.md`.
+La checklist security, accessibilita e performance vive in `docs/security-accessibility-performance.md`.
 
 Le tabelle MVP sono:
 
@@ -99,6 +104,7 @@ Le tabelle MVP sono:
 - `meal_plans`
 - `privacy_consents`
 - `data_subject_requests`
+- `stripe_purchases`
 
 Tutte hanno Row Level Security attiva. Le policy consentono agli utenti autenticati di accedere solo ai propri dati.
 
@@ -112,6 +118,7 @@ npm run db:restore -- backups/supabase-YYYY-MM-DD.dump
 ## Admin
 
 Il backlog interno vive su `/admin/backlog` ed e' protetto lato server. La voce di menu appare solo agli utenti admin.
+La sorgente dati della UI backlog e' `src/lib/productBacklog.ts`; il riepilogo markdown unico vive in `PROJECT_SUMMARY_AND_BACKLOG.md`.
 
 Per creare l'admin `rdladmin`:
 
@@ -148,3 +155,45 @@ ADMIN_USERNAMES=rdladmin
 ```
 
 Non salvare password admin in codice, README o variabili pubbliche `NEXT_PUBLIC_*`.
+
+## Premium
+
+Premium usa Stripe Checkout in modalita pagamento una tantum. Il bottone su `/pricing` crea una sessione server-side per utenti autenticati e il webhook sblocca Premium aggiornando gli app metadata Supabase (`plan=premium`, `tier=premium`, `accessLevel=premium`) e registrando l'acquisto in `stripe_purchases`.
+
+Variabili server-only:
+
+```bash
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PREMIUM_PRICE_ID=
+```
+
+Endpoint webhook da configurare in Stripe:
+
+```text
+https://dietsprintai.com/api/stripe/webhook
+```
+
+Eventi necessari:
+
+- `checkout.session.completed`
+- `checkout.session.async_payment_succeeded`
+
+Per staging o sblocco manuale resta disponibile il fallback via app metadata Supabase (`plan=premium`, `tier=premium` o `accessLevel=premium`) oppure con la variabile server-only `PREMIUM_EMAILS`.
+
+## Coach AI
+
+Il coach AI e' disponibile via `/api/coach` per utenti Premium autenticati. Il prompt resta server-side, passa dai guardrail salute prima e dopo la generazione e usa un fallback locale quando OpenAI non e' configurato.
+
+Variabili server-only:
+
+```bash
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-5.4-mini
+```
+
+Il dataset di regressione vive in `tests/evals/ai-coach-cases.json` e si esegue con:
+
+```bash
+npm run test:ai-eval
+```

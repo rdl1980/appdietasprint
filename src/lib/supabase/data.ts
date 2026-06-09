@@ -23,10 +23,30 @@ export async function getAuthenticatedUser(): Promise<AppUser | null> {
     return null;
   }
 
-  return {
+  return refreshUserMetadata({
     id: session.user.id,
     email: session.user.email,
     app_metadata: session.user.appMetadata,
+  });
+}
+
+async function refreshUserMetadata(user: AppUser): Promise<AppUser> {
+  const supabase = createSupabaseServiceClient();
+
+  if (!supabase) {
+    return user;
+  }
+
+  const { data, error } = await supabase.auth.admin.getUserById(user.id);
+
+  if (error || !data.user) {
+    return user;
+  }
+
+  return {
+    ...user,
+    email: data.user.email || user.email,
+    app_metadata: data.user.app_metadata || user.app_metadata,
   };
 }
 
@@ -34,11 +54,11 @@ async function getAuthenticatedUserFromRequest(request?: NextRequest): Promise<A
   const session = await auth();
 
   if (session?.user?.id && !session.authError) {
-    return {
+    return refreshUserMetadata({
       id: session.user.id,
       email: session.user.email,
       app_metadata: session.user.appMetadata,
-    };
+    });
   }
 
   if (!request || !process.env.AUTH_SECRET) {
@@ -54,11 +74,11 @@ async function getAuthenticatedUserFromRequest(request?: NextRequest): Promise<A
     return null;
   }
 
-  return {
+  return refreshUserMetadata({
     id: token.userId,
     email: token.email,
     app_metadata: token.appMetadata,
-  };
+  });
 }
 
 function createSupabaseServiceClient() {

@@ -13,7 +13,10 @@ type CookieConsent = {
   acceptedAt: string;
 };
 
-const storageKey = "dietaSprintCookieConsent";
+const storageKey = "dietSprintCookieConsent";
+const legacyStorageKey = "dietaSprintCookieConsent";
+const consentEventName = "dietSprintCookieConsent";
+const legacyConsentEventName = "dietaSprintCookieConsent";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
@@ -21,7 +24,7 @@ export function CookieBanner() {
   const [marketing, setMarketing] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(storageKey);
+    const stored = window.localStorage.getItem(storageKey) || window.localStorage.getItem(legacyStorageKey);
 
     if (!stored) {
       setVisible(true);
@@ -30,6 +33,8 @@ export function CookieBanner() {
 
     try {
       const consent = JSON.parse(stored) as CookieConsent;
+      window.localStorage.setItem(storageKey, JSON.stringify(consent));
+      window.localStorage.removeItem(legacyStorageKey);
       setVisible(consent.version !== legalDocumentVersions.cookies);
     } catch {
       setVisible(true);
@@ -46,7 +51,9 @@ export function CookieBanner() {
     };
 
     window.localStorage.setItem(storageKey, JSON.stringify(consent));
-    window.dispatchEvent(new CustomEvent("dietaSprintCookieConsent", { detail: consent }));
+    window.localStorage.removeItem(legacyStorageKey);
+    window.dispatchEvent(new CustomEvent(consentEventName, { detail: consent }));
+    window.dispatchEvent(new CustomEvent(legacyConsentEventName, { detail: consent }));
     setVisible(false);
   }
 

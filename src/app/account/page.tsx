@@ -3,6 +3,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { WarningBox } from "@/components/WarningBox";
 import { isSupabaseConfigured } from "@/lib/env";
+import { getPlanTier } from "@/lib/entitlements";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { CalendarDays, KeyRound, ListChecks, LockKeyhole, Plus, ShieldCheck, UserRound } from "lucide-react";
 
@@ -37,7 +38,13 @@ function formatDate(value: string) {
   });
 }
 
-export default async function AccountPage() {
+type AccountPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
+  const params = searchParams ? await searchParams : {};
+  const checkoutState = typeof params.checkout === "string" ? params.checkout : "";
   const supabaseConfigured = isSupabaseConfigured();
   const { supabase, user } = await createAuthenticatedSupabaseClient();
 
@@ -63,6 +70,8 @@ export default async function AccountPage() {
 
   const latestProfile = profiles?.[0] as ProfileRow | undefined;
   const latestPlan = plans?.[0] as PlanRow | undefined;
+  const planTier = getPlanTier(user);
+  const isPremium = planTier === "premium";
 
   return (
     <>
@@ -73,6 +82,20 @@ export default async function AccountPage() {
             <WarningBox tone="strong">
               Account non disponibile: mancano le variabili Supabase nell'ambiente di produzione.
             </WarningBox>
+          </div>
+        ) : null}
+
+        {user && checkoutState === "success" ? (
+          <div className="mb-6 rounded-[8px] border border-leaf/25 bg-mint p-4 text-sm font-semibold text-leaf">
+            {isPremium
+              ? "Pagamento ricevuto. Premium e' attivo sul tuo account."
+              : "Pagamento ricevuto. L'attivazione Premium e' in corso e arrivera' appena Stripe conferma il webhook."}
+          </div>
+        ) : null}
+
+        {user && checkoutState === "already-premium" ? (
+          <div className="mb-6 rounded-[8px] border border-leaf/25 bg-mint p-4 text-sm font-semibold text-leaf">
+            Premium e' gia' attivo sul tuo account.
           </div>
         ) : null}
 
@@ -88,6 +111,7 @@ export default async function AccountPage() {
               Con un account puoi conservare profili alimentari, piani settimanali e liste spesa in modo persistente.
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button href="/onboarding" variant="secondary">Percorso guidato</Button>
               <Button href="/login">Accedi</Button>
               <Button href="/register" variant="secondary">Crea account</Button>
             </div>
@@ -106,6 +130,9 @@ export default async function AccountPage() {
                   </h1>
                   <p className="mt-2 text-sm leading-6 text-ink/65">
                     Gestisci piani, profili alimentari, privacy e sicurezza del tuo account.
+                  </p>
+                  <p className="mt-3 inline-flex rounded-full bg-cream px-3 py-1 text-xs font-black text-ink">
+                    Piano {isPremium ? "Premium" : "Free"}
                   </p>
                 </div>
               </div>

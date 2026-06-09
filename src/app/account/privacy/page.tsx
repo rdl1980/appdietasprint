@@ -5,6 +5,7 @@ import { WarningBox } from "@/components/WarningBox";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { consentDocuments } from "@/lib/legalVersions";
+import { DeleteAccountForm } from "./delete-account-form";
 import { PrivacyRequestForm } from "./privacy-request-form";
 import { ExportDataButton } from "./export-data-button";
 
@@ -123,6 +124,13 @@ export default async function AccountPrivacyPage() {
                   );
                 })}
               </div>
+            </Card>
+            <Card className="lg:col-span-2">
+              <h2 className="text-xl font-black text-ink">Eliminazione account</h2>
+              <p className="mt-2 text-sm leading-6 text-ink/65">
+                Cancella account e dati collegati. L'operazione registra una richiesta GDPR di cancellazione completata.
+              </p>
+              <DeleteAccountForm />
             </Card>
           </section>
         )}

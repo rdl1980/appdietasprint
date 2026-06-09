@@ -1,6 +1,13 @@
-# DietaSprint AI - Nutrition review packet
+# Diet Sprint AI - Nutrition review packet
 
 Questo documento prepara la revisione di dietista/nutrizionista/medico. Non e' validazione clinica.
+
+## Stato operativo beta
+
+- Pacchetto pronto per invio a dietista, nutrizionista o medico.
+- Decisione prodotto: la beta include la dieta chetogenica come opzione selezionabile.
+- La chetogenica resta soggetta a conferma professionale su macro, template, warning e copy prima della beta pubblica.
+- Nessuna formula o soglia va considerata validata clinicamente finche' il professionista non compila l'esito richiesto in fondo al documento.
 
 ## Logica attuale da validare
 
@@ -20,7 +27,7 @@ Questo documento prepara la revisione di dietista/nutrizionista/medico. Non e' v
 
 1. Le soglie di warning calorie sono adeguate per un prodotto non medico?
 2. I casi di blocco screening sono sufficienti o vanno ampliati?
-3. La chetogenica va mantenuta, limitata o rimossa dalla beta pubblica?
+3. Con la chetogenica inclusa nella beta, quali warning, limiti o modifiche ai template servono?
 4. I range macro per dieta sono accettabili come indicazioni orientative?
 5. I template pasti hanno combinazioni e porzioni realistiche?
 6. Le allergie strutturate sono abbastanza prudenziali per MVP?
@@ -45,3 +52,4 @@ Questo documento prepara la revisione di dietista/nutrizionista/medico. Non e' v
 | Macro per dieta |  |  |  |
 | Template pasti |  |  |  |
 | Sostituzioni |  |  |  |
+| Chetogenica in beta |  |  |  |
