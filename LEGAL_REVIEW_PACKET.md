@@ -1,6 +1,12 @@
-# DietaSprint AI - Legal review packet
+# Diet Sprint AI - Legal review packet
 
 Questo documento prepara la revisione professionale. Non sostituisce parere legale.
+
+## Stato operativo beta
+
+- Pacchetto pronto per invio a consulente legale.
+- La beta include anche la dieta chetogenica come stile alimentare selezionabile, con disclaimer non medicale e screening salute prudenziale.
+- Nessun testo legale va considerato approvato finche' il consulente non compila l'esito richiesto in fondo al documento.
 
 ## Fonti ufficiali usate come base
 
@@ -39,6 +45,7 @@ Questo documento prepara la revisione professionale. Non sostituisce parere lega
 5. Cookie banner: non necessario finche' non ci sono analytics/marketing non tecnici.
 6. Disclaimer sanitario e assenza di claim medici.
 7. Termini commerciali se si attivano abbonamenti Stripe.
+8. Opportunita di mantenere la chetogenica in beta come opzione non medicale, con warning visibili e blocchi prudenziali.
 
 ## Definition of done legale
 
@@ -69,3 +76,4 @@ Compilare una delle seguenti decisioni prima della beta pubblica:
 | Cookie e analytics |  |  |  |
 | Processo export/cancellazione |  |  |  |
 | Disclaimer salute |  |  |  |
+| Dieta chetogenica in beta |  |  |  |

@@ -2,7 +2,7 @@ import type { MedicalScreeningFlag, UserProfile } from "./types";
 
 const blockedHealthTopics: Array<{ pattern: RegExp; reason: string }> = [
   { pattern: /\b(diagnos|diagnosi|cura|curare|terapia|farmac|insulina|metformina)\b/i, reason: "richiesta medica o farmacologica" },
-  { pattern: /\b(diabet|gravid|allatt|rene|renale|cardiac|bariatr|disturbo alimentare|anoress|bulimi)\b/i, reason: "condizione clinica da valutare con professionista" },
+  { pattern: /\b(diabet\w*|gravid\w*|allatt\w*|rene|renale|cardiac\w*|bariatr\w*|disturbo alimentare|anoress\w*|bulimi\w*)\b/i, reason: "condizione clinica da valutare con professionista" },
   { pattern: /\b(800|900)\s*kcal\b/i, reason: "target calorico molto restrittivo" },
 ];
 
@@ -45,7 +45,7 @@ export function evaluateHealthPrompt(input: string, profile?: Pick<UserProfile, 
   return {
     allowed: false,
     reasons: uniqueReasons,
-    message: "DietaSprint AI non puo' generare indicazioni automatiche per questo caso: serve un medico, dietista o nutrizionista.",
+    message: "Diet Sprint AI non puo' generare indicazioni automatiche per questo caso: serve un medico, dietista o nutrizionista.",
   };
 }
 

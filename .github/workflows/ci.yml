@@ -22,6 +22,8 @@ jobs:
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
       E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+      PREMIUM_EMAILS: ${{ secrets.E2E_TEST_EMAIL }}
+      RUN_AUTHENTICATED_E2E: ${{ secrets.E2E_TEST_EMAIL != '' && secrets.E2E_TEST_PASSWORD != '' && secrets.AUTH_SECRET != '' && secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}
 
     steps:
       - name: Checkout
@@ -48,8 +50,14 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Playwright E2E
-        run: npm run test:e2e
+      - name: Playwright public E2E
+        run: npm run test:e2e:public
+
+      - name: Playwright authenticated E2E
+        if: env.RUN_AUTHENTICATED_E2E == 'true'
+        env:
+          REQUIRE_AUTHENTICATED_E2E: "true"
+        run: npm run test:e2e:authenticated
 
       - name: Upload Playwright report
         if: always()

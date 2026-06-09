@@ -2,6 +2,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:3000";
 const runAgainstExternal = Boolean(process.env.PLAYWRIGHT_BASE_URL);
+process.env.AUTH_SECRET ??= "playwright-local-auth-secret";
+process.env.PREMIUM_EMAILS ??= process.env.E2E_TEST_EMAIL || "";
 
 export default defineConfig({
   testDir: "./tests/e2e",

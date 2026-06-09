@@ -16,6 +16,11 @@ type PrivacyRequestEmailInput = {
   notes?: string | null;
 };
 
+type SecurityEventInput = {
+  email: string;
+  event: "login" | "password_changed" | "account_deleted";
+};
+
 let resendClient: Resend | null = null;
 
 function getResendClient() {
@@ -42,7 +47,7 @@ export async function sendEmail({ to, subject, text, html, replyTo }: SendEmailI
   }
 
   const { error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || "DietaSprint AI <no-reply@dietsprintai.com>",
+    from: process.env.RESEND_FROM_EMAIL || "Diet Sprint AI <no-reply@dietsprintai.com>",
     to,
     subject,
     text,
@@ -65,7 +70,7 @@ export async function notifyPrivacyRequest({ requestId, email, requestType, note
     "ciao@dietsprintai.com";
 
   const text = [
-    "Nuova richiesta privacy/GDPR da DietaSprint AI.",
+    "Nuova richiesta privacy/GDPR da Diet Sprint AI.",
     "",
     `ID richiesta: ${requestId}`,
     `Email utente: ${email}`,
@@ -77,8 +82,31 @@ export async function notifyPrivacyRequest({ requestId, email, requestType, note
 
   return sendEmail({
     to,
-    subject: `Nuova richiesta privacy DietaSprint AI - ${requestId}`,
+    subject: `Nuova richiesta privacy Diet Sprint AI - ${requestId}`,
     text,
     replyTo: email,
+  });
+}
+
+export async function notifySecurityEvent({ email, event }: SecurityEventInput) {
+  const labels: Record<SecurityEventInput["event"], string> = {
+    login: "Nuovo accesso",
+    password_changed: "Password aggiornata",
+    account_deleted: "Account eliminato",
+  };
+
+  const text = [
+    `${labels[event]} su Diet Sprint AI.`,
+    "",
+    `Account: ${email}`,
+    `Data evento: ${new Date().toISOString()}`,
+    "",
+    "Se sei stato tu, non devi fare nulla. Se non riconosci questa attivita, contatta subito il supporto.",
+  ].join("\n");
+
+  return sendEmail({
+    to: email,
+    subject: `Diet Sprint AI - ${labels[event]}`,
+    text,
   });
 }

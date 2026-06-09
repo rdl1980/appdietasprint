@@ -11,7 +11,7 @@ export default function TermsPage() {
       <section>
         <h2 className="text-lg font-black text-ink">Uso del servizio</h2>
         <p className="mt-2">
-          DietaSprint AI fornisce piani indicativi generati da template locali e calcoli nutrizionali approssimativi.
+          Diet Sprint AI fornisce piani indicativi generati da template locali e calcoli nutrizionali approssimativi.
           L'utente resta responsabile delle proprie scelte alimentari e deve usare il servizio solo se maggiorenne.
         </p>
       </section>

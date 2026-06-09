@@ -11,7 +11,7 @@ export default function DisclaimerPage() {
         <p className="mb-3 inline-flex rounded-full bg-mint px-4 py-2 text-sm font-bold text-leaf">
           Disclaimer salute
         </p>
-        <h1 className="text-3xl font-black text-ink sm:text-5xl">Uso responsabile di DietaSprint AI.</h1>
+        <h1 className="text-3xl font-black text-ink sm:text-5xl">Uso responsabile di Diet Sprint AI.</h1>
         <div className="mt-6">
           <WarningBox tone="strong">{disclaimerText}</WarningBox>
         </div>
@@ -32,7 +32,7 @@ export default function DisclaimerPage() {
         <Card className="mt-4">
           <h2 className="text-xl font-black text-ink">Quando non usarlo senza supporto professionale</h2>
           <p className="mt-3 leading-7 text-ink/70">
-            Non usare DietaSprint AI come guida autonoma in caso di gravidanza, allattamento, diabete, patologie,
+            Non usare Diet Sprint AI come guida autonoma in caso di gravidanza, allattamento, diabete, patologie,
             disturbi alimentari, uso di farmaci, eta minore di 18 anni o dieta molto restrittiva.
           </p>
         </Card>

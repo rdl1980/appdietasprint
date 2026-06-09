@@ -1,15 +1,27 @@
 import { Check } from "lucide-react";
 import { Button } from "./Button";
 import { Card } from "./Card";
+import type { ReactNode } from "react";
 
 type PricingCardProps = {
   name: string;
   price: string;
   features: string[];
   highlighted?: boolean;
+  ctaLabel?: string;
+  ctaHref?: string;
+  action?: ReactNode;
 };
 
-export function PricingCard({ name, price, features, highlighted }: PricingCardProps) {
+export function PricingCard({
+  name,
+  price,
+  features,
+  highlighted,
+  ctaLabel = "Scegli piano",
+  ctaHref = "/planner",
+  action,
+}: PricingCardProps) {
   return (
     <Card className={highlighted ? "border-leaf/45 bg-mint" : ""}>
       <div className="flex items-baseline justify-between gap-3">
@@ -27,9 +39,13 @@ export function PricingCard({ name, price, features, highlighted }: PricingCardP
           </li>
         ))}
       </ul>
-      <Button href="/planner" variant={highlighted ? "primary" : "secondary"} className="mt-6 w-full">
-        Scegli piano
-      </Button>
+      {action ? (
+        <div className="mt-6">{action}</div>
+      ) : (
+        <Button href={ctaHref} variant={highlighted ? "primary" : "secondary"} className="mt-6 w-full">
+          {ctaLabel}
+        </Button>
+      )}
     </Card>
   );
 }

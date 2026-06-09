@@ -31,6 +31,16 @@ const initialProfile: UserProfile = {
   cookingTime: "standard",
 };
 
+const profileStorageKey = "dietSprintProfile";
+const draftProfileStorageKey = "dietSprintDraftProfile";
+const legacyProfileStorageKey = "dietaSprintProfile";
+const legacyDraftProfileStorageKey = "dietaSprintDraftProfile";
+
+function removeLegacyProfileStorage() {
+  window.localStorage.removeItem(legacyProfileStorageKey);
+  window.localStorage.removeItem(legacyDraftProfileStorageKey);
+}
+
 export function PlannerClient() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile>(initialProfile);
@@ -41,7 +51,11 @@ export function PlannerClient() {
   const calorieResult = useMemo(() => calculateCalories(profile), [profile]);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("dietaSprintDraftProfile") || window.localStorage.getItem("dietaSprintProfile");
+    const stored =
+      window.localStorage.getItem(draftProfileStorageKey) ||
+      window.localStorage.getItem(legacyDraftProfileStorageKey) ||
+      window.localStorage.getItem(profileStorageKey) ||
+      window.localStorage.getItem(legacyProfileStorageKey);
 
     if (!stored) {
       return;
@@ -49,11 +63,14 @@ export function PlannerClient() {
 
     try {
       const draft = JSON.parse(stored) as UserProfile;
+      window.localStorage.setItem(draftProfileStorageKey, JSON.stringify(draft));
+      removeLegacyProfileStorage();
       setProfile({ ...initialProfile, ...draft });
       setExcludedText((draft.excludedFoods || []).join(", "));
       setDraftStatus("Bozza caricata.");
     } catch {
-      window.localStorage.removeItem("dietaSprintDraftProfile");
+      window.localStorage.removeItem(draftProfileStorageKey);
+      window.localStorage.removeItem(legacyDraftProfileStorageKey);
     }
   }, []);
 
@@ -94,7 +111,8 @@ export function PlannerClient() {
   }
 
   function saveDraft() {
-    window.localStorage.setItem("dietaSprintDraftProfile", JSON.stringify(buildProfileFromForm()));
+    window.localStorage.setItem(draftProfileStorageKey, JSON.stringify(buildProfileFromForm()));
+    removeLegacyProfileStorage();
     setDraftStatus("Bozza salvata su questo dispositivo.");
   }
 
@@ -122,8 +140,9 @@ export function PlannerClient() {
 
     const finalProfile = buildProfileFromForm();
 
-    window.localStorage.setItem("dietaSprintProfile", JSON.stringify(finalProfile));
-    window.localStorage.setItem("dietaSprintDraftProfile", JSON.stringify(finalProfile));
+    window.localStorage.setItem(profileStorageKey, JSON.stringify(finalProfile));
+    window.localStorage.setItem(draftProfileStorageKey, JSON.stringify(finalProfile));
+    removeLegacyProfileStorage();
     router.push("/results");
   }
 

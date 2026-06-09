@@ -19,5 +19,5 @@ export function getMedicalScreeningBlock(flags: MedicalScreeningFlag[] = []) {
     return null;
   }
 
-  return "Per i casi selezionati DietaSprint AI non genera un piano automatico: serve una valutazione personalizzata di medico, dietista o nutrizionista.";
+  return "Per i casi selezionati Diet Sprint AI non genera un piano automatico: serve una valutazione personalizzata di medico, dietista o nutrizionista.";
 }

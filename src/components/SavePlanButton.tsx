@@ -10,9 +10,10 @@ import { Save } from "lucide-react";
 type SavePlanButtonProps = {
   profile: UserProfile;
   plan: MealPlan;
+  disabled?: boolean;
 };
 
-export function SavePlanButton({ profile, plan }: SavePlanButtonProps) {
+export function SavePlanButton({ profile, plan, disabled = false }: SavePlanButtonProps) {
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -21,6 +22,11 @@ export function SavePlanButton({ profile, plan }: SavePlanButtonProps) {
   async function savePlan() {
     setStatus("");
     setError("");
+
+    if (disabled) {
+      setError("Il salvataggio e' disponibile solo con Premium.");
+      return;
+    }
 
     if (!accepted) {
       setError("Per salvare profilo e piano devi confermare il trattamento privacy.");
@@ -63,7 +69,12 @@ export function SavePlanButton({ profile, plan }: SavePlanButtonProps) {
         </WarningBox>
       ) : null}
       {status ? <WarningBox>{status}</WarningBox> : null}
-      <Button type="button" onClick={savePlan} disabled={isSaving} className="w-full sm:w-auto">
+      {disabled ? (
+        <Button href="/pricing" variant="secondary" className="w-full sm:w-auto">
+          Sblocca Premium
+        </Button>
+      ) : null}
+      <Button type="button" onClick={savePlan} disabled={isSaving || disabled} className="w-full sm:w-auto">
         <Save size={16} aria-hidden="true" />
         {isSaving ? "Salvataggio..." : "Salva piano"}
       </Button>

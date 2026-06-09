@@ -1,86 +1,65 @@
 import { redirect } from "next/navigation";
 import {
-  AlertTriangle,
   BarChart3,
   Bot,
   CalendarClock,
   CheckCircle2,
+  ClipboardList,
   CreditCard,
   Database,
   FileText,
   LockKeyhole,
+  ShoppingBasket,
   ShieldCheck,
-  Sparkles,
+  Smartphone,
   TestTube2,
+  UserRound,
+  Utensils,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { getAuthenticatedUser } from "@/lib/supabase/data";
 import { isAdminUser } from "@/lib/admin";
+import { backlogItems, backlogStatusLabels, type BacklogItem, type BacklogPriority, type BacklogStatus } from "@/lib/productBacklog";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const columns = [
-  {
-    title: "Fatto",
-    tone: "bg-mint",
-    items: [
-      { priority: "OK", title: "Dominio dietsprintai.com", area: "Go-live", icon: CheckCircle2 },
-      { priority: "OK", title: "Auth email/password", area: "Account", icon: LockKeyhole },
-      { priority: "OK", title: "Supabase profili e piani", area: "Dati", icon: Database },
-      { priority: "OK", title: "Planner + piano 7 giorni", area: "Prodotto", icon: CheckCircle2 },
-      { priority: "OK", title: "Salvataggio piano autenticato", area: "Prodotto", icon: Database },
-      { priority: "OK", title: "Storico e dettaglio piani", area: "Prodotto", icon: FileText },
-      { priority: "OK", title: "Modifica profilo alimentare", area: "Account", icon: LockKeyhole },
-      { priority: "OK", title: "Bozza planner e allergie", area: "Planner", icon: CheckCircle2 },
-      { priority: "OK", title: "Spesa categorie/checklist", area: "Spesa", icon: CheckCircle2 },
-      { priority: "OK", title: "Macro, rigenera, sostituzioni", area: "Nutrizione", icon: CheckCircle2 },
-      { priority: "OK", title: "Cookie, export, workflow GDPR", area: "GDPR", icon: ShieldCheck },
-      { priority: "OK", title: "Playwright CI/CD", area: "Qualita", icon: TestTube2 },
-      { priority: "OK", title: "Error monitoring MVP", area: "Qualita", icon: AlertTriangle },
-      { priority: "OK", title: "Guardrail salute AI", area: "AI", icon: Bot },
-      { priority: "OK", title: "Screening salute planner", area: "Sicurezza", icon: ShieldCheck },
-      { priority: "OK", title: "Email Resend funzionante", area: "Comunicazioni", icon: CheckCircle2 },
-      { priority: "OK", title: "Backup/restore script", area: "Dati", icon: Database },
-    ],
-  },
-  {
-    title: "Da chiudere P0",
-    tone: "bg-white",
-    items: [
-      { priority: "P0", title: "Revisione legale reale", area: "GDPR", icon: ShieldCheck },
-      { priority: "P0", title: "Revisione nutrizionista", area: "Nutrizione", icon: ShieldCheck },
-    ],
-  },
-  {
-    title: "Prossimo sprint",
-    tone: "bg-white",
-    items: [
-      { priority: "P1", title: "Elimina piano/profilo", area: "GDPR", icon: ShieldCheck },
-      { priority: "P1", title: "Analytics privacy-first", area: "Misura", icon: BarChart3 },
-      { priority: "P1", title: "Layer AI server-side", area: "AI", icon: Bot },
-      { priority: "P1", title: "Stripe subscriptions", area: "Revenue", icon: CreditCard },
-    ],
-  },
-  {
-    title: "Dopo beta",
-    tone: "bg-white",
-    items: [
-      { priority: "P1", title: "Stripe subscriptions", area: "Revenue", icon: CreditCard },
-      { priority: "P1", title: "AI server-side", area: "AI", icon: Bot },
-      { priority: "P2", title: "Coach anti-fame reale", area: "Engagement", icon: Sparkles },
-      { priority: "P2", title: "Export PDF reale", area: "Output", icon: FileText },
-    ],
-  },
+const priorityOrder: Record<BacklogPriority, number> = { P0: 0, P1: 1, P2: 2, P3: 3 };
+const statusOrder: Record<BacklogStatus, number> = { next: 0, planned: 1, later: 2, done: 3 };
+
+const areaIcons = {
+  Fondamenta: Database,
+  Account: LockKeyhole,
+  Privacy: ShieldCheck,
+  Planner: ClipboardList,
+  Nutrizione: Utensils,
+  Piani: FileText,
+  Spesa: ShoppingBasket,
+  "AI coach": Bot,
+  Premium: CreditCard,
+  Admin: UserRound,
+  Qualita: TestTube2,
+  Growth: BarChart3,
+  Mobile: Smartphone,
+} as const;
+
+const priorityColumns: Array<{ priority: BacklogPriority; title: string; detail: string }> = [
+  { priority: "P0", title: "Da chiudere per beta", detail: "Blocchi residui prima della beta pubblica." },
+  { priority: "P1", title: "Prossimo sprint", detail: "Funzioni prioritarie per prodotto, sicurezza e monetizzazione." },
+  { priority: "P2", title: "Dopo beta", detail: "Migliorie di valore quando il nucleo e' stabile." },
+  { priority: "P3", title: "Espansioni", detail: "Evoluzioni di lungo periodo e canali mobile." },
 ];
 
-const metrics = [
-  { label: "Core MVP", value: "96%", detail: "Planner, salvataggio, storico, profilo, GDPR operativo e macro sono attivi." },
-  { label: "Pronto beta", value: "84%", detail: "Mancano validazione legale/nutrizionista e test con account/secret in CI." },
-  { label: "Monetizzazione", value: "15%", detail: "Pricing mock presente, Stripe ancora da implementare." },
-];
+function byOperationalPriority(a: BacklogItem, b: BacklogItem) {
+  return (
+    priorityOrder[a.priority] - priorityOrder[b.priority] ||
+    statusOrder[a.status] - statusOrder[b.status] ||
+    a.area.localeCompare(b.area) ||
+    a.title.localeCompare(b.title)
+  );
+}
 
 const checklist = [
   "Registrazione -> conferma email -> login -> account",
@@ -101,6 +80,16 @@ export default async function AdminBacklogPage() {
     redirect("/account?adminError=not_admin");
   }
 
+  const remainingItems = backlogItems.filter((item) => item.status !== "done").sort(byOperationalPriority);
+  const doneCount = backlogItems.filter((item) => item.status === "done").length;
+  const p0OpenCount = remainingItems.filter((item) => item.priority === "P0").length;
+  const monetizationCount = remainingItems.filter((item) => item.area === "Premium").length;
+  const metrics = [
+    { label: "Completate", value: doneCount.toString(), detail: "Voci marcate Fatto nella sorgente unica del backlog." },
+    { label: "P0 aperte", value: p0OpenCount.toString(), detail: "Da chiudere prima della beta pubblica." },
+    { label: "Monetizzazione", value: monetizationCount.toString(), detail: "Feature premium e Stripe ancora aperte." },
+  ];
+
   return (
     <>
       <Header />
@@ -111,7 +100,7 @@ export default async function AdminBacklogPage() {
               Admin
             </p>
             <h1 className="max-w-4xl text-3xl font-black leading-tight text-ink sm:text-5xl">
-              Backlog operativo DietaSprint AI.
+              Backlog operativo Diet Sprint AI.
             </h1>
             <p className="mt-4 max-w-3xl leading-7 text-ink/65">
               Roadmap interna per portare l'app da MVP funzionante a prodotto pronto per beta pubblica e produzione.
@@ -119,7 +108,7 @@ export default async function AdminBacklogPage() {
           </div>
           <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-ink shadow-sm ring-1 ring-ink/10">
             <CalendarClock className="h-4 w-4 text-leaf" aria-hidden="true" />
-            Aggiornato: 04 giu 2026
+            Aggiornato: 05 giu 2026
           </div>
         </section>
 
@@ -134,37 +123,49 @@ export default async function AdminBacklogPage() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-4">
-          {columns.map((column) => (
-            <div key={column.title} className={`rounded-[8px] border border-ink/10 p-4 shadow-soft ${column.tone}`}>
-              <h2 className="mb-4 text-xl font-black text-ink">{column.title}</h2>
-              <div className="space-y-3">
-                {column.items.map((item) => {
-                  const Icon = item.icon;
+          {priorityColumns.map((column) => {
+            const items = remainingItems.filter((item) => item.priority === column.priority);
 
-                  return (
-                    <article key={`${column.title}-${item.title}`} className="rounded-[8px] bg-white p-4 shadow-sm ring-1 ring-ink/10">
-                      <div className="flex items-start gap-3">
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-mint text-leaf">
-                          <Icon size={18} aria-hidden="true" />
-                        </span>
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full bg-lemon/60 px-2.5 py-1 text-xs font-black text-ink">
-                              {item.priority}
-                            </span>
-                            <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink/45">
-                              {item.area}
-                            </span>
+            return (
+              <div key={column.priority} className="rounded-[8px] border border-ink/10 bg-white p-4 shadow-soft">
+                <h2 className="mb-4 text-xl font-black text-ink">{column.title}</h2>
+                <p className="mb-4 text-sm leading-6 text-ink/60">{column.detail}</p>
+                <div className="space-y-3">
+                  {items.map((item) => {
+                    const Icon = areaIcons[item.area as keyof typeof areaIcons] ?? CheckCircle2;
+
+                    return (
+                      <article key={item.id} className="rounded-[8px] bg-white p-4 shadow-sm ring-1 ring-ink/10">
+                        <div className="flex items-start gap-3">
+                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-mint text-leaf">
+                            <Icon size={18} aria-hidden="true" />
+                          </span>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="rounded-full bg-lemon/60 px-2.5 py-1 text-xs font-black text-ink">
+                                {item.priority}
+                              </span>
+                              <span className="text-xs font-bold uppercase tracking-[0.12em] text-ink/45">
+                                {item.area}
+                              </span>
+                            </div>
+                            <h3 className="mt-2 text-base font-black text-ink">{item.title}</h3>
+                            <p className="mt-2 text-sm leading-6 text-ink/60">{item.detail}</p>
+                            <p className="mt-3 text-xs font-bold text-leaf">{backlogStatusLabels[item.status]}</p>
                           </div>
-                          <h3 className="mt-2 text-base font-black text-ink">{item.title}</h3>
                         </div>
-                      </div>
-                    </article>
-                  );
-                })}
+                      </article>
+                    );
+                  })}
+                  {items.length === 0 ? (
+                    <div className="rounded-[8px] border border-dashed border-ink/15 bg-cream p-4 text-sm font-semibold text-ink/60">
+                      Nessuna voce aperta.
+                    </div>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
 
         <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_0.8fr]">

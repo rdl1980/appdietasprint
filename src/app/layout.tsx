@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { CookieBanner } from "@/components/CookieBanner";
 import "./globals.css";
-
-export const dynamic = "force-dynamic";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DietaSprint AI",
+  title: "Diet Sprint AI",
   description: "Piani alimentari realistici, semplici e adattati alla vita quotidiana.",
 };
 
@@ -28,7 +27,13 @@ export default function RootLayout({
   return (
     <html lang="it">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
+        <a href="#main-content" className="skip-link">
+          Salta al contenuto
+        </a>
+        <div id="main-content" tabIndex={-1}>
+          {children}
+        </div>
+        <AnalyticsTracker />
         <CookieBanner />
       </body>
     </html>

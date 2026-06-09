@@ -10,6 +10,12 @@ export const env = {
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
   supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET || "",
   debugAuthEndpoint: process.env.DEBUG_AUTH_ENDPOINT === "true",
+  premiumEmails: process.env.PREMIUM_EMAILS || "",
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY || "",
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
+  stripePremiumPriceId: process.env.STRIPE_PREMIUM_PRICE_ID || "",
+  openaiApiKey: process.env.OPENAI_API_KEY || "",
+  openaiModel: process.env.OPENAI_MODEL || "gpt-5.4-mini",
 };
 
 export function isSupabaseConfigured() {

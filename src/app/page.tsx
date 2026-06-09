@@ -50,7 +50,7 @@ export default function Home() {
               Il piano alimentare che si adatta alla tua vita reale, non il contrario.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-ink/70">
-              DietaSprint AI crea un piano realistico partendo da calorie, stile alimentare,
+              Diet Sprint AI crea un piano realistico partendo da calorie, stile alimentare,
               pasti al giorno, esclusioni e livello di semplicita.
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">

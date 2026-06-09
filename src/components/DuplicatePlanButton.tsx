@@ -9,12 +9,19 @@ type DuplicatePlanButtonProps = {
   profile: UserProfile;
 };
 
+const profileStorageKey = "dietSprintProfile";
+const draftProfileStorageKey = "dietSprintDraftProfile";
+const legacyProfileStorageKey = "dietaSprintProfile";
+const legacyDraftProfileStorageKey = "dietaSprintDraftProfile";
+
 export function DuplicatePlanButton({ profile }: DuplicatePlanButtonProps) {
   const router = useRouter();
 
   function duplicatePlan() {
-    window.localStorage.setItem("dietaSprintDraftProfile", JSON.stringify(profile));
-    window.localStorage.setItem("dietaSprintProfile", JSON.stringify(profile));
+    window.localStorage.setItem(draftProfileStorageKey, JSON.stringify(profile));
+    window.localStorage.setItem(profileStorageKey, JSON.stringify(profile));
+    window.localStorage.removeItem(legacyDraftProfileStorageKey);
+    window.localStorage.removeItem(legacyProfileStorageKey);
     router.push("/planner?draft=1");
   }
 

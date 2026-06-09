@@ -25,6 +25,15 @@ const securityHeaders = [
     key: "Cross-Origin-Opener-Policy",
     value: "same-origin",
   },
+  {
+    key: "X-DNS-Prefetch-Control",
+    value: "off",
+  },
+  {
+    key: "Content-Security-Policy-Report-Only",
+    value:
+      "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://api.resend.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
+  },
 ];
 
 const nextConfig: NextConfig = {

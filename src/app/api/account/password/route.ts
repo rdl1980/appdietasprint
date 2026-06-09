@@ -3,6 +3,7 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { createSupabaseAdminClient, getAuthenticatedUser } from "@/lib/supabase/data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { rateLimit, readJsonBody } from "@/lib/api";
+import { notifySecurityEvent } from "@/lib/email";
 
 type UpdatePasswordBody = {
   password?: string;
@@ -47,6 +48,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Password non aggiornata." }, { status: 500 });
     }
 
+    if (user.email) {
+      await notifySecurityEvent({ email: user.email, event: "password_changed" });
+    }
+
     return NextResponse.json({ updated: true });
   }
 
@@ -63,6 +68,10 @@ export async function POST(request: NextRequest) {
   if (error) {
     console.error("recovery_password_update_failed", { error: error.message });
     return NextResponse.json({ error: "Password non aggiornata. Richiedi un nuovo link di recupero." }, { status: 400 });
+  }
+
+  if (data.user.email) {
+    await notifySecurityEvent({ email: data.user.email, event: "password_changed" });
   }
 
   return NextResponse.json({ updated: true });
