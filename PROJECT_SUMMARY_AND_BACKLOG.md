@@ -39,7 +39,7 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 - Numero pasti, budget mode, semplicita e tempo disponibile per cucinare.
 - Cibi esclusi, allergie e intolleranze strutturate.
 - Salvataggio bozza locale.
-- Screening salute prudenziale che blocca generazione automatica in casi sensibili.
+- Screening salute prudenziale con warning evidente e richiesta di review medica in casi sensibili.
 
 ### Motore nutrizionale MVP
 
@@ -99,7 +99,7 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 | Account | Recupero/cambio password | Fatto | Flusso email configurabile. |
 | Privacy | Pagine legali MVP | Fatto | Privacy, termini, cookie, GDPR, disclaimer. |
 | Planner | Planner guidato MVP | Fatto | Core flow operativo. |
-| Planner | Screening salute | Fatto | Blocchi prudenziali presenti. |
+| Planner | Screening salute | Fatto | Warning evidenti e richiesta di review medica prima dell'uso. |
 | Planner | Decisione chetogenica in beta | Fatto | Inclusa in beta, con conferma richiesta nelle review. |
 | Nutrizione | BMR/TDEE e calorie | Fatto | Formula e warning testati. |
 | Nutrizione | Guardrail calorie basse | Fatto | Avvisi e blocchi presenti. |

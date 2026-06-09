@@ -45,7 +45,7 @@ Questo documento prepara la revisione professionale. Non sostituisce parere lega
 5. Cookie banner: non necessario finche' non ci sono analytics/marketing non tecnici.
 6. Disclaimer sanitario e assenza di claim medici.
 7. Termini commerciali se si attivano abbonamenti Stripe.
-8. Opportunita di mantenere la chetogenica in beta come opzione non medicale, con warning visibili e blocchi prudenziali.
+8. Opportunita di mantenere la chetogenica in beta come opzione non medicale, con warning visibili e richiesta esplicita di review medica nei casi sensibili.
 
 ## Definition of done legale
 

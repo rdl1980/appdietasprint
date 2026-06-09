@@ -1,19 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { getMedicalScreeningBlock, medicalScreeningOptions } from "./medicalScreening";
+import { getMedicalReviewWarning, medicalScreeningOptions } from "./medicalScreening";
 
-describe("getMedicalScreeningBlock", () => {
-  it("allows standard planner generation when no flags are selected", () => {
-    expect(getMedicalScreeningBlock([])).toBeNull();
-    expect(getMedicalScreeningBlock()).toBeNull();
+describe("getMedicalReviewWarning", () => {
+  it("does not add a review warning when no flags are selected", () => {
+    expect(getMedicalReviewWarning([])).toBeNull();
+    expect(getMedicalReviewWarning()).toBeNull();
   });
 
-  it("blocks automatic plans for selected medical screening flags", () => {
-    expect(getMedicalScreeningBlock(["diabetes"])).toContain("non genera un piano automatico");
+  it("requires medical review for selected screening flags without blocking generation", () => {
+    const warning = getMedicalReviewWarning(["diabetes"]);
+
+    expect(warning).toContain("Review medica necessaria");
+    expect(warning).toContain("Diabete");
+    expect(warning).not.toContain("non genera");
   });
 
-  it("keeps every configured option covered by the blocking rule", () => {
+  it("keeps every configured option covered by the review warning", () => {
     for (const option of medicalScreeningOptions) {
-      expect(getMedicalScreeningBlock([option.value])).toBeTruthy();
+      expect(getMedicalReviewWarning([option.value])).toContain(option.label);
     }
   });
 });

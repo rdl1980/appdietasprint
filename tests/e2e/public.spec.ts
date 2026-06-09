@@ -36,14 +36,15 @@ test("home, planner and results flow render without login", async ({ page }) => 
   await expect(page.getByText(/Premium sblocca la settimana completa/i)).toBeVisible();
 });
 
-test("medical screening blocks automatic plan generation", async ({ page }) => {
+test("medical screening generates a plan with a visible medical review warning", async ({ page }) => {
   await seedNecessaryCookieConsent(page);
   await page.goto("/planner");
   await page.getByLabel(/diabete/i).check();
   await page.getByRole("button", { name: /genera piano/i }).click();
 
-  await expect(page).toHaveURL(/\/planner$/);
-  await expect(page.getByText(/non genera un piano automatico/i)).toBeVisible();
+  await expect(page).toHaveURL(/\/results$/);
+  await expect(page.getByText(/review medica necessaria prima di seguire questo piano/i)).toBeVisible();
+  await expect(page.getByText(/hai indicato: diabete/i)).toBeVisible();
 });
 
 test("onboarding guide renders", async ({ page }) => {

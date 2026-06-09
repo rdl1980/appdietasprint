@@ -14,10 +14,15 @@ export const medicalScreeningOptions: Array<{
   { value: "medications", label: "Farmaci che influenzano peso o appetito" },
 ];
 
-export function getMedicalScreeningBlock(flags: MedicalScreeningFlag[] = []) {
+export function getMedicalReviewWarning(flags: MedicalScreeningFlag[] = []) {
   if (!flags.length) {
     return null;
   }
 
-  return "Per i casi selezionati Diet Sprint AI non genera un piano automatico: serve una valutazione personalizzata di medico, dietista o nutrizionista.";
+  const selectedLabels = flags
+    .map((flag) => medicalScreeningOptions.find((option) => option.value === flag)?.label)
+    .filter(Boolean)
+    .join(", ");
+
+  return `Review medica necessaria prima di seguire questo piano. Hai indicato: ${selectedLabels}. Diet Sprint AI puo' generare una bozza orientativa, ma deve essere rivista da medico, dietista o nutrizionista prima dell'uso.`;
 }
