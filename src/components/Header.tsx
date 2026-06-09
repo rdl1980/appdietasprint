@@ -42,8 +42,14 @@ export async function Header() {
               <Link href="/admin/backlog" className="hover:text-ink">
                 Admin
               </Link>
+              <Link href="/admin/users" className="hover:text-ink">
+                Utenti
+              </Link>
               <Link href="/admin/privacy" className="hover:text-ink">
                 GDPR
+              </Link>
+              <Link href="/admin/templates" className="hover:text-ink">
+                Template
               </Link>
             </>
           ) : null}

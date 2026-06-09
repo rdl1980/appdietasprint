@@ -165,6 +165,7 @@ Completato per P1:
 
 ### Admin
 
+Completato per P1:
 - Gestione utenti.
 - Dashboard richieste privacy con audit trail completo.
 - Gestione template pasti, ingredienti, ricette, tag dieta e sostituzioni.
@@ -216,9 +217,7 @@ Completato per P1:
 
 ### P1 - Prossimo sprint prodotto
 
-1. Gestione utenti admin.
-2. Dashboard richieste privacy con audit trail completo.
-3. Gestione admin template pasti, ingredienti, ricette, tag dieta e sostituzioni.
+Tutte le voci P1 sono completate nel backlog operativo.
 
 ### P2 - Dopo beta
 
@@ -252,9 +251,9 @@ Completato per P1:
 ## Prossime decisioni consigliate
 
 1. Verificare che i GitHub Secrets attivino lo step E2E autenticato in CI.
-2. Portare Stripe da mock a checkout una tantum.
-3. Definire prezzo finale Premium e copy pagamento.
-4. Collegare webhook Stripe allo sblocco Premium.
+2. Validare prezzo finale Premium e copy pagamento con il posizionamento commerciale.
+3. Far revisionare da legale e nutrizionista i warning salute prima della beta pubblica.
+4. Scegliere il prossimo pacchetto P2: export PDF, SEO tecnico o PWA.
 
 ## Definition of Done per beta pubblica
 
