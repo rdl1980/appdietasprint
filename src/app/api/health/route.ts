@@ -1,14 +1,29 @@
 import { NextResponse } from "next/server";
-import { isSupabaseConfigured } from "@/lib/env";
+import { env, isSupabaseConfigured } from "@/lib/env";
 import { isEmailConfigured } from "@/lib/email";
+import { isAiConfigured, resolveAiProvider } from "@/lib/ai/provider";
+import { isStripeCheckoutConfigured, isStripeWebhookConfigured } from "@/lib/stripe";
+
+export const dynamic = "force-dynamic";
 
 export function GET() {
-  return NextResponse.json({
-    ok: true,
-    app: "Diet Sprint AI",
-    build: "p0-ci-guardrails-2026-06-04",
-    supabaseConfigured: isSupabaseConfigured(),
-    emailConfigured: isEmailConfigured(),
-    timestamp: new Date().toISOString(),
-  });
+  return NextResponse.json(
+    {
+      ok: true,
+      app: "Diet Sprint AI",
+      build: env.buildId,
+      supabaseConfigured: isSupabaseConfigured(),
+      emailConfigured: isEmailConfigured(),
+      aiConfigured: isAiConfigured(),
+      aiProvider: resolveAiProvider(),
+      stripeCheckoutConfigured: isStripeCheckoutConfigured(),
+      stripeWebhookConfigured: isStripeWebhookConfigured(),
+      timestamp: new Date().toISOString(),
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    },
+  );
 }

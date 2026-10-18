@@ -7,6 +7,9 @@
     "build": "next build",
     "lint": "tsc --noEmit",
     "test": "vitest run",
+    "test:unit": "vitest run src",
+    "test:api": "vitest run tests/api",
+    "test:components": "vitest run tests/components",
     "test:ai-eval": "vitest run src/lib/aiCoach.evaluation.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:public": "playwright test tests/e2e/public.spec.ts",
@@ -15,9 +18,11 @@
     "test:watch": "vitest",
     "db:backup": "node scripts/backup-supabase.mjs",
     "db:restore": "node scripts/restore-supabase.mjs",
-    "admin:create": "node scripts/create-admin-user.mjs"
+    "admin:create": "node scripts/create-admin-user.mjs",
+    "test:all": "npm run lint && npm test && npm run test:e2e"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
     "jose": "^6.2.3",
@@ -32,10 +37,15 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "autoprefixer": "^10.4.20",
+    "jsdom": "^29.1.1",
     "postcss": "8.5.10",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2",

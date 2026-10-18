@@ -108,7 +108,7 @@ export default async function AdminBacklogPage() {
           </div>
           <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-ink shadow-sm ring-1 ring-ink/10">
             <CalendarClock className="h-4 w-4 text-leaf" aria-hidden="true" />
-            Aggiornato: 05 giu 2026
+            Aggiornato: 18 ott 2026
           </div>
         </section>
 

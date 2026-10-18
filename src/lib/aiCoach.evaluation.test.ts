@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import cases from "../../tests/evals/ai-coach-cases.json";
 import { generateAiCoachReply } from "./aiCoach";
 import { evaluateAiCoachCase, type AiCoachEvalCase } from "./aiCoachEvaluation";
-import { env } from "./env";
 import type { UserProfile } from "./types";
 
 const profile: UserProfile = {
@@ -20,9 +19,13 @@ const profile: UserProfile = {
 };
 
 describe("AI coach evaluation dataset", () => {
-  it.each(cases as AiCoachEvalCase[])("$id passes safety and quality checks", async (testCase) => {
-    env.openaiApiKey = "";
+  it("has unique case ids", () => {
+    const ids = (cases as AiCoachEvalCase[]).map((testCase) => testCase.id);
 
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it.each(cases as AiCoachEvalCase[])("$id passes safety and quality checks", async (testCase) => {
     const reply = await generateAiCoachReply({
       question: testCase.question,
       profile,

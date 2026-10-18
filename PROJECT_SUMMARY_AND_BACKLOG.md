@@ -1,268 +1,137 @@
 # Diet Sprint AI - riepilogo progetto e backlog
 
-Aggiornato al 5 giugno 2026.
+Aggiornato al 18 ottobre 2026.
 
 ## Visione
 
 Diet Sprint AI e' una web app per creare piani alimentari realistici, pratici e sostenibili. La prima versione e' web, con architettura pensata per arrivare in seguito a iOS e Android usando gli stessi servizi backend.
 
-Il posizionamento attuale e' volutamente prudente: planner alimentare orientativo, non dispositivo medico, non diagnosi e non sostituzione di medico, dietista o nutrizionista.
+Il posizionamento resta prudente: planner alimentare orientativo, non dispositivo medico, non diagnosi e non sostituzione di medico, dietista o nutrizionista.
 
 ## Stack e servizi
 
-- Frontend e backend: Next.js App Router.
+- Frontend e backend: Next.js 16 App Router, React 19, Tailwind.
 - Autenticazione: Auth.js / NextAuth v5 con provider credentials collegato a Supabase Auth.
-- Database: Supabase Postgres con Row Level Security.
+- Database: Supabase Postgres con Row Level Security (schema in `supabase/schema.sql`, migrazioni in `supabase/migrations`).
+- AI: layer multi-provider (`src/lib/ai/provider.ts`) con Anthropic o OpenAI, guardrail salute e fallback deterministico.
+- Pagamenti: Stripe Checkout una tantum + webhook.
 - Email: Resend per invii applicativi e SMTP Supabase Auth.
-- Deploy: Vercel con dominio `dietsprintai.com`.
-- CI/CD: GitHub Actions con lint, unit test, build e Playwright E2E.
-- Test: Vitest per logica applicativa, Playwright per flussi browser desktop e mobile.
-- Admin: pannelli protetti per backlog e privacy.
+- Deploy: Vercel (`appdietasprint`) con dominio `dietsprintai.com`.
+- CI/CD: GitHub Actions con typecheck, Vitest, build e Playwright.
+- Test: Vitest (unit, API route, componenti jsdom) e Playwright (desktop + mobile).
 
 ## Sorgente backlog
 
-Questo documento e' il riepilogo markdown unico del progetto. La vista applicativa del backlog usa `src/lib/productBacklog.ts`; non mantenere altri file markdown di backlog paralleli.
+Questo documento e' il riepilogo markdown unico del progetto. La vista applicativa usa `src/lib/productBacklog.ts`; non mantenere altri file markdown di backlog paralleli.
 
-## Caratteristiche gia implementate
+## Stato rilevato il 18 ottobre 2026
 
-### Esperienza pubblica
+### Cosa e' stato fatto in questa passata
 
-- Homepage prodotto con accesso al planner.
-- Pricing Free e Premium: Free giornaliero senza salvataggio, Premium una tantum con tutte le funzioni.
-- Pagine legali: privacy, termini, cookie, GDPR e disclaimer salute.
-- Cookie banner granulare con consenso necessari / analytics / marketing.
+- Repository clonato e analizzato; branch `codex/priority-features` (3 commit non ancora in `main`: admin utenti, admin template, audit trail GDPR, redirect login da API, screening salute con warning) integrato in `main` locale.
+- Fix: gate Premium anche su `POST /api/plans` (prima un utente Free poteva salvare via API), validazione server-side dei range profilo con risposta 400 (prima errore 500 dal database), header con stato login reale (account + esci), copy home non piu' "mock", health endpoint con flag di configurazione e build id reale.
+- Profilo: nuove colonne `medical_flags`, `allergy_flags`, `cooking_time` su `user_profiles` (migrazione `20261018120000_profile_preferences.sql`), mapper e form profilo aggiornati.
+- AI: layer provider-agnostico pronto per la chiave reale (Anthropic o OpenAI), coach riscritto sopra il layer, nuova generazione piano AI con validazione rigorosa e fallback (`/api/plans/generate`).
+- Test: da 37 a oltre 320 test Vitest (unit, API route con Supabase finto, componenti jsdom) e suite Playwright pubblica estesa (auth pages, legal, 404, contratto API, redirect admin).
+- Documentazione: runbook `docs/supabase-restore.md`, README aggiornato, `.env.example` con variabili AI.
 
-### Planner alimentare
+### Cosa manca o e' rotto
 
-- Profilo utente: sesso, eta, altezza, peso, attivita, obiettivo.
-- Scelta stile alimentare: chetogenica, mediterranea, low carb, bilanciata, vegetariana.
-- Numero pasti, budget mode, semplicita e tempo disponibile per cucinare.
-- Cibi esclusi, allergie e intolleranze strutturate.
-- Salvataggio bozza locale.
-- Screening salute prudenziale con warning evidente e richiesta di review medica in casi sensibili.
+| Area | Problema | Impatto |
+| --- | --- | --- |
+| Supabase | Il progetto Supabase non esiste piu' nell'organizzazione. | Login, registrazione, salvataggio piani e admin non funzionano in produzione. |
+| Vercel | Le variabili Production puntano al vecchio progetto; mancano Stripe, AI, `PREMIUM_EMAILS`, `ADMIN_EMAILS`, `SUPABASE_JWT_SECRET` aggiornato. | Deploy verde ma funzioni autenticate fuori uso. |
+| AI | Nessuna chiave provider configurata. | Coach e generazione piani usano solo il fallback deterministico. |
+| Stripe | Nessuna chiave in Vercel. | Checkout risponde 503; Premium attivabile solo via `PREMIUM_EMAILS` o admin. |
+| Nutrizione | 16 template statici; i template admin su DB non alimentano il generatore. | Piani ripetitivi, poca varieta' per keto e vegetariana. |
+| Nutrizione | Le condizioni mediche generano una bozza con warning invece di bloccare (decisione presa sul branch codex). | Da confermare con legale e nutrizionista. |
+| Qualita | Rate limit in memoria per istanza serverless. | Protezione debole in produzione multi-istanza. |
+| Prodotto | Tab `/backlog` pubblica, bottone "PDF placeholder", pagina `/auth/callback` legacy. | Da rimuovere o completare prima del lancio. |
 
-### Motore nutrizionale MVP
+## Backlog prioritizzato
 
-- Calcolo BMR e TDEE con formula Mifflin-St Jeor.
-- Range calorico e warning per target troppo restrittivi.
-- Piano giornaliero e settimanale deterministico.
-- Macro coerenti per tipo di dieta.
-- Template pasti con ingredienti, quantita, calorie e macro indicative.
-- Rigenerazione singolo pasto.
-- Sostituzioni compatibili per dieta, calorie e preferenze.
-- Lista spesa aggregata, categorizzata e spuntabile.
-- Strategie anti-fame non medicali.
+### P0 - Sbloccare la produzione (prossimi giorni)
 
-### Account e dati
-
-- Registrazione email/password.
-- Conferma email tramite Supabase Auth.
-- Login, logout, recupero password e cambio password.
-- Profilo alimentare modificabile.
-- Salvataggio piani autenticato su Supabase.
-- Storico piani salvati.
-- Dettaglio piano salvato.
-- Export dati utente in JSON.
-- Storico consensi versionati.
-- Workflow richieste GDPR lato utente.
-
-### Admin e operativita
-
-- Accesso admin protetto.
-- Backlog interno visibile su `/admin/backlog`.
-- Coda richieste privacy su `/admin/privacy`.
-- Script creazione admin.
-- Script backup e restore Supabase.
-- Runbook backup/restore.
-
-### Qualita e sicurezza
-
-- Health endpoint `/api/health`.
-- Debug auth disabilitabile in produzione.
-- RLS Supabase sui dati utente.
-- Rate limit su endpoint sensibili.
-- Error monitoring MVP con sanitizzazione di email, token e dati sensibili.
-- Guardrail AI salute prima/dopo generazione.
-- Unit test su calorie, macro, piani, GDPR, error monitoring e guardrail salute.
-- Playwright E2E su flussi pubblici, cookie banner, screening medico, endpoint health e flussi autenticati opzionali con secret.
-- CI/CD GitHub Actions attiva.
-
-## Stato P0
-
-| Area | Elemento | Stato | Note |
-| --- | --- | --- | --- |
-| Fondamenta | Dominio e deploy automatico | Fatto | Vercel collegato a `main`. |
-| Fondamenta | Supabase con RLS | Fatto | Schema MVP e policy attive. |
-| Fondamenta | Resend e SMTP Auth | Fatto | Dominio email configurato. |
-| Fondamenta | Backup/restore database | Fatto | Script e runbook presenti. |
-| Account | Registrazione, login, logout | Fatto | Auth.js + Supabase Auth. |
-| Account | Recupero/cambio password | Fatto | Flusso email configurabile. |
-| Privacy | Pagine legali MVP | Fatto | Privacy, termini, cookie, GDPR, disclaimer. |
-| Planner | Planner guidato MVP | Fatto | Core flow operativo. |
-| Planner | Screening salute | Fatto | Warning evidenti e richiesta di review medica prima dell'uso. |
-| Planner | Decisione chetogenica in beta | Fatto | Inclusa in beta, con conferma richiesta nelle review. |
-| Nutrizione | BMR/TDEE e calorie | Fatto | Formula e warning testati. |
-| Nutrizione | Guardrail calorie basse | Fatto | Avvisi e blocchi presenti. |
-| Piani | Piano giornaliero/settimanale | Fatto | Generazione deterministica MVP. |
-| Piani | Salvataggio autenticato | Fatto | Supabase + consensi. |
-| Spesa | Lista spesa aggregata | Fatto | Categorie e checklist. |
-| AI coach | Guardrail salute AI | Fatto | Regole deterministiche implementate. |
-| Admin | Backlog admin protetto | Fatto | `/admin/backlog`. |
-| Qualita | E2E flusso principale | Fatto | Playwright in CI/CD. |
-| Qualita | E2E autenticati con secret CI | Fatto lato repo | Step CI dedicato; si attiva con GitHub Secrets. |
-| Qualita | Test motore calorie | Fatto | Vitest. |
-| Qualita | Monitoraggio errori | Fatto | MVP server/client. |
-| Qualita | Hardening sicurezza MVP | Fatto | Rate limit, header, segreti non client. |
-
-## Backlog P1
-
-### Fondamenta
-
-Completato per P1:
-- Ambiente preview separato con variabili e database staging.
-
-### Account
-
-Completato per P1:
-- Onboarding guidato progressivo.
-- Eliminazione account self-service.
-- Notifiche sicurezza account.
-
-### Privacy
-
-Completato per P1:
-- Versionamento consensi.
-- Cookie banner reale.
-- Export dati utente.
-- Workflow richieste GDPR.
-
-### Planner e nutrizione
-
-Completato per P1:
-- Salvataggio bozza planner.
-- Allergie e intolleranze strutturate.
-- Tempo disponibile per cucinare.
-- Macro coerenti per dieta.
-- Storico piani salvati.
-- Dettaglio piano salvato.
-- Rigenera singolo pasto.
-- Sostituzioni compatibili.
-- Categorie supermercato.
-- Checklist spesa interattiva.
-
-### AI coach
-
-Completato per P1:
-- Layer AI server-side con prompt protetti.
-- Valutazione qualita output AI con dataset e controlli regressione.
-
-### Premium
-
-Completato per P1:
-- Piani Free e Premium con feature gate.
-- Checkout Stripe una tantum.
-- Webhook Stripe e stato acquisto Premium.
-
-### Admin
-
-Completato per P1:
-- Gestione utenti.
-- Dashboard richieste privacy con audit trail completo.
-- Gestione template pasti, ingredienti, ricette, tag dieta e sostituzioni.
-
-### Qualita
-
-Completato per P1:
-- Accessibilita base: tastiera, focus, contrasto, label, screen reader.
-- Performance mobile: Lighthouse, bundle, immagini, tempi risposta.
-- Security review: header, rate limit, CAPTCHA, segreti, dipendenze.
-
-### Growth
-
-Completato per P1:
-- Analytics privacy-first con consenso.
-
-- Funnel onboarding.
-
-## Backlog P2
-
-- Dispensa disponibile per ridurre costi e sprechi.
-- Indicatori fibre e idratazione non medicali.
-- Pasti preferiti.
-- Feedback rapido sui pasti.
-- Export PDF reale del piano e della lista spesa.
-- Budget stimato della spesa.
-- Meal prep settimanale.
-- Coach anti-fame reale e contestuale.
-- Trial e coupon.
-- Fatturazione e ricevute.
-- Metriche prodotto admin.
-- Supporto utenti admin.
-- SEO tecnico: metadata, sitemap, robots, Open Graph.
-- Newsletter e onboarding email.
-- PWA installabile.
-
-## Backlog P3
-
-- Profili famiglia.
-- Chat coach contestuale sul piano attivo.
-- Personalizzazione progressiva da feedback e preferiti.
-- Referral.
-- Contenuti educativi.
-- App Expo React Native per iOS e Android.
-- Notifiche push.
-- Consultazione offline di piano e lista spesa.
-
-## Backlog residuo ordinato
+1. **Ripristinare Supabase**: creare il progetto, applicare `supabase/schema.sql`, configurare Auth (SMTP Resend, template email, redirect URL), ricreare l'admin (`docs/supabase-restore.md`).
+2. **Riallineare le variabili Vercel** (Production e Preview): Supabase nuove, `AUTH_SECRET`, `SUPABASE_JWT_SECRET`, `PREMIUM_EMAILS`, `ADMIN_EMAILS`, `PRIVACY_NOTIFICATION_EMAIL`; rimuovere le variabili dell'integrazione precedente.
+3. **Attivare il provider AI reale**: `ANTHROPIC_API_KEY` (o `OPENAI_API_KEY`), verifica coach e `/api/plans/generate` con la chiave, taratura prompt ed eval.
+4. **Decidere lo screening salute**: confermare bozza + warning di review oppure ripristinare il blocco. Allineare copy, test e pacchetto legale.
+5. **Verifica end-to-end in produzione**: registrazione, conferma email, login, salvataggio piano, export dati, cancellazione account, admin. Attivare i GitHub Secrets per gli E2E autenticati.
+6. **Stripe in produzione**: chiavi, price id, webhook `checkout.session.completed` e test di un acquisto reale in test mode.
 
 ### P1 - Prossimo sprint prodotto
 
-Tutte le voci P1 sono completate nel backlog operativo.
+1. Generazione piano AI in UI: risultati Premium collegati a `/api/plans/generate`, loading, badge fonte (AI o template), rigenerazione singolo pasto via AI.
+2. Catalogo pasti piu' ampio (60+ ricette) e uso dei template admin DB nel generatore.
+3. Rate limit distribuito (Upstash/Redis o tabella Supabase).
+4. Rimuovere la tab `/backlog` pubblica e la pagina `/auth/callback` legacy; completare o togliere il bottone "PDF placeholder".
+5. Pagina dettaglio piano: rigenerazione e salvataggio modifiche sul piano salvato.
+6. Dashboard richieste privacy: scadenze 30 giorni e note admin visibili all'utente.
+7. Monitoraggio errori reale (Sentry o simile) al posto del solo `console.error`.
 
 ### P2 - Dopo beta
 
 1. Export PDF reale del piano e della lista spesa.
-2. SEO tecnico: metadata, sitemap, robots e Open Graph.
+2. SEO tecnico: metadata per pagina, sitemap, robots, Open Graph.
 3. PWA installabile.
-4. Budget stimato della spesa.
-5. Meal prep settimanale.
-6. Pasti preferiti.
-7. Feedback rapido sui pasti.
-8. Dispensa disponibile.
-9. Indicatori fibre e idratazione non medicali.
-10. Coach anti-fame reale e contestuale.
-11. Newsletter e onboarding email.
-12. Trial e coupon.
-13. Fatturazione e ricevute.
-14. Metriche prodotto admin.
-15. Supporto utenti admin.
+4. Budget stimato della spesa e meal prep settimanale.
+5. Pasti preferiti e feedback rapido sui pasti (input per personalizzazione AI).
+6. Dispensa disponibile.
+7. Indicatori fibre e idratazione non medicali.
+8. Newsletter e onboarding email.
+9. Trial, coupon, fatturazione e ricevute.
+10. Metriche prodotto e supporto utenti admin.
 
 ### P3 - Espansioni
 
 1. Profili famiglia.
-2. Chat coach contestuale sul piano attivo.
+2. Chat coach contestuale sul piano attivo con memoria conversazione.
 3. Personalizzazione progressiva da feedback e preferiti.
-4. Referral.
-5. Contenuti educativi.
-6. App Expo React Native per iOS e Android.
-7. Notifiche push.
-8. Consultazione offline di piano e lista spesa.
+4. Referral e contenuti educativi.
+5. App Expo React Native per iOS e Android, notifiche push, consultazione offline.
 
-## Prossime decisioni consigliate
+## Caratteristiche gia' implementate
 
-1. Verificare che i GitHub Secrets attivino lo step E2E autenticato in CI.
-2. Validare prezzo finale Premium e copy pagamento con il posizionamento commerciale.
-3. Far revisionare da legale e nutrizionista i warning salute prima della beta pubblica.
-4. Scegliere il prossimo pacchetto P2: export PDF, SEO tecnico o PWA.
+### Esperienza pubblica
+
+- Homepage, pricing Free/Premium, pagine legali (privacy, termini, cookie, GDPR, disclaimer), cookie banner granulare, onboarding guidato.
+
+### Planner e motore nutrizionale
+
+- Profilo, stile alimentare (5 diete), pasti al giorno, budget, semplicita', tempo cucina, cibi esclusi, allergie strutturate, screening salute.
+- BMR/TDEE Mifflin-St Jeor, range calorico, warning di sicurezza, macro per dieta.
+- Piano giornaliero (Free) e settimanale (Premium) deterministico, rigenerazione singolo pasto, sostituzioni, lista spesa aggregata e categorizzata.
+- Bozza planner locale e migrazione chiavi legacy.
+
+### AI
+
+- Provider Anthropic/OpenAI selezionabile, prompt protetti, guardrail prima/dopo, fallback deterministico, dataset di regressione coach.
+- Generazione piano AI validata contro schema, esclusioni, calorie e claim medici.
+
+### Account, privacy, pagamenti
+
+- Registrazione, conferma email, login, logout, recupero e cambio password, notifiche sicurezza.
+- Profilo alimentare modificabile (incluse allergie e tempo cucina), storico e dettaglio piani, duplica/elimina piano.
+- Export dati JSON, consensi versionati, richieste GDPR, eliminazione account self-service.
+- Checkout Stripe una tantum e webhook che sblocca Premium.
+
+### Admin e operativita'
+
+- Backlog, gestione utenti (Free/Premium), coda GDPR con audit trail, template pasti su DB.
+- Script creazione admin, backup/restore, runbook Supabase, preview/staging, security checklist.
+
+### Qualita'
+
+- Typecheck, Vitest (unit, API, componenti), Playwright desktop e mobile, CI GitHub Actions, header di sicurezza, rate limit, error monitoring MVP con sanitizzazione.
 
 ## Definition of Done per beta pubblica
 
-- Validazione legale completata.
-- Validazione nutrizionista completata.
-- CI/CD verde su ogni push.
-- E2E autenticati attivi con account test in GitHub Secrets.
+- Supabase ripristinato e variabili Vercel allineate.
+- Validazione legale e nutrizionista completate, inclusa la decisione sullo screening salute.
+- CI/CD verde su ogni push, E2E autenticati attivi con account test in GitHub Secrets.
+- Provider AI attivo con eval superate.
+- Stripe testato in test mode e webhook verificato.
 - Nessuna chiave sensibile esposta al browser.
-- Error monitoring attivo e verificato.
-- Backup database provato.
+- Backup database provato con restore su staging.
 - Flusso mobile planner -> risultato -> salvataggio fluido.
 - Copy senza claim medici o promesse non dimostrabili.

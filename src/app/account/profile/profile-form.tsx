@@ -8,7 +8,8 @@ import { Input } from "@/components/Input";
 import { Select } from "@/components/Select";
 import { WarningBox } from "@/components/WarningBox";
 import { calculateCalories } from "@/lib/calories";
-import type { ActivityLevel, DietType, Goal, Sex, SimplicityLevel, UserProfile } from "@/lib/types";
+import { allergyOptions, cookingTimeOptions } from "@/lib/plannerPreferences";
+import type { ActivityLevel, AllergyFlag, DietType, Goal, Sex, SimplicityLevel, UserProfile } from "@/lib/types";
 
 type ProfileFormProps = {
   profileId: string;
@@ -25,6 +26,17 @@ export function ProfileForm({ profileId, initialProfile }: ProfileFormProps) {
 
   function updateProfile<Key extends keyof UserProfile>(key: Key, value: UserProfile[Key]) {
     setProfile((current) => ({ ...current, [key]: value }));
+  }
+
+  function toggleAllergyFlag(flag: AllergyFlag, enabled: boolean) {
+    setProfile((current) => {
+      const currentFlags = current.allergyFlags || [];
+      const allergyFlags = enabled
+        ? [...new Set([...currentFlags, flag])]
+        : currentFlags.filter((currentFlag) => currentFlag !== flag);
+
+      return { ...current, allergyFlags };
+    });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -176,6 +188,12 @@ export function ProfileForm({ profileId, initialProfile }: ProfileFormProps) {
             { value: "mealPrep", label: "Meal prep" },
           ]}
         />
+        <Select
+          label="Tempo cucina"
+          value={profile.cookingTime || "standard"}
+          onChange={(event) => updateProfile("cookingTime", event.target.value as UserProfile["cookingTime"])}
+          options={cookingTimeOptions}
+        />
         <Input
           label="Cibi esclusi"
           helper="separati da virgola"
@@ -191,6 +209,23 @@ export function ProfileForm({ profileId, initialProfile }: ProfileFormProps) {
           />
           <span className="text-sm font-semibold text-ink">Modalita Budget</span>
         </label>
+      </FormSection>
+
+      <FormSection title="Allergie e intolleranze" description="Selezioni strutturate che escludono ingredienti compatibili.">
+        {allergyOptions.map((option) => (
+          <label
+            key={option.value}
+            className="flex min-h-12 items-start gap-3 rounded-[8px] border border-ink/10 bg-white px-4 py-3"
+          >
+            <input
+              type="checkbox"
+              checked={(profile.allergyFlags || []).includes(option.value)}
+              onChange={(event) => toggleAllergyFlag(option.value, event.target.checked)}
+              className="mt-1 h-5 w-5 accent-leaf"
+            />
+            <span className="text-sm font-semibold leading-6 text-ink">{option.label}</span>
+          </label>
+        ))}
       </FormSection>
 
       {calorieResult.warnings.length ? (

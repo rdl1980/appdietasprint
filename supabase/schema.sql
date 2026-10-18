@@ -215,3 +215,21 @@ create index if not exists data_subject_request_audit_events_request_id_created_
 
 create index if not exists admin_meal_templates_active_meal_type_idx
   on public.admin_meal_templates(active, meal_type);
+
+-- 2026-10-18: planner preferences persisted on user_profiles.
+alter table public.user_profiles
+  add column if not exists medical_flags text[] not null default '{}',
+  add column if not exists allergy_flags text[] not null default '{}',
+  add column if not exists cooking_time text not null default 'standard';
+
+alter table public.user_profiles
+  drop constraint if exists user_profiles_cooking_time_check;
+
+alter table public.user_profiles
+  add constraint user_profiles_cooking_time_check
+  check (cooking_time in ('ready', 'quick', 'standard', 'batch'));
+
+drop policy if exists "Users can delete own profiles" on public.user_profiles;
+create policy "Users can delete own profiles"
+  on public.user_profiles for delete
+  using (auth.uid() = user_id);

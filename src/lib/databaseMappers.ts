@@ -1,4 +1,4 @@
-import { MealPlan, UserProfile } from "./types";
+import { AllergyFlag, CookingTimePreference, MealPlan, MedicalScreeningFlag, UserProfile } from "./types";
 
 export function profileToRow(profile: UserProfile, userId: string) {
   return {
@@ -15,10 +15,13 @@ export function profileToRow(profile: UserProfile, userId: string) {
     excluded_foods: profile.excludedFoods,
     simplicity_level: profile.simplicityLevel,
     budget_mode: profile.budgetMode,
+    medical_flags: profile.medicalFlags || [],
+    allergy_flags: profile.allergyFlags || [],
+    cooking_time: profile.cookingTime || "standard",
   };
 }
 
-type ProfileRow = {
+export type ProfileRow = {
   sex: UserProfile["sex"];
   age: number;
   height_cm: number;
@@ -31,7 +34,13 @@ type ProfileRow = {
   excluded_foods: string[] | null;
   simplicity_level: UserProfile["simplicityLevel"];
   budget_mode: boolean;
+  medical_flags?: MedicalScreeningFlag[] | null;
+  allergy_flags?: AllergyFlag[] | null;
+  cooking_time?: CookingTimePreference | null;
 };
+
+export const profileRowColumns =
+  "id,sex,age,height_cm,weight_kg,activity_level,goal,diet_type,target_calories,meals_per_day,excluded_foods,simplicity_level,budget_mode,medical_flags,allergy_flags,cooking_time,created_at";
 
 export function profileFromRow(row: ProfileRow): UserProfile {
   return {
@@ -47,7 +56,9 @@ export function profileFromRow(row: ProfileRow): UserProfile {
     excludedFoods: row.excluded_foods || [],
     simplicityLevel: row.simplicity_level,
     budgetMode: row.budget_mode,
-    medicalFlags: [],
+    medicalFlags: row.medical_flags || [],
+    allergyFlags: row.allergy_flags || [],
+    cookingTime: row.cooking_time || "standard",
   };
 }
 
@@ -67,9 +78,10 @@ export function mealPlanToRow(plan: MealPlan, userId: string, profileId: string,
   };
 }
 
-export function isValidProfile(profile: Partial<UserProfile>) {
+export function isValidProfile(profile: Partial<UserProfile> | null | undefined) {
   return Boolean(
-    profile.sex &&
+    profile &&
+      profile.sex &&
       profile.age &&
       profile.heightCm &&
       profile.weightKg &&
@@ -77,6 +89,6 @@ export function isValidProfile(profile: Partial<UserProfile>) {
       profile.goal &&
       profile.dietType &&
       profile.mealsPerDay &&
-      profile.simplicityLevel
+      profile.simplicityLevel,
   );
 }

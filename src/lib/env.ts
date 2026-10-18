@@ -14,8 +14,13 @@ export const env = {
   stripeSecretKey: process.env.STRIPE_SECRET_KEY || "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
   stripePremiumPriceId: process.env.STRIPE_PREMIUM_PRICE_ID || "",
+  // AI provider selection: "openai" | "anthropic" | "auto" (first configured key wins).
+  aiProvider: process.env.AI_PROVIDER || "auto",
   openaiApiKey: process.env.OPENAI_API_KEY || "",
   openaiModel: process.env.OPENAI_MODEL || "gpt-5.4-mini",
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY || "",
+  anthropicModel: process.env.ANTHROPIC_MODEL || "claude-opus-5-5",
+  buildId: process.env.VERCEL_GIT_COMMIT_SHA || process.env.BUILD_ID || "local",
 };
 
 export function isSupabaseConfigured() {

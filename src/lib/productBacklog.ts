@@ -28,6 +28,70 @@ export const backlogAreas = [
 
 export const backlogItems: BacklogItem[] = [
   {
+    id: "ops-supabase-restore",
+    title: "Ripristino database Supabase",
+    detail: "Creare il nuovo progetto, applicare supabase/schema.sql, configurare Auth (SMTP Resend, template email, redirect URL) e ricreare l'admin.",
+    area: "Fondamenta",
+    priority: "P0",
+    status: "next",
+  },
+  {
+    id: "ops-vercel-env",
+    title: "Riallineare variabili Vercel",
+    detail: "Le variabili di produzione puntano al vecchio progetto Supabase; aggiornare URL, anon key, service role, JWT secret e aggiungere Stripe, AI e PREMIUM/ADMIN.",
+    area: "Fondamenta",
+    priority: "P0",
+    status: "next",
+  },
+  {
+    id: "ai-real-key",
+    title: "Attivare provider AI reale",
+    detail: "Inserire ANTHROPIC_API_KEY (o OPENAI_API_KEY), verificare coach e /api/plans/generate con la chiave, poi tarare prompt ed eval.",
+    area: "AI coach",
+    priority: "P0",
+    status: "next",
+  },
+  {
+    id: "ai-plan-generation-ui",
+    title: "Generazione piano AI in UI",
+    detail: "Collegare i risultati Premium a /api/plans/generate con stato di caricamento, badge fonte (AI o template) e rigenerazione.",
+    area: "Piani",
+    priority: "P1",
+    status: "planned",
+  },
+  {
+    id: "nutrition-medical-decision",
+    title: "Decisione definitiva screening salute",
+    detail: "Oggi le condizioni mediche generano una bozza con warning di review; confermare con legale e nutrizionista oppure ripristinare il blocco.",
+    area: "Nutrizione",
+    priority: "P0",
+    status: "next",
+  },
+  {
+    id: "nutrition-template-catalog",
+    title: "Catalogo pasti piu' ampio",
+    detail: "Solo 16 template statici: ampliare a 60+ ricette per dieta e slot, oppure alimentare il generatore con i template admin e con l'AI.",
+    area: "Nutrizione",
+    priority: "P1",
+    status: "planned",
+  },
+  {
+    id: "quality-rate-limit-store",
+    title: "Rate limit distribuito",
+    detail: "Il rate limit e' in memoria per istanza serverless: spostarlo su store condiviso (Upstash/Redis o tabella Supabase) prima del lancio.",
+    area: "Qualita",
+    priority: "P1",
+    status: "planned",
+  },
+  {
+    id: "growth-remove-temp-backlog",
+    title: "Rimuovere backlog pubblico",
+    detail: "La tab /backlog e' pubblica e temporanea: rimuoverla dalla navigazione prima del lancio commerciale.",
+    area: "Growth",
+    priority: "P1",
+    status: "planned",
+  },
+  {
     id: "foundation-domain",
     title: "Dominio e deploy automatico",
     detail: "dietsprintai.com collegato a Vercel con deploy da main.",
@@ -38,10 +102,10 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "foundation-supabase",
     title: "Database Supabase con RLS",
-    detail: "Schema MVP, migrazione iniziale e policy per dati proprietari.",
+    detail: "Il progetto Supabase originale non esiste piu': va ricreato e vanno riapplicate schema.sql e le migrazioni (docs/supabase-restore.md).",
     area: "Fondamenta",
     priority: "P0",
-    status: "done",
+    status: "next",
   },
   {
     id: "foundation-resend",
@@ -366,7 +430,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ai-server",
     title: "Layer AI server-side",
-    detail: "Route Premium /api/coach, prompt protetto, provider OpenAI configurabile e fallback locale.",
+    detail: "Layer AI server-side multi-provider (Anthropic o OpenAI via AI_PROVIDER) con prompt protetti, guardrail prima/dopo e fallback deterministico.",
     area: "AI coach",
     priority: "P1",
     status: "done",
@@ -406,7 +470,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ai-evaluation",
     title: "Valutazione qualità output AI",
-    detail: "Dataset versionato e test regressione automatici per blocchi salute, lunghezza e claim vietati.",
+    detail: "Dataset tests/evals/ai-coach-cases.json e test di regressione sul coach eseguiti in CI.",
     area: "AI coach",
     priority: "P1",
     status: "done",
@@ -454,7 +518,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "admin-backlog",
     title: "Backlog admin protetto",
-    detail: "Pannello operativo riservato già presente su /admin/backlog.",
+    detail: "Backlog admin su /admin/backlog protetto lato server.",
     area: "Admin",
     priority: "P0",
     status: "done",
@@ -478,10 +542,10 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "admin-content",
     title: "Gestione template pasti",
-    detail: "Pagina /admin/templates con catalogo, CRUD template DB, ingredienti, tag dieta e ricette.",
+    detail: "Pagina /admin/templates con CRUD su DB: i template admin non alimentano ancora il generatore piani.",
     area: "Admin",
     priority: "P1",
-    status: "done",
+    status: "planned",
   },
   {
     id: "admin-metrics",
@@ -502,7 +566,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "quality-e2e",
     title: "Test E2E flusso principale",
-    detail: "Copertura Playwright pubblica in CI e flussi browser principali. Gli E2E autenticati restano separati finche' mancano i secret CI.",
+    detail: "Playwright pubblico su home, planner, risultati, auth pages, legal, 404, API contract e header sicurezza.",
     area: "Qualita",
     priority: "P0",
     status: "done",
@@ -518,7 +582,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "quality-calories-tests",
     title: "Test motore calorie",
-    detail: "Copertura formule, soglie e casi limite.",
+    detail: "Vitest: 37 file, oltre 320 test su motore nutrizionale, validazione, AI layer, API route e componenti.",
     area: "Qualita",
     priority: "P0",
     status: "done",

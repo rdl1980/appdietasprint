@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
-import { isValidProfile, profileToRow } from "@/lib/databaseMappers";
+import { profileToRow } from "@/lib/databaseMappers";
 import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
-import type { UserProfile } from "@/lib/types";
+import { validateProfile } from "@/lib/profileValidation";
 
 type UpdateProfileBody = {
   profileId: string;
-  profile: UserProfile;
+  profile: unknown;
 };
 
 export async function PATCH(request: NextRequest) {
@@ -22,8 +22,14 @@ export async function PATCH(request: NextRequest) {
 
   const body = await readJsonBody<UpdateProfileBody>(request);
 
-  if (!body?.profileId || !isValidProfile(body.profile)) {
+  if (!body?.profileId || typeof body.profileId !== "string") {
     return NextResponse.json({ error: "Profilo non valido." }, { status: 400 });
+  }
+
+  const validation = validateProfile(body.profile);
+
+  if (!validation.ok) {
+    return NextResponse.json({ error: `Profilo non valido: ${validation.errors.join(" ")}` }, { status: 400 });
   }
 
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
@@ -40,7 +46,7 @@ export async function PATCH(request: NextRequest) {
   const { data, error } = await supabase
     .from("user_profiles")
     .update({
-      ...profileToRow(body.profile, user.id),
+      ...profileToRow(validation.profile, user.id),
       updated_at: new Date().toISOString(),
     })
     .eq("id", body.profileId)

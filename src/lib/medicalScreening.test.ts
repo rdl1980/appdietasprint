@@ -15,7 +15,16 @@ describe("getMedicalReviewWarning", () => {
     expect(warning).not.toContain("non genera");
   });
 
+  it("lists every selected condition", () => {
+    const warning = getMedicalReviewWarning(["pregnancy", "kidneyDisease"]);
+
+    expect(warning).toContain("Gravidanza");
+    expect(warning).toContain("Patologie renali");
+  });
+
   it("keeps every configured option covered by the review warning", () => {
+    expect(medicalScreeningOptions).toHaveLength(8);
+
     for (const option of medicalScreeningOptions) {
       expect(getMedicalReviewWarning([option.value])).toContain(option.label);
     }

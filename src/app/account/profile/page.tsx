@@ -4,7 +4,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { WarningBox } from "@/components/WarningBox";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
-import { profileFromRow } from "@/lib/databaseMappers";
+import { profileFromRow, profileRowColumns } from "@/lib/databaseMappers";
 import { ProfileForm } from "./profile-form";
 
 export const dynamic = "force-dynamic";
@@ -24,9 +24,7 @@ export default async function AccountProfilePage() {
     supabase && user
       ? await supabase
           .from("user_profiles")
-          .select(
-            "id,sex,age,height_cm,weight_kg,activity_level,goal,diet_type,target_calories,meals_per_day,excluded_foods,simplicity_level,budget_mode",
-          )
+          .select(profileRowColumns)
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(1)

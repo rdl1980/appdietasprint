@@ -1,5 +1,4 @@
-import OpenAI from "openai";
-import { env } from "./env";
+import { generateAiText, isAiConfigured } from "./ai/provider";
 import { enforceHealthResponse, evaluateHealthPrompt } from "./healthGuardrails";
 import type { MealPlan, UserProfile } from "./types";
 
@@ -16,8 +15,6 @@ export type AiCoachReply = {
   reasons: string[];
 };
 
-let openaiClient: OpenAI | null = null;
-
 const fallbackTips = [
   "Rendi il prossimo pasto piu' saziante con verdure voluminose e una quota proteica chiara.",
   "Se la fame arriva sempre alla stessa ora, sposta lo snack li' invece di aggiungere extra casuali.",
@@ -25,7 +22,7 @@ const fallbackTips = [
   "Bevi acqua e prepara in anticipo una scelta pronta: la fame diventa piu' gestibile quando l'opzione facile e' gia' decisa.",
 ];
 
-const protectedSystemPrompt = `
+export const protectedSystemPrompt = `
 Sei il coach alimentare di Diet Sprint AI. Rispondi in italiano, in modo pratico, breve e non medicale.
 Regole obbligatorie:
 - Non formulare diagnosi, terapie, promesse cliniche o indicazioni su farmaci.
@@ -37,16 +34,7 @@ Regole obbligatorie:
 Formato: massimo 5 frasi, con 2-3 azioni concrete e caute.
 `.trim();
 
-function getOpenAiClient() {
-  if (!env.openaiApiKey) {
-    return null;
-  }
-
-  openaiClient ||= new OpenAI({ apiKey: env.openaiApiKey });
-  return openaiClient;
-}
-
-function summarizePlan(plan?: MealPlan | null) {
+export function summarizePlan(plan?: MealPlan | null) {
   if (!plan) {
     return null;
   }
@@ -68,14 +56,37 @@ function summarizePlan(plan?: MealPlan | null) {
   };
 }
 
-function fallbackAnswer(question: string) {
+export function summarizeProfile(profile?: UserProfile | null) {
+  if (!profile) {
+    return null;
+  }
+
+  return {
+    age: profile.age,
+    sex: profile.sex,
+    goal: profile.goal,
+    dietType: profile.dietType,
+    mealsPerDay: profile.mealsPerDay,
+    excludedFoods: profile.excludedFoods,
+    allergyFlags: profile.allergyFlags,
+    cookingTime: profile.cookingTime,
+    simplicityLevel: profile.simplicityLevel,
+    budgetMode: profile.budgetMode,
+    medicalFlags: profile.medicalFlags,
+  };
+}
+
+export function fallbackAnswer(question: string) {
   const index = Math.abs([...question].reduce((sum, char) => sum + char.charCodeAt(0), 0)) % fallbackTips.length;
   return `${fallbackTips[index]} Se hai fame intensa, sintomi, patologie o dubbi clinici, fermati e confrontati con un professionista.`;
 }
 
-export function isOpenAiCoachConfigured() {
-  return Boolean(env.openaiApiKey);
+export function isAiCoachConfigured() {
+  return isAiConfigured();
 }
+
+/** @deprecated use isAiCoachConfigured */
+export const isOpenAiCoachConfigured = isAiCoachConfigured;
 
 export async function generateAiCoachReply({ question, profile, plan }: AiCoachInput): Promise<AiCoachReply> {
   const normalizedQuestion = question.trim();
@@ -90,9 +101,7 @@ export async function generateAiCoachReply({ question, profile, plan }: AiCoachI
     };
   }
 
-  const client = getOpenAiClient();
-
-  if (!client) {
+  if (!isAiConfigured()) {
     return {
       answer: fallbackAnswer(normalizedQuestion),
       blocked: false,
@@ -101,40 +110,17 @@ export async function generateAiCoachReply({ question, profile, plan }: AiCoachI
     };
   }
 
-  const response = await client.responses.create({
-    model: env.openaiModel,
-    max_output_tokens: 450,
-    input: [
-      {
-        role: "developer",
-        content: protectedSystemPrompt,
-      },
-      {
-        role: "user",
-        content: JSON.stringify({
-          question: normalizedQuestion,
-          profile: profile
-            ? {
-                age: profile.age,
-                sex: profile.sex,
-                goal: profile.goal,
-                dietType: profile.dietType,
-                mealsPerDay: profile.mealsPerDay,
-                excludedFoods: profile.excludedFoods,
-                allergyFlags: profile.allergyFlags,
-                cookingTime: profile.cookingTime,
-                simplicityLevel: profile.simplicityLevel,
-                budgetMode: profile.budgetMode,
-                medicalFlags: profile.medicalFlags,
-              }
-            : null,
-          plan: summarizePlan(plan),
-        }),
-      },
-    ],
+  const result = await generateAiText({
+    system: protectedSystemPrompt,
+    user: JSON.stringify({
+      question: normalizedQuestion,
+      profile: summarizeProfile(profile),
+      plan: summarizePlan(plan),
+    }),
+    maxOutputTokens: 450,
   });
 
-  const answer = response.output_text?.trim() || fallbackAnswer(normalizedQuestion);
+  const answer = result.text || fallbackAnswer(normalizedQuestion);
   const responseGuardrail = enforceHealthResponse(answer);
 
   if (!responseGuardrail.allowed) {
@@ -149,7 +135,7 @@ export async function generateAiCoachReply({ question, profile, plan }: AiCoachI
   return {
     answer,
     blocked: false,
-    fallback: false,
+    fallback: !result.text,
     reasons: [],
   };
 }

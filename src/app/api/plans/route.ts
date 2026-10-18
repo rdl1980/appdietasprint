@@ -2,16 +2,30 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
-import { isValidProfile, mealPlanToRow, profileToRow } from "@/lib/databaseMappers";
+import { mealPlanToRow, profileToRow } from "@/lib/databaseMappers";
 import { isPremiumUser } from "@/lib/entitlements";
 import { consentDocuments } from "@/lib/legalVersions";
-import { MealPlan, UserProfile } from "@/lib/types";
+import { validateProfile } from "@/lib/profileValidation";
+import { MealPlan } from "@/lib/types";
 
 type SavePlanBody = {
-  profile: UserProfile;
+  profile: unknown;
   plan: MealPlan;
   privacyConsent: boolean;
 };
+
+const premiumRequiredMessage = "Il salvataggio e' disponibile solo con Premium.";
+
+export function isValidPlanPayload(plan: MealPlan | undefined | null): plan is MealPlan {
+  return Boolean(
+    plan &&
+      Array.isArray(plan.days) &&
+      plan.days.length > 0 &&
+      plan.days.length <= 7 &&
+      Number.isFinite(plan.dailyCalories) &&
+      plan.days.every((day) => Array.isArray(day.meals) && day.meals.length > 0),
+  );
+}
 
 export async function GET(request: NextRequest) {
   if (!isSupabaseConfigured()) {
@@ -25,7 +39,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!isPremiumUser(user)) {
-    return NextResponse.json({ error: "Il salvataggio e' disponibile solo con Premium." }, { status: 402 });
+    return NextResponse.json({ error: premiumRequiredMessage }, { status: 402 });
   }
 
   if (!supabase) {
@@ -73,8 +87,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Consenso privacy richiesto per salvare dati alimentari." }, { status: 400 });
   }
 
-  if (!isValidProfile(body.profile) || !body.plan?.days?.length) {
-    return NextResponse.json({ error: "Profilo o piano non validi." }, { status: 400 });
+  const validation = validateProfile(body.profile);
+
+  if (!validation.ok) {
+    return NextResponse.json({ error: `Profilo non valido: ${validation.errors.join(" ")}` }, { status: 400 });
+  }
+
+  if (!isValidPlanPayload(body.plan)) {
+    return NextResponse.json({ error: "Piano non valido." }, { status: 400 });
   }
 
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
@@ -83,16 +103,21 @@ export async function POST(request: NextRequest) {
     return loginRequiredResponse(request);
   }
 
+  if (!isPremiumUser(user)) {
+    return NextResponse.json({ error: premiumRequiredMessage }, { status: 402 });
+  }
+
   if (!supabase) {
     const status = unavailableReason === "data_service_not_configured" ? 503 : 401;
     return NextResponse.json({ error: "Salvataggio non disponibile." }, { status });
   }
 
   const userId = user.id;
+  const profile = validation.profile;
 
   const { data: profileRow, error: profileError } = await supabase
     .from("user_profiles")
-    .insert(profileToRow(body.profile, userId))
+    .insert(profileToRow(profile, userId))
     .select("id")
     .single();
 
@@ -103,7 +128,7 @@ export async function POST(request: NextRequest) {
 
   const { data: planRow, error: planError } = await supabase
     .from("meal_plans")
-    .insert(mealPlanToRow(body.plan, userId, profileRow.id, body.profile))
+    .insert(mealPlanToRow(body.plan, userId, profileRow.id, profile))
     .select("id")
     .single();
 
@@ -112,7 +137,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Piano non salvato." }, { status: 500 });
   }
 
-  await supabase.from("privacy_consents").insert(
+  const { error: consentError } = await supabase.from("privacy_consents").insert(
     consentDocuments.map((document) => ({
       user_id: userId,
       document: document.document,
@@ -123,6 +148,10 @@ export async function POST(request: NextRequest) {
       },
     })),
   );
+
+  if (consentError) {
+    console.error("consent_save_failed", { userId, planId: planRow.id, error: consentError.message });
+  }
 
   return NextResponse.json({ profileId: profileRow.id, planId: planRow.id });
 }

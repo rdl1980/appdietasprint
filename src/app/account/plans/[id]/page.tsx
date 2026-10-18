@@ -9,7 +9,7 @@ import { GroceryList } from "@/components/GroceryList";
 import { MealCard } from "@/components/MealCard";
 import { WarningBox } from "@/components/WarningBox";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
-import { profileFromRow } from "@/lib/databaseMappers";
+import { profileFromRow, profileRowColumns } from "@/lib/databaseMappers";
 import { getMealSubstitutions } from "@/lib/generateMealPlan";
 import { getMacroTarget } from "@/lib/macroTargets";
 import type { CalorieResult, GroceryItem, MacroTarget, MealPlanDay, UserProfile } from "@/lib/types";
@@ -92,9 +92,7 @@ export default async function AccountPlanDetailPage({ params }: PageProps) {
   const { data: profile } = planRow.profile_id
     ? await supabase
         .from("user_profiles")
-        .select(
-          "id,sex,age,height_cm,weight_kg,activity_level,goal,diet_type,target_calories,meals_per_day,excluded_foods,simplicity_level,budget_mode,created_at",
-        )
+        .select(profileRowColumns)
         .eq("id", planRow.profile_id)
         .eq("user_id", user.id)
         .single()

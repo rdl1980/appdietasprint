@@ -2,17 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
 import { generateAiCoachReply } from "@/lib/aiCoach";
 import { isPremiumUser } from "@/lib/entitlements";
-import { isValidProfile } from "@/lib/databaseMappers";
+import { validateProfile } from "@/lib/profileValidation";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import type { MealPlan, UserProfile } from "@/lib/types";
 
 type CoachBody = {
   question?: string;
-  profile?: UserProfile;
+  profile?: unknown;
   plan?: MealPlan;
 };
 
 export const runtime = "nodejs";
+
+export const coachQuestionLimits = { min: 8, max: 600 } as const;
 
 function isValidPlan(plan: MealPlan | undefined): plan is MealPlan {
   return Boolean(plan?.days?.length && Number.isFinite(plan.dailyCalories));
@@ -40,14 +42,25 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await readJsonBody<CoachBody>(request);
-  const question = body?.question?.trim() || "";
+  const question = typeof body?.question === "string" ? body.question.trim() : "";
 
-  if (question.length < 8 || question.length > 600) {
-    return NextResponse.json({ error: "Scrivi una domanda tra 8 e 600 caratteri." }, { status: 400 });
+  if (question.length < coachQuestionLimits.min || question.length > coachQuestionLimits.max) {
+    return NextResponse.json(
+      { error: `Scrivi una domanda tra ${coachQuestionLimits.min} e ${coachQuestionLimits.max} caratteri.` },
+      { status: 400 },
+    );
   }
 
-  if (body?.profile && !isValidProfile(body.profile)) {
-    return NextResponse.json({ error: "Profilo non valido." }, { status: 400 });
+  let profile: UserProfile | null = null;
+
+  if (body?.profile) {
+    const validation = validateProfile(body.profile);
+
+    if (!validation.ok) {
+      return NextResponse.json({ error: "Profilo non valido." }, { status: 400 });
+    }
+
+    profile = validation.profile;
   }
 
   if (body?.plan && !isValidPlan(body.plan)) {
@@ -57,7 +70,7 @@ export async function POST(request: NextRequest) {
   try {
     const reply = await generateAiCoachReply({
       question,
-      profile: body?.profile || null,
+      profile,
       plan: body?.plan || null,
     });
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, UserRound } from "lucide-react";
 import { Button } from "./Button";
 import { isAdminUser } from "@/lib/admin";
 import { getAuthenticatedUser } from "@/lib/supabase/data";
@@ -63,9 +63,21 @@ export async function Header() {
           >
             <ClipboardList className="h-5 w-5" aria-hidden="true" />
           </Link>
-          <Button href="/login" size="sm">
-            Accedi / Registrati
-          </Button>
+          {user ? (
+            <>
+              <Button href="/account" size="sm" variant="secondary">
+                <UserRound size={16} aria-hidden="true" />
+                <span className="max-w-[140px] truncate">{user.email || "Account"}</span>
+              </Button>
+              <Button href="/auth/logout" size="sm" variant="ghost" className="ring-1 ring-ink/10">
+                Esci
+              </Button>
+            </>
+          ) : (
+            <Button href="/login" size="sm">
+              Accedi / Registrati
+            </Button>
+          )}
         </div>
       </div>
     </header>

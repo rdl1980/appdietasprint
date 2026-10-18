@@ -30,7 +30,7 @@ const diets = [
 const features = [
   { title: "Modalita Zero Sbatti", icon: Sparkles, text: "Pasti pratici, pochi ingredienti e preparazioni veloci." },
   { title: "Modalita Budget", icon: Coins, text: "Priorita a ingredienti ricorrenti e facili da trovare." },
-  { title: "Rigenera Pasto", icon: RefreshCw, text: "Pulsante mock per sostituire un pasto in modo rapido." },
+  { title: "Rigenera Pasto", icon: RefreshCw, text: "Sostituisci un singolo pasto con un'alternativa compatibile, senza rifare tutto il piano." },
   { title: "Lista Spesa", icon: ListChecks, text: "Ingredienti sommati in automatico sul piano settimanale." },
   { title: "Piano 7 Giorni", icon: CalendarDays, text: "Settimana completa generata da template deterministici." },
   { title: "Coach Anti-Fame", icon: Utensils, text: "Suggerimenti pratici per fame serale, spuntini e sazieta." },
@@ -44,7 +44,7 @@ export default function Home() {
         <section className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:py-16">
           <div>
             <p className="mb-4 inline-flex rounded-full bg-mint px-4 py-2 text-sm font-bold text-leaf">
-              MVP planner alimentare AI-assisted
+              Planner alimentare AI-assisted
             </p>
             <h1 className="max-w-3xl text-4xl font-black leading-tight text-ink sm:text-6xl">
               Il piano alimentare che si adatta alla tua vita reale, non il contrario.
@@ -138,7 +138,7 @@ export default function Home() {
         <section className="mx-auto grid max-w-6xl gap-4 px-4 py-12 sm:px-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <h2 className="text-3xl font-black text-ink">Gratis per iniziare, Premium quando serve.</h2>
-            <p className="mt-2 text-ink/65">Il mock include Free, Premium e Pro con funzioni pensate per la roadmap.</p>
+            <p className="mt-2 text-ink/65">Free genera il piano giornaliero. Premium, una tantum, sblocca settimana completa, salvataggio e coach AI.</p>
           </div>
           <Button href="/pricing" variant="secondary">
             Apri pricing

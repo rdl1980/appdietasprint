@@ -7,12 +7,20 @@ MVP Next.js per un planner alimentare assistito da logica locale deterministica.
 ```bash
 npm install
 npm run dev
-npm test
+npm test              # Vitest: unit (src), API route (tests/api), componenti jsdom (tests/components)
+npm run test:unit
+npm run test:api
+npm run test:components
 npm run test:ai-eval
+npm run test:e2e      # Playwright pubblico + autenticato (se E2E_TEST_EMAIL/PASSWORD presenti)
 npm run lint
 npm run build
 npm run db:backup
 ```
+
+## Stato infrastruttura (18 ottobre 2026)
+
+Il progetto Supabase originale non esiste piu': la procedura per ricrearlo, riapplicare lo schema e riallineare le variabili Vercel e' in `docs/supabase-restore.md`. Finche' non viene ripristinato, registrazione, login e salvataggio piani in produzione non funzionano; planner e risultati Free restano operativi.
 
 ## Rotte
 
@@ -192,13 +200,19 @@ Eventi necessari:
 
 Per staging o sblocco manuale resta disponibile il fallback via app metadata Supabase (`plan=premium`, `tier=premium` o `accessLevel=premium`) oppure con la variabile server-only `PREMIUM_EMAILS`.
 
-## Coach AI
+## Coach AI e generazione piani
 
-Il coach AI e' disponibile via `/api/coach` per utenti Premium autenticati. Il prompt resta server-side, passa dai guardrail salute prima e dopo la generazione e usa un fallback locale quando OpenAI non e' configurato.
+Il layer AI (`src/lib/ai/provider.ts`) e' indipendente dal provider: con `AI_PROVIDER=auto` usa Anthropic se `ANTHROPIC_API_KEY` e' presente, altrimenti OpenAI se `OPENAI_API_KEY` e' presente, altrimenti il fallback deterministico locale.
+
+- `/api/coach`: coach per utenti Premium autenticati. Il prompt resta server-side e passa dai guardrail salute prima e dopo la generazione.
+- `/api/plans/generate`: generazione piano AI per utenti Premium. La risposta del modello viene validata contro lo schema del planner (slot pasto, calorie entro il 12%, ingredienti esclusi, claim medici) e in caso di dubbio si torna al generatore deterministico; il campo `source` dice se il piano e' `ai` o `fallback`.
 
 Variabili server-only:
 
 ```bash
+AI_PROVIDER=auto
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=claude-opus-5-5
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5.4-mini
 ```
