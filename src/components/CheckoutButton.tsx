@@ -11,6 +11,7 @@ type CheckoutButtonProps = {
 type CheckoutResponse = {
   url?: string;
   error?: string;
+  loginUrl?: string;
 };
 
 export function CheckoutButton({ className = "" }: CheckoutButtonProps) {
@@ -29,6 +30,11 @@ export function CheckoutButton({ className = "" }: CheckoutButtonProps) {
         },
       });
       const data = (await response.json().catch(() => ({}))) as CheckoutResponse;
+
+      if (response.status === 401 && data.loginUrl) {
+        window.location.assign(data.loginUrl);
+        return;
+      }
 
       if (!response.ok || !data.url) {
         setError(data.error || "Checkout non disponibile. Riprova tra poco.");

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { isValidProfile, profileToRow } from "@/lib/databaseMappers";
-import { rateLimit, readJsonBody } from "@/lib/api";
+import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
 import type { UserProfile } from "@/lib/types";
 
 type UpdateProfileBody = {
@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest) {
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
 
   if (!user) {
-    return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+    return loginRequiredResponse(request);
   }
 
   if (!supabase) {

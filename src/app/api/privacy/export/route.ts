@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
-import { rateLimit } from "@/lib/api";
+import { loginRequiredResponse, rateLimit } from "@/lib/api";
 
 export async function GET(request: NextRequest) {
   const limited = rateLimit(request, {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
 
   if (!user) {
-    return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+    return loginRequiredResponse(request);
   }
 
   if (!supabase) {

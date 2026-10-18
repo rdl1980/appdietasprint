@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { rateLimit, readJsonBody } from "@/lib/api";
+import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
 import { generateAiCoachReply } from "@/lib/aiCoach";
 import { isPremiumUser } from "@/lib/entitlements";
 import { isValidProfile } from "@/lib/databaseMappers";
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   const { user } = await createAuthenticatedSupabaseClient(request);
 
   if (!user) {
-    return NextResponse.json({ error: "Login richiesto." }, { status: 401 });
+    return loginRequiredResponse(request);
   }
 
   if (!isPremiumUser(user)) {

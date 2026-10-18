@@ -60,3 +60,31 @@ export async function readJsonBody<T>(request: NextRequest): Promise<T | null> {
     return null;
   }
 }
+
+export function getLoginUrl(request: NextRequest, fromPath?: string) {
+  const referer = request.headers.get("referer");
+  let refererPath = "";
+
+  if (referer) {
+    try {
+      const refererUrl = new URL(referer);
+      if (refererUrl.origin === request.nextUrl.origin) {
+        refererPath = `${refererUrl.pathname}${refererUrl.search}`;
+      }
+    } catch {
+      refererPath = "";
+    }
+  }
+
+  const from = fromPath || refererPath || `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  const url = new URL("/login", request.url);
+  url.searchParams.set("from", from);
+  return url.toString();
+}
+
+export function loginRequiredResponse(request: NextRequest, message = "Login richiesto") {
+  return NextResponse.json(
+    { error: message, loginUrl: getLoginUrl(request) },
+    { status: 401, headers: { "Cache-Control": "no-store" } },
+  );
+}

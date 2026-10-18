@@ -26,6 +26,9 @@ npm run db:backup
 - `/forgot-password`
 - `/account`
 - `/account/privacy`
+- `/admin/users`
+- `/admin/privacy`
+- `/admin/templates`
 - `/legal/disclaimer`
 
 ## Auth.js + Supabase Auth
@@ -105,6 +108,8 @@ Le tabelle MVP sono:
 - `privacy_consents`
 - `data_subject_requests`
 - `stripe_purchases`
+- `data_subject_request_audit_events`
+- `admin_meal_templates`
 
 Tutte hanno Row Level Security attiva. Le policy consentono agli utenti autenticati di accedere solo ai propri dati.
 
@@ -119,6 +124,12 @@ npm run db:restore -- backups/supabase-YYYY-MM-DD.dump
 
 Il backlog interno vive su `/admin/backlog` ed e' protetto lato server. La voce di menu appare solo agli utenti admin.
 La sorgente dati della UI backlog e' `src/lib/productBacklog.ts`; il riepilogo markdown unico vive in `PROJECT_SUMMARY_AND_BACKLOG.md`.
+
+Pannelli admin disponibili:
+
+- `/admin/users`: ricerca utenti e sblocco Free/Premium per supporto.
+- `/admin/privacy`: coda richieste GDPR con audit trail append-only.
+- `/admin/templates`: catalogo template pasti e CRUD dei template gestiti in database.
 
 Per creare l'admin `rdladmin`:
 

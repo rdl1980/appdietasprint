@@ -39,7 +39,7 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 - Numero pasti, budget mode, semplicita e tempo disponibile per cucinare.
 - Cibi esclusi, allergie e intolleranze strutturate.
 - Salvataggio bozza locale.
-- Screening salute prudenziale che blocca generazione automatica in casi sensibili.
+- Screening salute prudenziale con warning evidente e richiesta di review medica in casi sensibili.
 
 ### Motore nutrizionale MVP
 
@@ -99,7 +99,7 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 | Account | Recupero/cambio password | Fatto | Flusso email configurabile. |
 | Privacy | Pagine legali MVP | Fatto | Privacy, termini, cookie, GDPR, disclaimer. |
 | Planner | Planner guidato MVP | Fatto | Core flow operativo. |
-| Planner | Screening salute | Fatto | Blocchi prudenziali presenti. |
+| Planner | Screening salute | Fatto | Warning evidenti e richiesta di review medica prima dell'uso. |
 | Planner | Decisione chetogenica in beta | Fatto | Inclusa in beta, con conferma richiesta nelle review. |
 | Nutrizione | BMR/TDEE e calorie | Fatto | Formula e warning testati. |
 | Nutrizione | Guardrail calorie basse | Fatto | Avvisi e blocchi presenti. |
@@ -165,6 +165,7 @@ Completato per P1:
 
 ### Admin
 
+Completato per P1:
 - Gestione utenti.
 - Dashboard richieste privacy con audit trail completo.
 - Gestione template pasti, ingredienti, ricette, tag dieta e sostituzioni.
@@ -216,9 +217,7 @@ Completato per P1:
 
 ### P1 - Prossimo sprint prodotto
 
-1. Gestione utenti admin.
-2. Dashboard richieste privacy con audit trail completo.
-3. Gestione admin template pasti, ingredienti, ricette, tag dieta e sostituzioni.
+Tutte le voci P1 sono completate nel backlog operativo.
 
 ### P2 - Dopo beta
 
@@ -252,9 +251,9 @@ Completato per P1:
 ## Prossime decisioni consigliate
 
 1. Verificare che i GitHub Secrets attivino lo step E2E autenticato in CI.
-2. Portare Stripe da mock a checkout una tantum.
-3. Definire prezzo finale Premium e copy pagamento.
-4. Collegare webhook Stripe allo sblocco Premium.
+2. Validare prezzo finale Premium e copy pagamento con il posizionamento commerciale.
+3. Far revisionare da legale e nutrizionista i warning salute prima della beta pubblica.
+4. Scegliere il prossimo pacchetto P2: export PDF, SEO tecnico o PWA.
 
 ## Definition of Done per beta pubblica
 

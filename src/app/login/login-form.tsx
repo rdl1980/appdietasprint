@@ -65,7 +65,11 @@ export function LoginForm() {
       return;
     }
 
-    window.location.replace("/account");
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get("from");
+    const nextPath = from?.startsWith("/") && !from.startsWith("//") ? from : "/account";
+
+    window.location.replace(nextPath);
   }
 
   return (

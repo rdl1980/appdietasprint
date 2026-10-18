@@ -73,6 +73,17 @@ describe("generateMealPlan", () => {
     expect(plan.warnings.some((warning) => warning.includes("sotto 1000"))).toBe(true);
   });
 
+  it("generates a plan with a medical review warning when screening flags are selected", () => {
+    const plan = generateMealPlan({
+      ...profile,
+      medicalFlags: ["diabetes"],
+    });
+
+    expect(plan.days.length).toBeGreaterThan(0);
+    expect(plan.warnings[0]).toContain("Review medica necessaria");
+    expect(plan.warnings[0]).toContain("Diabete");
+  });
+
   it("aggregates grocery items by ingredient name", () => {
     const plan = generateMealPlan(profile);
     const names = plan.groceryList.map((item) => item.name);

@@ -17,7 +17,7 @@ function createSupabaseAuthClient() {
 
 async function refreshSupabaseAccessToken(token: JWT): Promise<JWT> {
   if (!token.supabaseRefreshToken || !isSupabaseConfigured()) {
-    return { ...token, authError: "RefreshAccessTokenError" as const };
+    return { ...token, authError: undefined };
   }
 
   const supabase = createSupabaseAuthClient();
@@ -26,7 +26,13 @@ async function refreshSupabaseAccessToken(token: JWT): Promise<JWT> {
   });
 
   if (error || !data.session) {
-    return { ...token, authError: "RefreshAccessTokenError" as const };
+    return {
+      ...token,
+      supabaseAccessToken: undefined,
+      supabaseRefreshToken: undefined,
+      supabaseExpiresAt: undefined,
+      authError: undefined,
+    };
   }
 
   return {

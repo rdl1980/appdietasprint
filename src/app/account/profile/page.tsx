@@ -7,6 +7,8 @@ import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { profileFromRow } from "@/lib/databaseMappers";
 import { ProfileForm } from "./profile-form";
 
+export const dynamic = "force-dynamic";
+
 type ProfileRow = Parameters<typeof profileFromRow>[0] & {
   id: string;
 };
@@ -15,7 +17,7 @@ export default async function AccountProfilePage() {
   const { supabase, user } = await createAuthenticatedSupabaseClient();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?from=/account/profile");
   }
 
   const { data: profile, error } =

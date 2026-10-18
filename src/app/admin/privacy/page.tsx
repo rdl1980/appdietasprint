@@ -17,6 +17,16 @@ type PrivacyRequestRow = {
   resolved_at: string | null;
 };
 
+type PrivacyAuditEventRow = {
+  id: string;
+  request_id: string;
+  admin_email: string | null;
+  previous_status: string | null;
+  next_status: string;
+  note: string | null;
+  created_at: string;
+};
+
 const requestTypeLabels: Record<string, string> = {
   access: "Accesso",
   rectification: "Rettifica",
@@ -52,6 +62,20 @@ export default async function AdminPrivacyPage() {
         .order("created_at", { ascending: false })
         .limit(50)
     : { data: [] as PrivacyRequestRow[], error: null };
+  const requestIds = requests?.map((request) => request.id) || [];
+  const { data: auditEvents } =
+    supabase && requestIds.length
+      ? await supabase
+          .from("data_subject_request_audit_events")
+          .select("id,request_id,admin_email,previous_status,next_status,note,created_at")
+          .in("request_id", requestIds)
+          .order("created_at", { ascending: false })
+      : { data: [] as PrivacyAuditEventRow[] };
+  const auditByRequest = new Map<string, PrivacyAuditEventRow[]>();
+
+  (auditEvents as PrivacyAuditEventRow[] | null)?.forEach((event) => {
+    auditByRequest.set(event.request_id, [...(auditByRequest.get(event.request_id) || []), event]);
+  });
 
   return (
     <>
@@ -102,6 +126,26 @@ export default async function AdminPrivacyPage() {
                         Chiusura: {formatDate(request.resolved_at)}
                       </p>
                     ) : null}
+                    <div className="mt-4 rounded-[8px] bg-cream p-3">
+                      <p className="text-xs font-black uppercase text-ink/50">Audit trail</p>
+                      <div className="mt-2 space-y-2">
+                        {(auditByRequest.get(request.id) || []).length ? (
+                          auditByRequest.get(request.id)?.map((event) => (
+                            <div key={event.id} className="rounded-[8px] bg-white p-3 text-xs text-ink/65">
+                              <p className="font-bold text-ink">
+                                {event.previous_status || "n/a"} -&gt; {event.next_status}
+                              </p>
+                              <p className="mt-1">
+                                {formatDate(event.created_at)} · {event.admin_email || "admin"}
+                              </p>
+                              {event.note ? <p className="mt-1 leading-5">{event.note}</p> : null}
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-ink/50">Nessun evento audit registrato.</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <PrivacyStatusSelect requestId={request.id} initialStatus={request.status} />
                 </div>

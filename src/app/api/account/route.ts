@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { rateLimit } from "@/lib/api";
+import { loginRequiredResponse, rateLimit } from "@/lib/api";
 import { notifySecurityEvent } from "@/lib/email";
 import { createAuthenticatedSupabaseClient, createSupabaseAdminClient } from "@/lib/supabase/data";
 
@@ -27,7 +27,7 @@ export async function DELETE(request: NextRequest) {
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
 
   if (!user) {
-    return NextResponse.json({ error: "Login richiesto" }, { status: 401 });
+    return loginRequiredResponse(request);
   }
 
   if (!supabase) {

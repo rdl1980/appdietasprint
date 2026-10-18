@@ -7,6 +7,8 @@ import { getPlanTier } from "@/lib/entitlements";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 import { CalendarDays, KeyRound, ListChecks, LockKeyhole, Plus, ShieldCheck, UserRound } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 type ProfileRow = {
   id: string;
   diet_type: string;

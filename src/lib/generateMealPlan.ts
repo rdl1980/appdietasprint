@@ -1,6 +1,7 @@
 import { calculateCalories } from "./calories";
 import { getMacroTarget } from "./macroTargets";
 import { mealTemplates } from "./mealTemplates";
+import { getMedicalReviewWarning } from "./medicalScreening";
 import { excludedFoodsFromAllergies } from "./plannerPreferences";
 import { GroceryItem, Meal, MealPlan, MealType, PlannedMeal, UserProfile } from "./types";
 
@@ -158,6 +159,12 @@ export function generateMealPlan(profile: UserProfile, options: GenerateMealPlan
 
   if (normalizedProfile.dietType === "ketogenic") {
     warnings.push("La chetogenica e' molto restrittiva: valuta il percorso con un professionista, soprattutto se assumi farmaci o hai patologie.");
+  }
+
+  const medicalReviewWarning = getMedicalReviewWarning(normalizedProfile.medicalFlags);
+
+  if (medicalReviewWarning) {
+    warnings.unshift(medicalReviewWarning);
   }
 
   const days = Array.from({ length: dayCount }, (_, dayIndex) => {
