@@ -30,7 +30,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ops-supabase-restore",
     title: "Ripristino database Supabase",
-    detail: "Creare il nuovo progetto, applicare supabase/schema.sql, configurare Auth (SMTP Resend, template email, redirect URL) e ricreare l'admin.",
+    detail: "Progetto DietSprintAI ricreato e schema applicato il 19 ottobre; restano Auth (SMTP Resend, template email, redirect URL), chiavi server negli ambienti e admin.",
     area: "Fondamenta",
     priority: "P0",
     status: "next",
@@ -102,10 +102,10 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "foundation-supabase",
     title: "Database Supabase con RLS",
-    detail: "Il progetto Supabase originale non esiste piu': va ricreato e vanno riapplicate schema.sql e le migrazioni (docs/supabase-restore.md).",
+    detail: "Progetto DietSprintAI (vmruiihtdjimcjbyzscs) con schema MVP, migrazioni e policy RLS applicate il 19 ottobre 2026.",
     area: "Fondamenta",
     priority: "P0",
-    status: "next",
+    status: "done",
   },
   {
     id: "foundation-resend",

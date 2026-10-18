@@ -39,7 +39,7 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 
 | Area | Problema | Impatto |
 | --- | --- | --- |
-| Supabase | Il progetto Supabase non esiste piu' nell'organizzazione. | Login, registrazione, salvataggio piani e admin non funzionano in produzione. |
+| Supabase | Progetto ricreato il 19 ottobre (`vmruiihtdjimcjbyzscs`) con schema applicato; mancano Auth/SMTP, admin e variabili ambiente. | Login e salvataggio tornano a funzionare solo dopo i passi 3-6 di `docs/supabase-restore.md`. |
 | Vercel | Le variabili Production puntano al vecchio progetto; mancano Stripe, AI, `PREMIUM_EMAILS`, `ADMIN_EMAILS`, `SUPABASE_JWT_SECRET` aggiornato. | Deploy verde ma funzioni autenticate fuori uso. |
 | AI | Nessuna chiave provider configurata. | Coach e generazione piani usano solo il fallback deterministico. |
 | Stripe | Nessuna chiave in Vercel. | Checkout risponde 503; Premium attivabile solo via `PREMIUM_EMAILS` o admin. |
@@ -52,7 +52,7 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 
 ### P0 - Sbloccare la produzione (prossimi giorni)
 
-1. **Ripristinare Supabase**: creare il progetto, applicare `supabase/schema.sql`, configurare Auth (SMTP Resend, template email, redirect URL), ricreare l'admin (`docs/supabase-restore.md`).
+1. **Completare il ripristino Supabase**: progetto e schema fatti; restano Auth (SMTP Resend, template email, redirect URL), service role e JWT secret negli ambienti, admin (`docs/supabase-restore.md`).
 2. **Riallineare le variabili Vercel** (Production e Preview): Supabase nuove, `AUTH_SECRET`, `SUPABASE_JWT_SECRET`, `PREMIUM_EMAILS`, `ADMIN_EMAILS`, `PRIVACY_NOTIFICATION_EMAIL`; rimuovere le variabili dell'integrazione precedente.
 3. **Attivare il provider AI reale**: `ANTHROPIC_API_KEY` (o `OPENAI_API_KEY`), verifica coach e `/api/plans/generate` con la chiave, taratura prompt ed eval.
 4. **Decidere lo screening salute**: confermare bozza + warning di review oppure ripristinare il blocco. Allineare copy, test e pacchetto legale.

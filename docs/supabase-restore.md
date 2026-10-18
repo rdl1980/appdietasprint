@@ -1,5 +1,15 @@
 # Ripristino Supabase (ottobre 2026)
 
+## Stato: progetto ricreato il 19 ottobre 2026
+
+- Progetto `DietSprintAI`, ref `vmruiihtdjimcjbyzscs`, regione `eu-central-1`, URL `https://vmruiihtdjimcjbyzscs.supabase.co`.
+- Schema applicato come migrazioni `diet_sprint_foundation_schema` e `rls_performance_and_fk_indexes` (equivalenti a `supabase/schema.sql`): 7 tabelle, RLS attiva, 14 policy, advisor sicurezza pulito.
+- Per liberare lo slot del piano Free e' stato messo in pausa `RDLSelfPublishing`.
+- `.env.local` contiene gia' URL e anon key; restano da inserire a mano `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET` e `AUTH_SECRET`.
+- Ancora da fare: passi 3 (Auth, SMTP, template email, redirect URL), 4 (variabili Vercel), 5 (admin) e 6 (verifica).
+
+## Contesto
+
 Stato rilevato il 18 ottobre 2026: il progetto Supabase usato da Diet Sprint AI non esiste piu' nell'organizzazione `rdl1980's Org` (restano solo EconomiaDomestica, RDLproductivity, RDLSelfPublishing, AstaLive). Le variabili di produzione su Vercel (`appdietasprint`) puntano ancora al progetto scomparso, quindi login, registrazione e salvataggio piani in produzione falliscono.
 
 Il codice resta funzionante senza database: planner, risultati Free e pagine pubbliche non dipendono da Supabase.
