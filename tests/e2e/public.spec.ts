@@ -124,6 +124,15 @@ test("account and admin areas require authentication", async ({ page }) => {
 
   await page.goto("/admin/users");
   await expect(page).toHaveURL(/\/login\?authError=admin_login_required/);
+
+  await page.goto("/backlog");
+  await expect(page).toHaveURL(/\/login\?authError=admin_login_required&from=(%2F|\/)backlog/);
+});
+
+test("backlog link is hidden from anonymous visitors", async ({ page }) => {
+  await seedNecessaryCookieConsent(page);
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: /backlog/i })).toHaveCount(0);
 });
 
 test("cookie banner stores granular consent", async ({ page }) => {

@@ -40,20 +40,20 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 | Area | Problema | Impatto |
 | --- | --- | --- |
 | Supabase | Progetto ricreato il 19 ottobre (`vmruiihtdjimcjbyzscs`) con schema applicato; mancano Auth/SMTP, admin e variabili ambiente. | Login e salvataggio tornano a funzionare solo dopo i passi 3-6 di `docs/supabase-restore.md`. |
-| Vercel | Le variabili Production puntano al vecchio progetto; mancano Stripe, AI, `PREMIUM_EMAILS`, `ADMIN_EMAILS`, `SUPABASE_JWT_SECRET` aggiornato. | Deploy verde ma funzioni autenticate fuori uso. |
+| Vercel | Variabili allineate al nuovo Supabase il 19 ottobre (URL, chiavi, AUTH_SECRET, PREMIUM e ADMIN_EMAILS). Mancano Stripe e chiave AI. | Login e dati funzionano; checkout e AI reale ancora spenti. |
 | AI | Nessuna chiave provider configurata. | Coach e generazione piani usano solo il fallback deterministico. |
 | Stripe | Nessuna chiave in Vercel. | Checkout risponde 503; Premium attivabile solo via `PREMIUM_EMAILS` o admin. |
 | Nutrizione | 16 template statici; i template admin su DB non alimentano il generatore. | Piani ripetitivi, poca varieta' per keto e vegetariana. |
 | Nutrizione | Le condizioni mediche generano una bozza con warning invece di bloccare (decisione presa sul branch codex). | Da confermare con legale e nutrizionista. |
 | Qualita | Rate limit in memoria per istanza serverless. | Protezione debole in produzione multi-istanza. |
-| Prodotto | Tab `/backlog` pubblica, bottone "PDF placeholder", pagina `/auth/callback` legacy. | Da rimuovere o completare prima del lancio. |
+| Prodotto | Bottone "PDF placeholder" e pagina `/auth/callback` legacy. | Da rimuovere o completare prima del lancio. La tab `/backlog` e' ora riservata agli admin. |
 
 ## Backlog prioritizzato
 
 ### P0 - Sbloccare la produzione (prossimi giorni)
 
 1. **Completare il ripristino Supabase**: progetto e schema fatti; restano Auth (SMTP Resend, template email, redirect URL), service role e JWT secret negli ambienti, admin (`docs/supabase-restore.md`).
-2. **Riallineare le variabili Vercel** (Production e Preview): Supabase nuove, `AUTH_SECRET`, `SUPABASE_JWT_SECRET`, `PREMIUM_EMAILS`, `ADMIN_EMAILS`, `PRIVACY_NOTIFICATION_EMAIL`; rimuovere le variabili dell'integrazione precedente.
+2. **Variabili Vercel**: fatto il 19 ottobre; restano da aggiungere Stripe, chiave AI e `PRIVACY_NOTIFICATION_EMAIL`, e da rimuovere le vecchie `SUPABASE_*`/`POSTGRES_*` dell'integrazione precedente.
 3. **Attivare il provider AI reale**: `ANTHROPIC_API_KEY` (o `OPENAI_API_KEY`), verifica coach e `/api/plans/generate` con la chiave, taratura prompt ed eval.
 4. **Decidere lo screening salute**: confermare bozza + warning di review oppure ripristinare il blocco. Allineare copy, test e pacchetto legale.
 5. **Verifica end-to-end in produzione**: registrazione, conferma email, login, salvataggio piano, export dati, cancellazione account, admin. Attivare i GitHub Secrets per gli E2E autenticati.
@@ -64,7 +64,7 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 1. Generazione piano AI in UI: risultati Premium collegati a `/api/plans/generate`, loading, badge fonte (AI o template), rigenerazione singolo pasto via AI.
 2. Catalogo pasti piu' ampio (60+ ricette) e uso dei template admin DB nel generatore.
 3. Rate limit distribuito (Upstash/Redis o tabella Supabase).
-4. Rimuovere la tab `/backlog` pubblica e la pagina `/auth/callback` legacy; completare o togliere il bottone "PDF placeholder".
+4. Rimuovere la pagina `/auth/callback` legacy e completare o togliere il bottone "PDF placeholder" (la tab `/backlog` e' gia' solo admin).
 5. Pagina dettaglio piano: rigenerazione e salvataggio modifiche sul piano salvato.
 6. Dashboard richieste privacy: scadenze 30 giorni e note admin visibili all'utente.
 7. Monitoraggio errori reale (Sentry o simile) al posto del solo `console.error`.
