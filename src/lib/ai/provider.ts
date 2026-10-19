@@ -2,6 +2,7 @@ import { writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
+import { getVercelOidcTokenSync } from "@vercel/oidc";
 import OpenAI from "openai";
 import { env } from "@/lib/env";
 
@@ -35,9 +36,21 @@ let openaiClient: OpenAI | null = null;
 let anthropicClient: Anthropic | null = null;
 let generatorOverride: AiTextGenerator | null = null;
 
+/**
+ * Vercel delivers the OIDC token per request (header x-vercel-oidc-token, exposed through
+ * the request context) and only as VERCEL_OIDC_TOKEN at build time or in local dev.
+ */
+function readVercelOidcToken(): string | null {
+  try {
+    return getVercelOidcTokenSync() || null;
+  } catch {
+    return null;
+  }
+}
+
 /** Identity token for Workload Identity Federation: Vercel OIDC first, then an explicit file. */
 function getFederationIdentityToken(): { token?: string; path?: string } | null {
-  const token = process.env.VERCEL_OIDC_TOKEN || process.env.ANTHROPIC_IDENTITY_TOKEN;
+  const token = readVercelOidcToken() || process.env.ANTHROPIC_IDENTITY_TOKEN;
 
   if (token) {
     return { token };
@@ -52,7 +65,13 @@ function getFederationIdentityToken(): { token?: string; path?: string } | null 
 
 /** True when the Anthropic client can authenticate without an API key (OIDC federation). */
 export function isAnthropicFederationConfigured() {
-  return Boolean(env.anthropicFederationRuleId && getFederationIdentityToken());
+  if (!env.anthropicFederationRuleId) {
+    return false;
+  }
+
+  // On Vercel the token arrives with every request, so the rule id alone means "configured"
+  // even when this is evaluated outside a request (build, health checks, page rendering).
+  return Boolean(getFederationIdentityToken()) || process.env.VERCEL === "1";
 }
 
 function isAnthropicConfigured() {

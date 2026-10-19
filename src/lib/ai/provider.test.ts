@@ -59,6 +59,14 @@ describe("workload identity federation", () => {
     expect(isAiConfigured()).toBe(true);
   });
 
+  it("treats the Vercel runtime as configured because the token comes with each request", () => {
+    env.anthropicFederationRuleId = "fdrl_test";
+    process.env.VERCEL = "1";
+
+    expect(isAnthropicFederationConfigured()).toBe(true);
+    expect(resolveAiProvider()).toBe("anthropic");
+  });
+
   it("accepts an identity token file instead of the Vercel token", () => {
     env.anthropicFederationRuleId = "fdrl_test";
     env.anthropicIdentityTokenFile = "/tmp/identity.jwt";

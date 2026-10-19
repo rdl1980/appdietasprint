@@ -46,7 +46,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ai-real-key",
     title: "Attivare provider AI reale",
-    detail: "Layer pronto: basta ANTHROPIC_API_KEY (o OPENAI_API_KEY) su Vercel e in .env.local, poi verifica coach e /api/plans/generate con source ai (docs/go-live-checklist.md).",
+    detail: "Produzione senza chiave API: Workload Identity Federation Vercel -> Anthropic (issuer, service account e regola creati il 19/10/2026, env ANTHROPIC_FEDERATION_RULE_ID/SERVICE_ACCOUNT_ID/ORGANIZATION_ID su Vercel, docs/anthropic-federation.md). In locale serve ANTHROPIC_API_KEY in .env.local. Verifica: e2e autenticato chiama /api/coach e pretende fallback=false.",
     area: "AI coach",
     priority: "P0",
     status: "next",

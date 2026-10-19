@@ -37,6 +37,15 @@ Per gli ambienti Preview serve una seconda regola con `...:environment:preview` 
 
 Annotare: id regola `fdrl_...`, id service account `svac_...`, id organizzazione (Impostazioni organizzazione > Organizzazione).
 
+## Valori creati il 19/10/2026 (non segreti)
+
+| Oggetto | Id |
+| --- | --- |
+| Emittente `vercel-rdl1980s-projects` | `fdis_01WaYifgG6DWHZ22vYMymmX1` |
+| Service account `dietsprint-vercel` (ruolo Sviluppatore) | `svac_01PJvA2ZVEuBcditZHc9LNRs` |
+| Regola `dietsprint-vercel-production` | `fdrl_01LYfrQHT1KQ8hmZRJxhH7E9` |
+| Organizzazione | `563d9b37-74f3-4748-871c-5ddca9f34bbf` |
+
 ## 2. Vercel
 
 - Project > Settings > Security > "OIDC Federation" attivo, issuer mode `team`.
@@ -54,7 +63,8 @@ ANTHROPIC_MODEL=claude-opus-5-5
 ## 3. Verifica
 
 - `GET /api/health` -> `aiConfigured: true`, `aiProvider: "anthropic"`.
-- Con un account Premium: domanda al coach da `/results` (risposta senza "Risposta locale") e `POST /api/plans/generate` con `source: "ai"`.
+- `npm run test:e2e:production` con `E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD` di un account Premium: il test "premium account gets a real AI coach answer" chiama `/api/coach` e pretende `fallback: false` quando `aiConfigured` e' true.
+- Con un account Premium: `POST /api/plans/generate` con `source: "ai"`.
 - Console Anthropic > Identita' dei carichi di lavoro > "Eventi di autenticazione": compaiono gli scambi token riusciti.
 
 ## Locale

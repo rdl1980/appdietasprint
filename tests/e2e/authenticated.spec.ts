@@ -58,3 +58,29 @@ authenticatedTest("authenticated account can create a ketogenic plan, save it, a
   await expect(page.getByRole("heading", { name: /richieste gdpr/i })).toBeVisible();
   await expect(page.getByRole("button", { name: /scarica export json/i })).toBeVisible();
 });
+
+authenticatedTest("premium account gets a real AI coach answer when a provider is configured", async ({ page }) => {
+  await seedNecessaryCookieConsent(page);
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(testEmail!);
+  await page.getByLabel("Password").fill(testPassword!);
+  await page.getByRole("button", { name: /^Accedi$/ }).click();
+  await expect(page).toHaveURL(/\/account$/);
+
+  const health = await page.request.get("/api/health");
+  expect(health.ok()).toBe(true);
+  const { aiConfigured } = (await health.json()) as { aiConfigured: boolean };
+
+  // Same browser context: the Auth.js session cookie travels with the API request.
+  const response = await page.request.post("/api/coach", {
+    data: { question: "Quale spuntino proteico semplice posso aggiungere a meta' pomeriggio?" },
+  });
+
+  expect(response.status(), await response.text()).toBe(200);
+  const reply = (await response.json()) as { answer: string; blocked: boolean; fallback: boolean };
+
+  expect(reply.blocked).toBe(false);
+  expect(reply.answer.length).toBeGreaterThan(40);
+  // With a provider configured the answer must come from the model, not from the local tips.
+  expect(reply.fallback).toBe(!aiConfigured);
+});

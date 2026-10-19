@@ -29,6 +29,7 @@ function resetEnv() {
   delete process.env.ADMIN_EMAILS;
   delete process.env.ADMIN_USERNAMES;
   delete process.env.VERCEL_OIDC_TOKEN;
+  delete process.env.VERCEL;
   delete process.env.ANTHROPIC_IDENTITY_TOKEN;
 }
 
