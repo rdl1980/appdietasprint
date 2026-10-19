@@ -10,7 +10,7 @@ export default async function ResultsPage() {
   return (
     <>
       <Header />
-      <ResultsClient planTier={planTier} />
+      <ResultsClient planTier={planTier} isLoggedIn={Boolean(user)} />
     </>
   );
 }

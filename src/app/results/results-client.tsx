@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { AiCoachPanel } from "@/components/AiCoachPanel";
@@ -12,7 +13,7 @@ import { disclaimerText } from "@/components/DisclaimerText";
 import { generateMealPlan, getMealSubstitutions, regenerateMeal } from "@/lib/generateMealPlan";
 import type { PlanTier } from "@/lib/entitlements";
 import { MealPlan, UserProfile } from "@/lib/types";
-import { CalendarDays, Crown, Download, HeartPulse, RefreshCw, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CalendarDays, Crown, Download, HeartPulse, RefreshCw, ShieldCheck, X } from "lucide-react";
 
 const dietCopy: Record<UserProfile["dietType"], string> = {
   ketogenic: "Carboidrati molto bassi, proteine moderate/alte, grassi moderati. Evita pane, pasta, riso, patate e zuccheri.",
@@ -31,12 +32,15 @@ const hungerTips = [
 
 type ResultsClientProps = {
   planTier: PlanTier;
+  /** Logged-in visitors leave the plan towards their account, anonymous ones towards the home. */
+  isLoggedIn?: boolean;
 };
 
 const profileStorageKey = "dietSprintProfile";
 const legacyProfileStorageKey = "dietaSprintProfile";
 
-export function ResultsClient({ planTier }: ResultsClientProps) {
+export function ResultsClient({ planTier, isLoggedIn = false }: ResultsClientProps) {
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [regenerateNotice, setRegenerateNotice] = useState("");
@@ -67,6 +71,13 @@ export function ResultsClient({ planTier }: ResultsClientProps) {
       nextPlan === plan ? "Nessuna alternativa compatibile per questo pasto: allarga esclusioni o tipo dieta nel planner." : "",
     );
     setPlan(nextPlan);
+  }
+
+  /** Leaves the generated plan without touching the session: the planner draft is kept. */
+  function closePlan() {
+    window.localStorage.removeItem(profileStorageKey);
+    window.localStorage.removeItem(legacyProfileStorageKey);
+    router.push(isLoggedIn ? "/account" : "/");
   }
 
   function regenerateWholeDay(dayNumber: number) {
@@ -114,6 +125,22 @@ export function ResultsClient({ planTier }: ResultsClientProps) {
               ? "Piano settimanale completo. Le calorie sono approssimative e non sostituiscono una valutazione professionale."
               : "Piano giornaliero Free. Premium sblocca settimana completa, salvataggio, sostituzioni e lista spesa estesa."}
           </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Button href="/planner" variant="secondary" size="sm">
+              <ArrowLeft size={16} aria-hidden="true" />
+              Modifica dati
+            </Button>
+            {isLoggedIn && isPremium ? (
+              <Button href="/account/plans" variant="secondary" size="sm">
+                <CalendarDays size={16} aria-hidden="true" />
+                I miei piani
+              </Button>
+            ) : null}
+            <Button type="button" variant="ghost" size="sm" className="ring-1 ring-ink/10" onClick={closePlan}>
+              <X size={16} aria-hidden="true" />
+              Chiudi piano
+            </Button>
+          </div>
         </div>
         <Card>
           <p className="text-sm font-semibold text-ink/60">Target giornaliero</p>

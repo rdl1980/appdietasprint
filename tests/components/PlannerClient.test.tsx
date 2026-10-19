@@ -155,6 +155,31 @@ describe("ResultsClient", () => {
     expect(screen.getByRole("heading", { name: "Coach AI" })).toBeInTheDocument();
   });
 
+  it("lets a logged-in user leave the plan towards the account without logging out", async () => {
+    window.localStorage.setItem("dietSprintProfile", JSON.stringify(baseProfile));
+    window.localStorage.setItem("dietSprintDraftProfile", JSON.stringify(baseProfile));
+    render(<ResultsClient planTier="premium" isLoggedIn />);
+
+    expect(screen.getByRole("link", { name: /modifica dati/i })).toHaveAttribute("href", "/planner");
+    expect(screen.getByRole("link", { name: /i miei piani/i })).toHaveAttribute("href", "/account/plans");
+
+    await userEvent.click(screen.getByRole("button", { name: /chiudi piano/i }));
+
+    expect(push).toHaveBeenCalledWith("/account");
+    expect(window.localStorage.getItem("dietSprintProfile")).toBeNull();
+    expect(window.localStorage.getItem("dietSprintDraftProfile")).not.toBeNull();
+  });
+
+  it("sends anonymous visitors to the home when closing the plan", async () => {
+    window.localStorage.setItem("dietSprintProfile", JSON.stringify(baseProfile));
+    render(<ResultsClient planTier="free" />);
+
+    expect(screen.queryByRole("link", { name: /i miei piani/i })).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: /chiudi piano/i }));
+
+    expect(push).toHaveBeenCalledWith("/");
+  });
+
   it("regenerates the whole first day for premium users", async () => {
     window.localStorage.setItem("dietSprintProfile", JSON.stringify(baseProfile));
     render(<ResultsClient planTier="premium" />);
