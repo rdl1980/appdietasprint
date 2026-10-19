@@ -152,9 +152,13 @@ export async function checkSupabaseRlsToken(force = false): Promise<RlsProbe | n
     return null;
   }
 
-  const { error } = await createRlsClient(token).from("user_profiles").select("id", { head: true, count: "exact" });
-  const rejected = isSupabaseJwtError(error);
-  rlsProbe = { ok: !rejected, checkedAt: Date.now(), reason: rejected ? error?.message || error?.code || "jwt_rejected" : undefined };
+  const { error, status } = await createRlsClient(token).from("user_profiles").select("id").limit(1);
+  const rejected = status === 401 || isSupabaseJwtError(error);
+  rlsProbe = {
+    ok: !rejected,
+    checkedAt: Date.now(),
+    reason: rejected ? error?.message || error?.code || `http_${status}` : undefined,
+  };
 
   if (rejected) {
     console.error("supabase_rls_token_rejected", { reason: rlsProbe.reason });
@@ -181,7 +185,7 @@ async function createSupabaseRlsToken(user: AppUser) {
     email: user.email,
     app_metadata: user.app_metadata || {},
   })
-    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
+    .setProtectedHeader(env.supabaseJwtKeyId ? { alg: "HS256", typ: "JWT", kid: env.supabaseJwtKeyId } : { alg: "HS256", typ: "JWT" })
     .setSubject(user.id)
     .setIssuedAt()
     .setExpirationTime("1h")

@@ -8,6 +8,7 @@ const defaults = {
   supabaseAnonKey: "",
   supabaseServiceRoleKey: "",
   supabaseJwtSecret: "",
+  supabaseJwtKeyId: "",
   premiumEmails: "",
   stripeSecretKey: "",
   stripeWebhookSecret: "",

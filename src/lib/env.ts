@@ -9,6 +9,8 @@ export const env = {
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
   supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET || "",
+  // Key id of the legacy HS256 secret (Settings > JWT Keys). Needed once the project uses JWKS signing keys.
+  supabaseJwtKeyId: process.env.SUPABASE_JWT_KEY_ID || "",
   debugAuthEndpoint: process.env.DEBUG_AUTH_ENDPOINT === "true",
   premiumEmails: process.env.PREMIUM_EMAILS || "",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY || "",
