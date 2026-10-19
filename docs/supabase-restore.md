@@ -68,7 +68,8 @@ Da Project settings > API copiare e impostare, su Vercel (Production e Preview) 
 | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon public key (legacy) |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key, solo server |
-| `SUPABASE_JWT_SECRET` | JWT secret, solo server: serve per firmare i token RLS lato app |
+| `SUPABASE_JWT_SECRET` | Settings > JWT Keys > tab "Legacy JWT Secret", solo server: firma i token RLS lato app |
+| `SUPABASE_JWT_KEY_ID` | Settings > JWT Keys: key id della riga HS256 (Shared Secret). Serve perche' il progetto firma con chiavi JWKS |
 | `POSTGRES_URL_NON_POOLING` | Connection string diretta, usata solo da `npm run db:backup` |
 
 Su Vercel vanno rimosse le vecchie variabili create dall'integrazione precedente (`SUPABASE_*`, `POSTGRES_*`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) e aggiunte quelle mancanti: `AUTH_SECRET` (gia' presente), `STRIPE_*`, `ANTHROPIC_API_KEY` o `OPENAI_API_KEY`, `PREMIUM_EMAILS`, `ADMIN_EMAILS`, `PRIVACY_NOTIFICATION_EMAIL`.
@@ -87,7 +88,7 @@ Lo script chiede la password in modo interattivo e imposta `role=admin` negli ap
 
 ## 6. Verifica
 
-1. `GET /api/health` deve riportare `supabaseConfigured: true`.
+1. `GET /api/health` deve riportare `supabaseConfigured: true` e `supabaseRlsTokenOk: true`. Se e' `false`, i token RLS firmati dall'app vengono rifiutati da PostgREST (segreto o key id sbagliati): l'app continua a funzionare con la service role e filtri espliciti per utente, ma conviene correggere il segreto.
 2. Registrazione con email reale -> conferma -> login -> `/account`.
 3. Dal planner salvare un piano con un utente in `PREMIUM_EMAILS` -> `/account/plans`.
 4. `/admin/backlog` e `/admin/users` con l'utente admin.
