@@ -133,6 +133,24 @@ describe("POST /api/plans", () => {
     await expect(response.json()).resolves.toEqual({ error: "Piano non valido." });
   });
 
+  it("refuses flagged profiles with 422 only in block mode", async () => {
+    configureSupabase();
+    scenario.user = premiumUser;
+    scenario.supabase = createFakeSupabase({
+      user_profiles: { data: { id: "profile-1" }, error: null },
+      meal_plans: { data: { id: "plan-1" }, error: null },
+    });
+    const flagged = { ...baseProfile, medicalFlags: ["diabetes"] };
+
+    const warnMode = await POST(jsonRequest("/api/plans", { profile: flagged, plan, privacyConsent: true }));
+    expect(warnMode.status).toBe(200);
+
+    env.medicalScreeningMode = "block";
+    const blockMode = await POST(jsonRequest("/api/plans", { profile: flagged, plan, privacyConsent: true }));
+    expect(blockMode.status).toBe(422);
+    await expect(blockMode.json()).resolves.toMatchObject({ error: expect.stringContaining("non genera un piano automatico") });
+  });
+
   it("returns 401 for anonymous users", async () => {
     configureSupabase();
 

@@ -5,6 +5,7 @@ import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
 import { mealPlanToRow, profileToRow } from "@/lib/databaseMappers";
 import { isPremiumUser } from "@/lib/entitlements";
 import { consentDocuments } from "@/lib/legalVersions";
+import { getMedicalScreeningBlock } from "@/lib/medicalScreening";
 import { validateProfile } from "@/lib/profileValidation";
 import { MealPlan } from "@/lib/types";
 
@@ -95,6 +96,12 @@ export async function POST(request: NextRequest) {
 
   if (!isValidPlanPayload(body.plan)) {
     return NextResponse.json({ error: "Piano non valido." }, { status: 400 });
+  }
+
+  const medicalBlock = getMedicalScreeningBlock(validation.profile.medicalFlags);
+
+  if (medicalBlock) {
+    return NextResponse.json({ error: medicalBlock }, { status: 422 });
   }
 
   const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);

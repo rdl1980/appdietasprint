@@ -15,6 +15,7 @@ const defaults = {
   aiProvider: "auto",
   openaiApiKey: "",
   anthropicApiKey: "",
+  medicalScreeningMode: "warn",
 } as const;
 
 function resetEnv() {

@@ -30,7 +30,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ops-supabase-restore",
     title: "Ripristino database Supabase",
-    detail: "Progetto, schema e utenti admin/premium pronti. Restano Auth: Site URL, redirect URL, template email conferma/recupero e SMTP Resend.",
+    detail: "Progetto, schema, utenti admin/premium e variabili pronti. Restano Site URL, redirect URL, template email conferma/recupero e SMTP Resend (docs/go-live-checklist.md).",
     area: "Fondamenta",
     priority: "P0",
     status: "next",
@@ -46,7 +46,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ai-real-key",
     title: "Attivare provider AI reale",
-    detail: "Inserire ANTHROPIC_API_KEY (o OPENAI_API_KEY), verificare coach e /api/plans/generate con la chiave, poi tarare prompt ed eval.",
+    detail: "Layer pronto: basta ANTHROPIC_API_KEY (o OPENAI_API_KEY) su Vercel e in .env.local, poi verifica coach e /api/plans/generate con source ai (docs/go-live-checklist.md).",
     area: "AI coach",
     priority: "P0",
     status: "next",
@@ -54,7 +54,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ops-production-smoke",
     title: "Verifica end-to-end in produzione",
-    detail: "Login con gli account creati, salvataggio piano, storico, export dati, cancellazione account e pannelli admin su dietsprintai.com.",
+    detail: "Suite anonima npm run test:e2e:production eseguita e verde; resta il giro autenticato (login, salvataggio, export, admin) con un account di test. Vedi docs/go-live-checklist.md.",
     area: "Qualita",
     priority: "P0",
     status: "next",
@@ -70,7 +70,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "premium-stripe-production",
     title: "Stripe in produzione",
-    detail: "Chiavi, price id e webhook checkout.session.completed su Vercel, poi acquisto di prova in test mode e verifica sblocco Premium.",
+    detail: "Codice e webhook pronti; servono STRIPE_SECRET_KEY, STRIPE_PREMIUM_PRICE_ID e STRIPE_WEBHOOK_SECRET su Vercel, poi acquisto di prova in test mode (docs/go-live-checklist.md).",
     area: "Premium",
     priority: "P0",
     status: "next",
@@ -126,7 +126,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "nutrition-medical-decision",
     title: "Decisione definitiva screening salute",
-    detail: "Oggi le condizioni mediche generano una bozza con warning di review; confermare con legale e nutrizionista oppure ripristinare il blocco.",
+    detail: "Comportamento selezionabile con NEXT_PUBLIC_MEDICAL_SCREENING_MODE (warn = bozza con avviso, block = nessun piano automatico). Oggi warn: confermare con legale e nutrizionista.",
     area: "Nutrizione",
     priority: "P0",
     status: "next",

@@ -9,7 +9,7 @@ import { Input } from "@/components/Input";
 import { Select } from "@/components/Select";
 import { WarningBox } from "@/components/WarningBox";
 import { calculateCalories } from "@/lib/calories";
-import { getMedicalReviewWarning, medicalScreeningOptions } from "@/lib/medicalScreening";
+import { getMedicalReviewWarning, getMedicalScreeningBlock, getMedicalScreeningMode, medicalScreeningOptions } from "@/lib/medicalScreening";
 import { allergyOptions, cookingTimeOptions } from "@/lib/plannerPreferences";
 import { ActivityLevel, AllergyFlag, DietType, Goal, MedicalScreeningFlag, Sex, SimplicityLevel, UserProfile } from "@/lib/types";
 import { Calculator, CheckCircle2, Save } from "lucide-react";
@@ -121,6 +121,13 @@ export function PlannerClient() {
     setError("");
     setDraftStatus("");
 
+    const medicalBlock = getMedicalScreeningBlock(profile.medicalFlags);
+
+    if (medicalBlock) {
+      setError(medicalBlock);
+      return;
+    }
+
     if (profile.age < 18) {
       setError("Questo MVP e' pensato per adulti. Per minorenni serve un professionista.");
       return;
@@ -213,7 +220,11 @@ export function PlannerClient() {
 
         <FormSection
           title="Screening salute"
-          description="Seleziona solo condizioni gia note. Il piano resta una bozza orientativa e richiede review medica prima dell'uso."
+          description={
+            getMedicalScreeningMode() === "block"
+              ? "Seleziona solo condizioni gia note. In questi casi il piano automatico viene bloccato."
+              : "Seleziona solo condizioni gia note. Il piano resta una bozza orientativa e richiede review medica prima dell'uso."
+          }
         >
           {medicalScreeningOptions.map((option) => (
             <label

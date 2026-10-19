@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PlannerClient } from "@/app/planner/planner-client";
+import { env } from "@/lib/env";
 import { ResultsClient } from "@/app/results/results-client";
 import { baseProfile } from "../fixtures/profiles";
 
@@ -54,6 +55,20 @@ describe("PlannerClient", () => {
     expect(push).toHaveBeenCalledWith("/results");
     const stored = JSON.parse(window.localStorage.getItem("dietSprintProfile")!);
     expect(stored.medicalFlags).toEqual(["diabetes"]);
+  });
+
+  it("blocks generation for flagged profiles when the screening mode is block", async () => {
+    env.medicalScreeningMode = "block";
+    render(<PlannerClient />);
+
+    expect(screen.getByText(/il piano automatico viene bloccato/i)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByLabelText(/gravidanza/i));
+    await userEvent.click(screen.getByRole("button", { name: /genera piano/i }));
+
+    expect(screen.getByText(/non genera un piano automatico/i)).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem("dietSprintProfile")).toBeNull();
   });
 
   it("stores the final profile with parsed excluded foods and allergies", async () => {

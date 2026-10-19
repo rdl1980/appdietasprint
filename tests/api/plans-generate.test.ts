@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { setAiTextGeneratorForTests } from "@/lib/ai/provider";
+import { env } from "@/lib/env";
 import { baseProfile } from "../fixtures/profiles";
 import { freeUser, jsonRequest, premiumUser, type AuthScenario } from "./helpers";
 
@@ -39,6 +40,18 @@ describe("POST /api/plans/generate", () => {
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({ error: expect.stringContaining("dieta") });
+  });
+
+  it("refuses flagged profiles in block mode and warns in warn mode", async () => {
+    const flagged = { ...baseProfile, medicalFlags: ["pregnancy"] };
+
+    const warn = await POST(jsonRequest("/api/plans/generate", { profile: flagged, days: 1 }));
+    expect(warn.status).toBe(200);
+    expect((await warn.json()).plan.warnings[0]).toContain("Review medica necessaria");
+
+    env.medicalScreeningMode = "block";
+    const block = await POST(jsonRequest("/api/plans/generate", { profile: flagged, days: 1 }));
+    expect(block.status).toBe(422);
   });
 
   it("returns a fallback plan when no provider is configured and clamps days", async () => {

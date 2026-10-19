@@ -55,8 +55,8 @@ Questo documento e' il riepilogo markdown unico del progetto. La vista applicati
 1. **Completare il ripristino Supabase**: progetto e schema fatti; restano Auth (SMTP Resend, template email, redirect URL), service role e JWT secret negli ambienti, admin (`docs/supabase-restore.md`).
 2. **Variabili Vercel**: fatto il 19 ottobre; restano da aggiungere Stripe, chiave AI e `PRIVACY_NOTIFICATION_EMAIL`, e da rimuovere le vecchie `SUPABASE_*`/`POSTGRES_*` dell'integrazione precedente.
 3. **Attivare il provider AI reale**: `ANTHROPIC_API_KEY` (o `OPENAI_API_KEY`), verifica coach e `/api/plans/generate` con la chiave, taratura prompt ed eval.
-4. **Decidere lo screening salute**: confermare bozza + warning di review oppure ripristinare il blocco. Allineare copy, test e pacchetto legale.
-5. **Verifica end-to-end in produzione**: registrazione, conferma email, login, salvataggio piano, export dati, cancellazione account, admin. Attivare i GitHub Secrets per gli E2E autenticati.
+4. **Decidere lo screening salute**: oggi `NEXT_PUBLIC_MEDICAL_SCREENING_MODE=warn` (bozza + avviso); impostare `block` su Vercel ripristina il blocco senza modifiche al codice. Da confermare con legale e nutrizionista.
+5. **Verifica end-to-end in produzione**: smoke anonimo `npm run test:e2e:production` verde il 19 ottobre; resta il giro autenticato con account di test (stesso comando con `E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD`) e i GitHub Secrets per la CI.
 6. **Stripe in produzione**: chiavi, price id, webhook `checkout.session.completed` e test di un acquisto reale in test mode.
 
 ### P1 - Prossimo sprint prodotto

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateAiMealPlan } from "@/lib/ai/mealPlanGeneration";
 import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
 import { isPremiumUser } from "@/lib/entitlements";
+import { getMedicalScreeningBlock } from "@/lib/medicalScreening";
 import { validateProfile } from "@/lib/profileValidation";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
 
@@ -42,6 +43,12 @@ export async function POST(request: NextRequest) {
 
   if (!validation.ok) {
     return NextResponse.json({ error: `Profilo non valido: ${validation.errors.join(" ")}` }, { status: 400 });
+  }
+
+  const medicalBlock = getMedicalScreeningBlock(validation.profile.medicalFlags);
+
+  if (medicalBlock) {
+    return NextResponse.json({ error: medicalBlock }, { status: 422 });
   }
 
   const days = typeof body?.days === "number" && Number.isInteger(body.days) ? Math.min(Math.max(body.days, 1), 7) : 7;

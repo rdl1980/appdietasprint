@@ -21,6 +21,8 @@ export const env = {
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || "",
   anthropicModel: process.env.ANTHROPIC_MODEL || "claude-opus-5-5",
   buildId: process.env.VERCEL_GIT_COMMIT_SHA || process.env.BUILD_ID || "local",
+  // "warn" (default) generates a draft with a medical review warning; "block" refuses automatic plans.
+  medicalScreeningMode: process.env.NEXT_PUBLIC_MEDICAL_SCREENING_MODE || "warn",
 };
 
 export function isSupabaseConfigured() {

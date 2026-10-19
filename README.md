@@ -13,6 +13,7 @@ npm run test:api
 npm run test:components
 npm run test:ai-eval
 npm run test:e2e      # Playwright pubblico + autenticato (se E2E_TEST_EMAIL/PASSWORD presenti)
+npm run test:e2e:production  # smoke contro https://dietsprintai.com (o PLAYWRIGHT_BASE_URL)
 npm run lint
 npm run build
 npm run db:backup
@@ -38,6 +39,15 @@ Il progetto Supabase originale non esiste piu': la procedura per ricrearlo, riap
 - `/admin/privacy`
 - `/admin/templates`
 - `/legal/disclaimer`
+
+## Screening salute
+
+Il comportamento con condizioni mediche selezionate nel planner e' controllato da `NEXT_PUBLIC_MEDICAL_SCREENING_MODE`:
+
+- `warn` (default): il piano viene generato come bozza con un avviso di review medica in cima.
+- `block`: planner, salvataggio (`POST /api/plans`) e generazione AI (`POST /api/plans/generate`) rifiutano il profilo con errore 422.
+
+La decisione definitiva va presa con legale e nutrizionista; la checklist di go-live e' in `docs/go-live-checklist.md`.
 
 ## Auth.js + Supabase Auth
 
