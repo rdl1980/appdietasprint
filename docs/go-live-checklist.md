@@ -2,7 +2,11 @@
 
 Stato: codice, database, utenti admin/premium e variabili Vercel sono allineati. Restano quattro attivita' che richiedono dashboard esterne o chiavi.
 
-## 1. Supabase Auth (blocca registrazione e recupero password)
+## 1. Supabase Auth
+
+Fatto il 19 ottobre 2026 via dashboard: Site URL, le quattro redirect URL, signup abilitato, conferma email attiva. I template email restano quelli di default di Supabase (modificabili solo con SMTP custom): usano `{{ .ConfirmationURL }}`, che rimanda a `/auth/confirm` con `code`, gia' gestito dall'app.
+
+Resta facoltativo lo SMTP Resend: senza, Supabase invia con il proprio mittente e un limite di 2 email/ora.
 
 Dashboard: https://supabase.com/dashboard/project/vmruiihtdjimcjbyzscs/auth/url-configuration
 

@@ -6,7 +6,7 @@
 - Schema applicato come migrazioni `diet_sprint_foundation_schema` e `rls_performance_and_fk_indexes` (equivalenti a `supabase/schema.sql`): 7 tabelle, RLS attiva, 14 policy, advisor sicurezza pulito.
 - Per liberare lo slot del piano Free e' stato messo in pausa `RDLSelfPublishing`.
 - `.env.local` contiene gia' URL e anon key; restano da inserire a mano `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET` e `AUTH_SECRET`.
-- Ancora da fare: passi 3 (Auth, SMTP, template email, redirect URL), 4 (variabili Vercel), 5 (admin) e 6 (verifica).
+- Fatti anche: Site URL e redirect URL (19 ottobre), variabili Vercel, utenti admin/premium. Restano: SMTP Resend (facoltativo) e verifica di registrazione reale.
 
 ## Contesto
 
