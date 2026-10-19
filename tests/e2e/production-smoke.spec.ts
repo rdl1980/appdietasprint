@@ -114,6 +114,11 @@ smoke("www alias redirects permanently to the canonical host", async ({ request 
   expect(response.headers()["location"]).toBe(`https://${canonical.host}/pricing?utm=smoke`);
 });
 
+smoke("logout endpoint ignores prefetches", async ({ request }) => {
+  const prefetch = await request.get("/auth/logout", { headers: { "Next-Router-Prefetch": "1", RSC: "1" }, maxRedirects: 0 });
+  expect(prefetch.status()).toBe(204);
+});
+
 smoke("debug endpoint is disabled in production", async ({ request }) => {
   const debug = await request.get("/api/auth/debug");
   expect(debug.status()).toBe(404);

@@ -35,6 +35,9 @@ authenticatedTest("authenticated account can create a ketogenic plan, save it, a
   await expect(page.getByRole("heading", { name: new RegExp(testEmail!.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i") })).toBeVisible();
 
   await page.goto("/planner");
+  // The session must survive navigation: the header shows the account and the logout form.
+  await expect(page.getByRole("button", { name: /^esci$/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /accedi \/ registrati/i })).toHaveCount(0);
   await page.getByLabel("Tipo dieta").selectOption("ketogenic");
   await page.getByRole("button", { name: /genera piano/i }).click();
 

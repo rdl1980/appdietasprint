@@ -70,9 +70,11 @@ export async function Header() {
                 <UserRound size={16} aria-hidden="true" />
                 <span className="max-w-[140px] truncate">{user.email || "Account"}</span>
               </Button>
-              <Button href="/auth/logout" size="sm" variant="ghost" className="ring-1 ring-ink/10">
-                Esci
-              </Button>
+              <form action="/auth/logout" method="post">
+                <Button type="submit" size="sm" variant="ghost" className="ring-1 ring-ink/10">
+                  Esci
+                </Button>
+              </form>
             </>
           ) : (
             <Button href="/login" size="sm">

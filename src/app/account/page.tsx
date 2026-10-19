@@ -143,9 +143,11 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   <Plus size={18} aria-hidden="true" />
                   Nuovo piano
                 </Button>
-                <Button href="/auth/logout" variant="secondary">
-                  Esci
-                </Button>
+                <form action="/auth/logout" method="post">
+                  <Button type="submit" variant="secondary">
+                    Esci
+                  </Button>
+                </form>
               </div>
             </section>
 

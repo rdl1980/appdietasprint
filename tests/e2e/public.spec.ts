@@ -219,6 +219,15 @@ test("protected API routes answer 401 with a login url for anonymous callers", a
   expect(await adminMe.json()).toMatchObject({ authenticated: false, isAdmin: false });
 });
 
+test("logout ignores router prefetches and only acts on real requests", async ({ request }) => {
+  const prefetch = await request.get("/auth/logout", { headers: { "Next-Router-Prefetch": "1", RSC: "1" }, maxRedirects: 0 });
+  expect(prefetch.status()).toBe(204);
+
+  const direct = await request.post("/auth/logout", { maxRedirects: 0 });
+  expect([302, 303, 307, 308]).toContain(direct.status());
+  expect(direct.headers()["location"]).toContain("/login?logout=1");
+});
+
 test("account deletion endpoint validates the confirmation before anything else", async ({ request }) => {
   const response = await request.delete("/api/account", { data: { confirmation: "no" } });
   expect(response.status()).toBe(400);

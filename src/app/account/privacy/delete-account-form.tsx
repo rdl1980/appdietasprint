@@ -37,8 +37,9 @@ export function DeleteAccountForm() {
     }
 
     setStatus("Account eliminato. Verrai reindirizzato alla chiusura sessione.");
-    window.setTimeout(() => {
-      window.location.href = "/auth/logout";
+    window.setTimeout(async () => {
+      await fetch("/auth/logout", { method: "POST", redirect: "follow" }).catch(() => undefined);
+      window.location.href = "/login?logout=1";
     }, 1200);
   }
 
