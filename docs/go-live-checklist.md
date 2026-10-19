@@ -4,9 +4,7 @@ Stato: codice, database, utenti admin/premium e variabili Vercel sono allineati.
 
 ## 1. Supabase Auth
 
-Fatto il 19 ottobre 2026 via dashboard: Site URL, le quattro redirect URL, signup abilitato, conferma email attiva. I template email restano quelli di default di Supabase (modificabili solo con SMTP custom): usano `{{ .ConfirmationURL }}`, che rimanda a `/auth/confirm` con `code`, gia' gestito dall'app.
-
-Resta facoltativo lo SMTP Resend: senza, Supabase invia con il proprio mittente e un limite di 2 email/ora.
+Fatto il 19 ottobre 2026 via dashboard: Site URL, le quattro redirect URL, signup abilitato, conferma email attiva, SMTP Resend (smtp.resend.com:465, mittente no-reply@dietsprintai.com, limite 30 email/ora) e template "Confirm sign up" e "Reset password" in italiano con link `token_hash` verso `/auth/confirm`, che funzionano anche se il link viene aperto su un altro dispositivo.
 
 Dashboard: https://supabase.com/dashboard/project/vmruiihtdjimcjbyzscs/auth/url-configuration
 

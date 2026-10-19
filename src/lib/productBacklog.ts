@@ -30,10 +30,10 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ops-supabase-restore",
     title: "Ripristino database Supabase",
-    detail: "Progetto, schema, utenti, variabili Vercel, Site URL e redirect URL configurati; i template email di default funzionano con /auth/confirm. Resta facoltativo lo SMTP Resend (limite 2 email/ora senza SMTP custom) e il test di registrazione reale.",
+    detail: "Progetto, schema, utenti, variabili Vercel, Site URL, redirect URL, SMTP Resend e template email (conferma e recupero via token_hash) configurati il 19 ottobre. Resta solo il test di registrazione reale.",
     area: "Fondamenta",
     priority: "P0",
-    status: "next",
+    status: "done",
   },
   {
     id: "ops-vercel-env",
