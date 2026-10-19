@@ -22,6 +22,12 @@ export const env = {
   openaiModel: process.env.OPENAI_MODEL || "gpt-5.4-mini",
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || "",
   anthropicModel: process.env.ANTHROPIC_MODEL || "claude-opus-5-5",
+  // Workload Identity Federation (no API key): rule + org/service account ids from the Claude Console,
+  // identity token from Vercel OIDC (VERCEL_OIDC_TOKEN) or a file path.
+  anthropicFederationRuleId: process.env.ANTHROPIC_FEDERATION_RULE_ID || "",
+  anthropicOrganizationId: process.env.ANTHROPIC_ORGANIZATION_ID || "",
+  anthropicServiceAccountId: process.env.ANTHROPIC_SERVICE_ACCOUNT_ID || "",
+  anthropicIdentityTokenFile: process.env.ANTHROPIC_IDENTITY_TOKEN_FILE || "",
   buildId: process.env.VERCEL_GIT_COMMIT_SHA || process.env.BUILD_ID || "local",
   // "warn" (default) generates a draft with a medical review warning; "block" refuses automatic plans.
   medicalScreeningMode: process.env.NEXT_PUBLIC_MEDICAL_SCREENING_MODE || "warn",

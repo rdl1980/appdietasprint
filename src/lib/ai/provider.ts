@@ -1,3 +1,6 @@
+import { writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { env } from "@/lib/env";
@@ -32,6 +35,30 @@ let openaiClient: OpenAI | null = null;
 let anthropicClient: Anthropic | null = null;
 let generatorOverride: AiTextGenerator | null = null;
 
+/** Identity token for Workload Identity Federation: Vercel OIDC first, then an explicit file. */
+function getFederationIdentityToken(): { token?: string; path?: string } | null {
+  const token = process.env.VERCEL_OIDC_TOKEN || process.env.ANTHROPIC_IDENTITY_TOKEN;
+
+  if (token) {
+    return { token };
+  }
+
+  if (env.anthropicIdentityTokenFile) {
+    return { path: env.anthropicIdentityTokenFile };
+  }
+
+  return null;
+}
+
+/** True when the Anthropic client can authenticate without an API key (OIDC federation). */
+export function isAnthropicFederationConfigured() {
+  return Boolean(env.anthropicFederationRuleId && getFederationIdentityToken());
+}
+
+function isAnthropicConfigured() {
+  return Boolean(env.anthropicApiKey) || isAnthropicFederationConfigured();
+}
+
 export function resolveAiProvider(): AiProviderName | null {
   const requested = env.aiProvider.trim().toLowerCase();
 
@@ -40,10 +67,10 @@ export function resolveAiProvider(): AiProviderName | null {
   }
 
   if (requested === "anthropic") {
-    return env.anthropicApiKey ? "anthropic" : null;
+    return isAnthropicConfigured() ? "anthropic" : null;
   }
 
-  if (env.anthropicApiKey) {
+  if (isAnthropicConfigured()) {
     return "anthropic";
   }
 
@@ -83,8 +110,38 @@ function getOpenAiClient() {
 }
 
 function getAnthropicClient() {
-  anthropicClient ||= new Anthropic({ apiKey: env.anthropicApiKey });
-  return anthropicClient;
+  if (env.anthropicApiKey) {
+    anthropicClient ||= new Anthropic({ apiKey: env.anthropicApiKey });
+    return anthropicClient;
+  }
+
+  const identity = getFederationIdentityToken();
+
+  if (!identity) {
+    throw new Error("Anthropic federation identity token not available");
+  }
+
+  // The SDK reads the identity token from a file. Vercel rotates VERCEL_OIDC_TOKEN per
+  // invocation, so the file is refreshed and a new client (and token exchange) is used
+  // every time instead of a memoized one.
+  let path = identity.path || "";
+
+  if (identity.token) {
+    path = join(tmpdir(), "anthropic-identity-token.jwt");
+    writeFileSync(path, identity.token, { mode: 0o600 });
+  }
+
+  return new Anthropic({
+    config: {
+      authentication: {
+        type: "oidc_federation",
+        federation_rule_id: env.anthropicFederationRuleId,
+        service_account_id: env.anthropicServiceAccountId || undefined,
+        identity_token: { source: "file", path },
+      },
+      organization_id: env.anthropicOrganizationId || undefined,
+    },
+  });
 }
 
 async function generateWithOpenAi(request: AiTextRequest): Promise<AiTextResult> {

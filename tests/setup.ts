@@ -16,6 +16,10 @@ const defaults = {
   aiProvider: "auto",
   openaiApiKey: "",
   anthropicApiKey: "",
+  anthropicFederationRuleId: "",
+  anthropicOrganizationId: "",
+  anthropicServiceAccountId: "",
+  anthropicIdentityTokenFile: "",
   medicalScreeningMode: "warn",
 } as const;
 
@@ -24,6 +28,8 @@ function resetEnv() {
   delete process.env.RESEND_API_KEY;
   delete process.env.ADMIN_EMAILS;
   delete process.env.ADMIN_USERNAMES;
+  delete process.env.VERCEL_OIDC_TOKEN;
+  delete process.env.ANTHROPIC_IDENTITY_TOKEN;
 }
 
 resetEnv();

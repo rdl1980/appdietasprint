@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { extractJsonObject, generateAiText, getAiModelName, isAiConfigured, resolveAiProvider, setAiTextGeneratorForTests } from "./provider";
+import { extractJsonObject, generateAiText, getAiModelName, isAiConfigured, isAnthropicFederationConfigured, resolveAiProvider, setAiTextGeneratorForTests } from "./provider";
 import { env } from "../env";
 
 afterEach(() => {
@@ -38,6 +38,32 @@ describe("resolveAiProvider", () => {
 
     env.aiProvider = "ANTHROPIC";
     expect(resolveAiProvider()).toBe("anthropic");
+  });
+});
+
+describe("workload identity federation", () => {
+  it("is not configured without a rule id or an identity token", () => {
+    expect(isAnthropicFederationConfigured()).toBe(false);
+
+    env.anthropicFederationRuleId = "fdrl_test";
+    expect(isAnthropicFederationConfigured()).toBe(false);
+    expect(resolveAiProvider()).toBeNull();
+  });
+
+  it("selects anthropic when a rule id and a Vercel OIDC token exist", () => {
+    env.anthropicFederationRuleId = "fdrl_test";
+    process.env.VERCEL_OIDC_TOKEN = "header.payload.signature";
+
+    expect(isAnthropicFederationConfigured()).toBe(true);
+    expect(resolveAiProvider()).toBe("anthropic");
+    expect(isAiConfigured()).toBe(true);
+  });
+
+  it("accepts an identity token file instead of the Vercel token", () => {
+    env.anthropicFederationRuleId = "fdrl_test";
+    env.anthropicIdentityTokenFile = "/tmp/identity.jwt";
+
+    expect(isAnthropicFederationConfigured()).toBe(true);
   });
 });
 
