@@ -1,8 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import { getCanonicalRedirect } from "@/lib/canonicalHost";
 import { env, isSupabaseConfigured } from "@/lib/env";
 
 export async function proxy(request: NextRequest) {
+  // Keep one host for cookies and localStorage: www.* and apex are not interchangeable.
+  const canonicalUrl = getCanonicalRedirect(request.url, env.siteUrl);
+
+  if (canonicalUrl) {
+    return NextResponse.redirect(canonicalUrl, 308);
+  }
+
   let response = NextResponse.next({
     request,
   });

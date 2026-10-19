@@ -101,6 +101,19 @@ smoke("input validation answers 400 before touching the database", async ({ requ
   expect(password.status()).toBe(400);
 });
 
+smoke("www alias redirects permanently to the canonical host", async ({ request }) => {
+  const canonical = new URL(baseUrl);
+
+  if (canonical.host.startsWith("www.")) {
+    test.skip();
+    return;
+  }
+
+  const response = await request.get(`https://www.${canonical.host}/pricing?utm=smoke`, { maxRedirects: 0 });
+  expect(response.status()).toBe(308);
+  expect(response.headers()["location"]).toBe(`https://${canonical.host}/pricing?utm=smoke`);
+});
+
 smoke("debug endpoint is disabled in production", async ({ request }) => {
   const debug = await request.get("/api/auth/debug");
   expect(debug.status()).toBe(404);
