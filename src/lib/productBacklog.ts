@@ -54,7 +54,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ops-production-smoke",
     title: "Verifica end-to-end in produzione",
-    detail: "Smoke anonimo verde e registrazione con conferma email verificata il 19 ottobre. Restano: salvataggio piano, storico, export dati, recupero password e pannelli admin con un account di test (npm run test:e2e:production con E2E_TEST_EMAIL/PASSWORD).",
+    detail: "Verificato il 19 ottobre con account Premium: login, piano chetogenico, salvataggio su DB (profilo, piano, consensi), storico, profilo e area privacy. Restano: recupero password, pannelli admin, cancellazione account di prova.",
     area: "Qualita",
     priority: "P0",
     status: "next",

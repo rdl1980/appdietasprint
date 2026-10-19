@@ -31,6 +31,8 @@ Verifica: registrazione con una email nuova da https://dietsprintai.com/register
 
 ## 2. Verifica end-to-end in produzione
 
+Verificato il 19 ottobre (npm run test:e2e:production con account Premium, 9 test verdi): login, planner chetogenico, salvataggio con profilo, piano a 7 giorni, lista spesa e 3 consensi su DB, storico, profilo, area privacy. Due bug trovati e corretti lungo la strada: il link GET di logout veniva prefetchato da Next.js e cancellava la sessione (ora POST, prefetch ignorato) e www non reindirizzava all'apex (ora 308).
+
 Nota 19 ottobre: `/api/health` riporta `supabaseRlsTokenOk: false`. PostgREST rifiuta i token HS256 firmati dall'app anche con `SUPABASE_JWT_KEY_ID`; probabile valore errato in `SUPABASE_JWT_SECRET` su Vercel. L'app usa automaticamente la service role con filtri per utente, quindi account e salvataggi funzionano; ricopiare il segreto dalla tab "Legacy JWT Secret" e fare redeploy finche' il flag diventa `true`.
 
 Verificato il 19 ottobre: registrazione dal sito, email di conferma inviata via Resend, link `token_hash` gestito da `/auth/confirm`, login con password riuscito (utente di prova confermato in `auth.users`).
