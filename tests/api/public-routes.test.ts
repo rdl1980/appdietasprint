@@ -2,6 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import { env } from "@/lib/env";
 import { jsonRequest } from "./helpers";
 
+vi.mock("@/lib/supabase/data", () => ({
+  checkSupabaseRlsToken: vi.fn(async () => null),
+  createAuthenticatedSupabaseClient: vi.fn(),
+  createSupabaseAdminClient: vi.fn(),
+  getAuthenticatedUser: vi.fn(async () => null),
+}));
+
 const { POST: analytics } = await import("@/app/api/analytics/route");
 const { POST: errors } = await import("@/app/api/errors/route");
 const { GET: health } = await import("@/app/api/health/route");
@@ -55,7 +62,7 @@ describe("GET /api/health", () => {
     env.supabaseAnonKey = "anon";
     env.anthropicApiKey = "sk-ant";
 
-    const response = health();
+    const response = await health();
     const payload = await response.json();
 
     expect(response.headers.get("cache-control")).toBe("no-store");
@@ -63,6 +70,7 @@ describe("GET /api/health", () => {
       ok: true,
       app: "Diet Sprint AI",
       supabaseConfigured: true,
+      supabaseRlsTokenOk: null,
       emailConfigured: false,
       aiConfigured: true,
       aiProvider: "anthropic",

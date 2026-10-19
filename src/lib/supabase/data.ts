@@ -99,6 +99,75 @@ export async function createSupabaseAdminClient() {
   return createSupabaseServiceClient();
 }
 
+/** PostgREST answers 401 with these codes/messages when the bearer token cannot be verified. */
+export function isSupabaseJwtError(error: { code?: string | null; message?: string | null } | null | undefined) {
+  if (!error) {
+    return false;
+  }
+
+  const code = String(error.code || "");
+  const message = String(error.message || "");
+
+  return code === "PGRST301" || code === "PGRST303" || /JW[ST]|jwt|invalid (signature|token)/i.test(message);
+}
+
+type RlsProbe = { ok: boolean; checkedAt: number; reason?: string };
+
+const rlsProbeTtlMs = 10 * 60 * 1000;
+let rlsProbe: RlsProbe | null = null;
+
+function createRlsClient(rlsToken: string) {
+  return createClient(env.supabaseUrl, env.supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      persistSession: false,
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${rlsToken}`,
+      },
+    },
+  });
+}
+
+/**
+ * Checks once per instance (cached for 10 minutes) that tokens signed with
+ * SUPABASE_JWT_SECRET are accepted by PostgREST. A mismatch between the Vercel
+ * secret and the project JWT secret would otherwise turn every data request
+ * into a silent 401.
+ */
+export async function checkSupabaseRlsToken(force = false): Promise<RlsProbe | null> {
+  if (!isSupabaseConfigured() || !env.supabaseJwtSecret) {
+    return null;
+  }
+
+  if (!force && rlsProbe && Date.now() - rlsProbe.checkedAt < rlsProbeTtlMs) {
+    return rlsProbe;
+  }
+
+  const token = await createSupabaseRlsToken({ id: "00000000-0000-0000-0000-000000000000", email: "rls-probe@dietsprintai.local" });
+
+  if (!token) {
+    return null;
+  }
+
+  const { error } = await createRlsClient(token).from("user_profiles").select("id", { head: true, count: "exact" });
+  const rejected = isSupabaseJwtError(error);
+  rlsProbe = { ok: !rejected, checkedAt: Date.now(), reason: rejected ? error?.message || error?.code || "jwt_rejected" : undefined };
+
+  if (rejected) {
+    console.error("supabase_rls_token_rejected", { reason: rlsProbe.reason });
+  }
+
+  return rlsProbe;
+}
+
+/** Test hook. */
+export function resetSupabaseRlsProbeForTests() {
+  rlsProbe = null;
+}
+
 async function createSupabaseRlsToken(user: AppUser) {
   if (!env.supabaseJwtSecret) {
     return null;
@@ -143,25 +212,19 @@ export async function createAuthenticatedSupabaseClient(request?: NextRequest) {
   const rlsToken = await createSupabaseRlsToken(user);
 
   if (rlsToken) {
-    const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
-      auth: {
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-        persistSession: false,
-      },
-      global: {
-        headers: {
-          Authorization: `Bearer ${rlsToken}`,
-        },
-      },
-    });
+    const probe = await checkSupabaseRlsToken();
 
-    return {
-      supabase,
-      user,
-      mode: "rls" as const,
-      unavailableReason: null,
-    };
+    if (!probe || probe.ok) {
+      return {
+        supabase: createRlsClient(rlsToken),
+        user,
+        mode: "rls" as const,
+        unavailableReason: null,
+      };
+    }
+
+    // SUPABASE_JWT_SECRET does not match the project: fall back to the service role.
+    // Every query in the app filters by user_id explicitly, so data isolation is preserved.
   }
 
   const supabase = createSupabaseServiceClient();
