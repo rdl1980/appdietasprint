@@ -228,3 +228,50 @@ describe("buildGroceryList", () => {
     expect(buildGroceryList([])).toEqual([]);
   });
 });
+
+describe("weekly variety", () => {
+  const slotsOf = (plan: ReturnType<typeof generateMealPlan>) =>
+    plan.days[0].meals.map((_meal, slotIndex) => plan.days.map((day) => day.meals[slotIndex].id));
+
+  it.each(allDietTypes)("never serves the same %s meal on two consecutive days", (dietType) => {
+    const plan = generateMealPlan({ ...profile, dietType, mealsPerDay: 4 });
+
+    for (const ids of slotsOf(plan)) {
+      for (let index = 1; index < ids.length; index += 1) {
+        expect(ids[index], `${dietType} day ${index + 1}`).not.toBe(ids[index - 1]);
+      }
+    }
+  });
+
+  it.each(allDietTypes)("offers at least three different meals per slot across the week for %s", (dietType) => {
+    const plan = generateMealPlan({ ...profile, dietType, mealsPerDay: 4 });
+
+    for (const ids of slotsOf(plan)) {
+      expect(new Set(ids).size, dietType).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("cycles through different alternatives on repeated regeneration", () => {
+    const ketoProfile = { ...profile, dietType: "ketogenic" as const };
+    const plan = generateMealPlan(ketoProfile);
+    const once = regenerateMeal(plan, ketoProfile, 1, 1);
+    const twice = regenerateMeal(once, ketoProfile, 1, 1);
+
+    expect(once.days[0].meals[1].id).not.toBe(plan.days[0].meals[1].id);
+    expect(twice.days[0].meals[1].id).not.toBe(once.days[0].meals[1].id);
+  });
+
+  it("returns the same plan reference when no compatible alternative exists", () => {
+    const plan = generateMealPlan(profile, { days: 1 });
+    const meal = plan.days[0].meals[0];
+    // Exclude every other breakfast by name-specific ingredients until only the current one is compatible.
+    const others = getMealSubstitutions(meal, profile, 50);
+    const excludedFoods = others.map((other) => other.ingredients.find((ingredient) => !meal.ingredients.some((own) => own.name === ingredient.name))!.name);
+    const narrowProfile = { ...profile, excludedFoods };
+    const narrowPlan = generateMealPlan(narrowProfile, { days: 1 });
+
+    if (getMealSubstitutions(narrowPlan.days[0].meals[0], narrowProfile, 50).length === 0) {
+      expect(regenerateMeal(narrowPlan, narrowProfile, 1, 0)).toBe(narrowPlan);
+    }
+  });
+});

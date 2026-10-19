@@ -134,7 +134,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "nutrition-template-catalog",
     title: "Catalogo pasti piu' ampio",
-    detail: "Solo 16 template statici: ampliare a 60+ ricette per dieta e slot, oppure alimentare il generatore con i template admin e con l'AI.",
+    detail: "Catalogo portato da 16 a 46 template il 19/10/2026 (almeno 4 per dieta e slot, rotazione sui 7 giorni senza ripetizioni consecutive, rigenerazione che cicla le alternative). Prossimo passo: 60+ ricette e generatore alimentato anche dai template admin e dall'AI.",
     area: "Nutrizione",
     priority: "P1",
     status: "planned",

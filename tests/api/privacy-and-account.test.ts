@@ -29,7 +29,7 @@ const { POST: privacyRequests } = await import("@/app/api/privacy-requests/route
 const { GET: privacyExport } = await import("@/app/api/privacy/export/route");
 const { DELETE: deleteAccount } = await import("@/app/api/account/route");
 const { POST: updatePassword } = await import("@/app/api/account/password/route");
-const { PATCH: updateProfile } = await import("@/app/api/profile/route");
+const { GET: readProfile, PATCH: updateProfile } = await import("@/app/api/profile/route");
 
 function configureSupabase() {
   env.supabaseUrl = "https://test.supabase.co";
@@ -163,5 +163,56 @@ describe("PATCH /api/profile", () => {
       ["id", "p1"],
       ["user_id", freeUser.id],
     ]);
+  });
+});
+
+describe("GET /api/profile", () => {
+  const profileRow = {
+    id: "p1",
+    sex: "female",
+    age: 35,
+    height_cm: 165,
+    weight_kg: "70.0",
+    activity_level: "moderate",
+    goal: "standard",
+    diet_type: "ketogenic",
+    target_calories: null,
+    meals_per_day: 4,
+    excluded_foods: ["cipolla"],
+    simplicity_level: "standard",
+    budget_mode: true,
+    medical_flags: null,
+    allergy_flags: ["nuts"],
+    cooking_time: null,
+    created_at: "2026-10-19T10:00:00Z",
+  };
+
+  it("requires login", async () => {
+    expect((await readProfile(jsonRequest("/api/profile"))).status).toBe(401);
+  });
+
+  it("returns the latest saved profile mapped to the app shape", async () => {
+    scenario.user = freeUser;
+    scenario.supabase = createFakeSupabase({ user_profiles: { data: profileRow, error: null } });
+
+    const response = await readProfile(jsonRequest("/api/profile"));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    await expect(response.json()).resolves.toEqual({
+      profileId: "p1",
+      profile: expect.objectContaining({ dietType: "ketogenic", weightKg: 70, mealsPerDay: 4, excludedFoods: ["cipolla"], allergyFlags: ["nuts"], budgetMode: true, cookingTime: "standard" }),
+    });
+    expect(scenario.supabase.calls.filter((call) => call.op === "eq").map((call) => call.args)).toEqual([["user_id", freeUser.id]]);
+  });
+
+  it("returns a null profile when nothing was saved yet", async () => {
+    scenario.user = freeUser;
+    scenario.supabase = createFakeSupabase({ user_profiles: { data: null, error: null } });
+
+    const response = await readProfile(jsonRequest("/api/profile"));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ profile: null });
   });
 });

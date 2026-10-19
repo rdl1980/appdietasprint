@@ -48,6 +48,27 @@ describe("SavePlanButton", () => {
     expect(screen.getByRole("link", { name: /vai al login/i })).toHaveAttribute("href", "/login");
   });
 
+  it("reports a network failure instead of hanging on 'Salvataggio...'", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+    render(<SavePlanButton profile={baseProfile} plan={plan} />);
+
+    await userEvent.click(screen.getByRole("checkbox"));
+    await userEvent.click(screen.getByRole("button", { name: /salva piano/i }));
+
+    expect(await screen.findByText(/connessione assente o instabile/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /salva piano/i })).toBeEnabled();
+  });
+
+  it("shows the HTTP status when the server answers without a JSON body", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 502, json: async () => { throw new SyntaxError("not json"); } }));
+    render(<SavePlanButton profile={baseProfile} plan={plan} />);
+
+    await userEvent.click(screen.getByRole("checkbox"));
+    await userEvent.click(screen.getByRole("button", { name: /salva piano/i }));
+
+    expect(await screen.findByText(/salvataggio non riuscito \(errore 502\)/i)).toBeInTheDocument();
+  });
+
   it("is disabled for free users and offers the upgrade", () => {
     render(<SavePlanButton profile={baseProfile} plan={plan} disabled />);
 

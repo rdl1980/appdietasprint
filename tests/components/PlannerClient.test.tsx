@@ -86,6 +86,30 @@ describe("PlannerClient", () => {
     expect(push).toHaveBeenCalledWith("/results");
   });
 
+  it("prefills the form from the account profile when no local draft exists", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ profileId: "p1", profile: { ...baseProfile, age: 51, dietType: "ketogenic", excludedFoods: ["cipolla"] } }) }),
+    );
+    render(<PlannerClient />);
+
+    await waitFor(() => expect(screen.getByLabelText("Eta")).toHaveValue(51));
+    expect(screen.getByLabelText("Tipo dieta")).toHaveValue("ketogenic");
+    expect(screen.getByText("Profilo caricato dal tuo account.")).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledWith("/api/profile", expect.anything());
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps the defaults for anonymous visitors", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 401, json: async () => ({ error: "Login richiesto" }) }));
+    render(<PlannerClient />);
+
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    expect(screen.getByLabelText("Eta")).toHaveValue(35);
+    expect(screen.queryByText("Profilo caricato dal tuo account.")).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
   it("saves and reloads drafts, migrating legacy keys", async () => {
     window.localStorage.setItem("dietaSprintDraftProfile", JSON.stringify({ ...baseProfile, age: 44 }));
     render(<PlannerClient />);
@@ -129,6 +153,19 @@ describe("ResultsClient", () => {
     expect(screen.getByRole("heading", { name: "Domenica" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /lista spesa 7 giorni/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Coach AI" })).toBeInTheDocument();
+  });
+
+  it("regenerates the whole first day for premium users", async () => {
+    window.localStorage.setItem("dietSprintProfile", JSON.stringify(baseProfile));
+    render(<ResultsClient planTier="premium" />);
+
+    const headingsBefore = screen.getAllByRole("button", { name: /rigenera pasto/i }).slice(0, 3).map((button) => button.closest("article")!.querySelector("h3")!.textContent);
+
+    await userEvent.click(screen.getByRole("button", { name: /rigenera giorno/i }));
+
+    const headingsAfter = screen.getAllByRole("button", { name: /rigenera pasto/i }).slice(0, 3).map((button) => button.closest("article")!.querySelector("h3")!.textContent);
+    expect(headingsAfter).not.toEqual(headingsBefore);
+    expect(screen.queryByText(/nessuna alternativa compatibile/i)).toBeNull();
   });
 
   it("regenerates a single meal for premium users", async () => {

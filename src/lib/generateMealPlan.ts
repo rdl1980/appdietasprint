@@ -52,13 +52,21 @@ function getMealPool(slot: MealType, profile: UserProfile) {
   return compatible.length > 0 ? compatible : fallback.length > 0 ? fallback : unrestricted;
 }
 
+/** How many of the best-scoring templates rotate across the week for one slot. */
+const rotationSize = 5;
+
 function selectMeal(slot: MealType, targetCalories: number, profile: UserProfile, day: number, slotIndex: number) {
   const pool = getMealPool(slot, profile);
   const offset = day + slotIndex;
 
-  return [...pool]
-    .sort((a, b) => scoreMeal(a, targetCalories, profile, offset) - scoreMeal(b, targetCalories, profile, offset))
-    [offset % pool.length];
+  // Rank once by fit (calories + preferences), then rotate through the best few so
+  // consecutive days never repeat the same meal while preferences still matter.
+  const ranked = [...pool].sort(
+    (a, b) => scoreMeal(a, targetCalories, profile, offset) - scoreMeal(b, targetCalories, profile, offset),
+  );
+  const shortlist = ranked.slice(0, Math.min(ranked.length, rotationSize));
+
+  return shortlist[offset % shortlist.length];
 }
 
 function distributeCalories(dailyCalories: number, slots: MealType[]) {
@@ -127,10 +135,16 @@ export function regenerateMeal(plan: MealPlan, profile: UserProfile, dayNumber: 
     return plan;
   }
 
-  const replacements = getMealSubstitutions(currentMeal, profile, 8);
-  const replacement = replacements[(dayNumber + mealIndex) % Math.max(replacements.length, 1)];
+  // Walk the compatible pool in a stable order starting after the current meal, so
+  // repeated clicks cycle through every alternative instead of bouncing on one.
+  const pool = getMealPool(currentMeal.mealType, normalizeProfile(profile)).sort(
+    (a, b) => a.calories - b.calories || a.id.localeCompare(b.id),
+  );
+  const currentIndex = pool.findIndex((candidate) => candidate.id === currentMeal.id);
+  const replacement = pool[(currentIndex + 1) % Math.max(pool.length, 1)];
 
-  if (!replacement) {
+  if (!replacement || replacement.id === currentMeal.id) {
+    // No compatible alternative: return the same reference so callers can tell the user.
     return plan;
   }
 

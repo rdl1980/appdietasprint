@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAuthenticatedSupabaseClient } from "@/lib/supabase/data";
-import { profileToRow } from "@/lib/databaseMappers";
+import { profileFromRow, profileRowColumns, profileToRow, type ProfileRow } from "@/lib/databaseMappers";
 import { loginRequiredResponse, rateLimit, readJsonBody } from "@/lib/api";
 import { validateProfile } from "@/lib/profileValidation";
 
@@ -8,6 +8,41 @@ type UpdateProfileBody = {
   profileId: string;
   profile: unknown;
 };
+
+/** Latest saved profile of the caller, used to prefill the planner on a new device. */
+export async function GET(request: NextRequest) {
+  const { supabase, user, unavailableReason } = await createAuthenticatedSupabaseClient(request);
+
+  if (!user) {
+    return loginRequiredResponse(request);
+  }
+
+  if (!supabase) {
+    const status = unavailableReason === "data_service_not_configured" ? 503 : 401;
+    return NextResponse.json({ error: "Profilo non disponibile." }, { status });
+  }
+
+  const { data, error } = await supabase
+    .from("user_profiles")
+    .select(profileRowColumns)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("profile_fetch_failed", { userId: user.id, error: error.message });
+    return NextResponse.json({ error: "Profilo non disponibile." }, { status: 500 });
+  }
+
+  if (!data) {
+    return NextResponse.json({ profile: null }, { headers: { "Cache-Control": "no-store" } });
+  }
+
+  const row = data as unknown as ProfileRow & { id: string };
+
+  return NextResponse.json({ profileId: row.id, profile: profileFromRow(row) }, { headers: { "Cache-Control": "no-store" } });
+}
 
 export async function PATCH(request: NextRequest) {
   const limited = rateLimit(request, {

@@ -39,6 +39,7 @@ const legacyProfileStorageKey = "dietaSprintProfile";
 export function ResultsClient({ planTier }: ResultsClientProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [plan, setPlan] = useState<MealPlan | null>(null);
+  const [regenerateNotice, setRegenerateNotice] = useState("");
   const isPremium = planTier === "premium";
 
   useEffect(() => {
@@ -57,9 +58,29 @@ export function ResultsClient({ planTier }: ResultsClientProps) {
       return;
     }
 
-    if (isPremium) {
-      setPlan(regenerateMeal(plan, profile, dayNumber, mealIndex));
+    if (!isPremium) {
+      return;
     }
+
+    const nextPlan = regenerateMeal(plan, profile, dayNumber, mealIndex);
+    setRegenerateNotice(
+      nextPlan === plan ? "Nessuna alternativa compatibile per questo pasto: allarga esclusioni o tipo dieta nel planner." : "",
+    );
+    setPlan(nextPlan);
+  }
+
+  function regenerateWholeDay(dayNumber: number) {
+    if (!profile || !plan || !isPremium) {
+      return;
+    }
+
+    const day = plan.days.find((candidate) => candidate.day === dayNumber);
+    const nextPlan = (day?.meals || []).reduce(
+      (current, _meal, mealIndex) => regenerateMeal(current, profile, dayNumber, mealIndex),
+      plan,
+    );
+    setRegenerateNotice(nextPlan === plan ? "Nessuna alternativa compatibile per i pasti di questo giorno." : "");
+    setPlan(nextPlan);
   }
 
   if (!profile || !plan) {
@@ -163,11 +184,16 @@ export function ResultsClient({ planTier }: ResultsClientProps) {
             <h2 className="text-2xl font-black text-ink">Piano 1 giorno</h2>
             <p className="text-sm text-ink/60">{firstDay.label}: {firstDay.calories} kcal circa</p>
           </div>
-          <Button type="button" variant="secondary" size="sm" disabled={!isPremium}>
+          <Button type="button" variant="secondary" size="sm" disabled={!isPremium} onClick={() => regenerateWholeDay(firstDay.day)}>
             <RefreshCw size={16} aria-hidden="true" />
-            {isPremium ? "Rigenera" : "Premium"}
+            {isPremium ? "Rigenera giorno" : "Premium"}
           </Button>
         </div>
+        {regenerateNotice ? (
+          <div className="mb-4">
+            <WarningBox>{regenerateNotice}</WarningBox>
+          </div>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {firstDay.meals.map((meal, index) => (
             <MealCard

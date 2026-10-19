@@ -34,12 +34,22 @@ export function SavePlanButton({ profile, plan, disabled = false }: SavePlanButt
     }
 
     setIsSaving(true);
-    const response = await fetch("/api/plans", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ profile, plan, privacyConsent: accepted }),
-    });
-    const data = (await response.json()) as { error?: string; planId?: string; loginUrl?: string };
+    let response: Response;
+    let data: { error?: string; planId?: string; loginUrl?: string } = {};
+
+    try {
+      response = await fetch("/api/plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile, plan, privacyConsent: accepted }),
+      });
+      data = (await response.json().catch(() => ({}))) as typeof data;
+    } catch {
+      setIsSaving(false);
+      setError("Connessione assente o instabile: il piano non e' stato salvato. Riprova tra qualche secondo.");
+      return;
+    }
+
     setIsSaving(false);
 
     if (response.status === 401 && data.loginUrl) {
@@ -48,7 +58,7 @@ export function SavePlanButton({ profile, plan, disabled = false }: SavePlanButt
     }
 
     if (!response.ok) {
-      setError(data.error || "Salvataggio non riuscito.");
+      setError(data.error || `Salvataggio non riuscito (errore ${response.status}).`);
       return;
     }
 

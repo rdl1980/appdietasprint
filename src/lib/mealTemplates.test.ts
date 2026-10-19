@@ -37,11 +37,11 @@ describe("meal templates catalogue", () => {
     }
   });
 
-  it.each(allDietTypes)("offers at least one template per meal type for %s", (dietType) => {
+  it.each(allDietTypes)("offers at least four templates per meal type for %s so weeks do not repeat", (dietType) => {
     for (const mealType of mealTypes) {
       const matches = mealTemplates.filter((meal) => meal.mealType === mealType && meal.dietTypes.includes(dietType));
 
-      expect(matches.length, `${dietType}/${mealType}`).toBeGreaterThan(0);
+      expect(matches.length, `${dietType}/${mealType}`).toBeGreaterThanOrEqual(4);
     }
   });
 

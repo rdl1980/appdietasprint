@@ -58,7 +58,32 @@ export function PlannerClient() {
       window.localStorage.getItem(legacyProfileStorageKey);
 
     if (!stored) {
-      return;
+      // New device or cleared storage: fall back to the last profile saved in the account.
+      let cancelled = false;
+
+      (async () => {
+        try {
+          const response = await fetch("/api/profile", { headers: { Accept: "application/json" } });
+
+          if (!response.ok || cancelled) {
+            return;
+          }
+
+          const data = (await response.json()) as { profile?: UserProfile | null };
+
+          if (data.profile && !cancelled) {
+            setProfile({ ...initialProfile, ...data.profile });
+            setExcludedText((data.profile.excludedFoods || []).join(", "));
+            setDraftStatus("Profilo caricato dal tuo account.");
+          }
+        } catch {
+          // Anonymous visitor or offline: keep the defaults.
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
     }
 
     try {
