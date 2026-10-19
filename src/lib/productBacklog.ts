@@ -30,7 +30,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ops-supabase-restore",
     title: "Ripristino database Supabase",
-    detail: "Progetto, schema, utenti, variabili Vercel, Site URL, redirect URL, SMTP Resend e template email (conferma e recupero via token_hash) configurati il 19 ottobre. Resta solo il test di registrazione reale.",
+    detail: "Completato il 19 ottobre: progetto, schema, utenti, variabili Vercel, Site URL, redirect URL, SMTP Resend e template email. Registrazione reale verificata: email di conferma via Resend, link token_hash, login riuscito.",
     area: "Fondamenta",
     priority: "P0",
     status: "done",
@@ -54,7 +54,7 @@ export const backlogItems: BacklogItem[] = [
   {
     id: "ops-production-smoke",
     title: "Verifica end-to-end in produzione",
-    detail: "Suite anonima npm run test:e2e:production eseguita e verde; resta il giro autenticato (login, salvataggio, export, admin) con un account di test. Vedi docs/go-live-checklist.md.",
+    detail: "Smoke anonimo verde e registrazione con conferma email verificata il 19 ottobre. Restano: salvataggio piano, storico, export dati, recupero password e pannelli admin con un account di test (npm run test:e2e:production con E2E_TEST_EMAIL/PASSWORD).",
     area: "Qualita",
     priority: "P0",
     status: "next",

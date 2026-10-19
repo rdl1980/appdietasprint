@@ -31,6 +31,8 @@ Verifica: registrazione con una email nuova da https://dietsprintai.com/register
 
 ## 2. Verifica end-to-end in produzione
 
+Verificato il 19 ottobre: registrazione dal sito, email di conferma inviata via Resend, link `token_hash` gestito da `/auth/confirm`, login con password riuscito (utente di prova confermato in `auth.users`).
+
 Anonima, da terminale:
 
 ```bash
